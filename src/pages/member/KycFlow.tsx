@@ -50,6 +50,7 @@ import {
   NEPAL_DISTRICTS,
   NEPAL_MUNICIPALITIES,
   NEPAL_PROVINCES,
+  translateKycOption,
 } from "../../lib/nepalData";
 import type { Member } from "../../lib/types";
 
@@ -201,6 +202,7 @@ function DocRow({
   onChange: (d: Doc) => void;
 }) {
   const ref = useRef<HTMLInputElement>(null);
+  const { t } = useI18n();
 
   return (
     <div className="flex items-center justify-between gap-3 border-b border-slate-100 py-2.5 last:border-0">
@@ -214,7 +216,7 @@ function DocRow({
         )}
         {value.dataUrl && (
           <p className="mt-0.5 flex items-center gap-1 text-[11px] font-semibold text-emerald-700">
-            <CheckCircle2 className="h-3 w-3 shrink-0" /> {value.name || "Attached"}
+            <CheckCircle2 className="h-3 w-3 shrink-0" /> {value.name || t("attached")}
           </p>
         )}
       </div>
@@ -225,7 +227,7 @@ function DocRow({
             onClick={() => onChange(emptyDoc())}
             className="flex items-center gap-1 rounded border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 cursor-pointer"
           >
-            <X className="h-3.5 w-3.5" /> Remove
+            <X className="h-3.5 w-3.5" /> {t("remove")}
           </button>
         ) : (
           <button
@@ -233,7 +235,7 @@ function DocRow({
             onClick={() => ref.current?.click()}
             className="flex items-center gap-1.5 rounded border border-[#145C45] bg-white px-3 py-1.5 text-xs font-bold text-[#145C45] shadow-sm transition hover:bg-[#DDF3E7] active:scale-95 cursor-pointer"
           >
-            <Upload className="h-3.5 w-3.5" /> UPLOAD
+            <Upload className="h-3.5 w-3.5" /> {t("upload")}
           </button>
         )}
         <input
@@ -316,7 +318,7 @@ function LivePreview({
         {hasData && (
           <div className="px-4 pb-3">
             <p className="text-[10px] text-slate-400 italic">
-              Your data is auto-saved as you type.
+              {t("autoSaved")}
             </p>
           </div>
         )}
@@ -424,7 +426,7 @@ function WizardShell({
 // ═══════════════════════════════════════════════════════════════════════════════
 export default function KycFlow({ code }: { code: string }) {
   const { state, findByInviteCode, submitKyc, resendInvite } = useStore();
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const org = state.orgSettings;
   const member = useMemo(() => findByInviteCode(code), [state.members, code]);
 
@@ -521,43 +523,43 @@ export default function KycFlow({ code }: { code: string }) {
 
   // ── Validation helpers ─────────────────────────────────────────────────────
   const validateGeneral = () => {
-    if (!general.clientType) return "Please select a Client Type.";
-    if (!general.memberBranch) return "Please select a Member Branch.";
+    if (!general.clientType) return t("errClientType");
+    if (!general.memberBranch) return t("errBranch");
     if (!general.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(general.email))
-      return "Please enter a valid Email address.";
+      return t("errEmail");
     return "";
   };
 
   const validateAddress = () => {
-    if (!addr.state) return "Please select your Province / State.";
-    if (!addr.district) return "Please select your District.";
-    if (!addr.municipality) return "Please select your Municipality.";
-    if (!addr.wardNo.trim()) return "Please enter your Ward Number.";
-    if (!addr.streetTole.trim()) return "Please enter your Street / Tole.";
+    if (!addr.state) return t("errProvince");
+    if (!addr.district) return t("errDistrict");
+    if (!addr.municipality) return t("errMunicipality");
+    if (!addr.wardNo.trim()) return t("errWard");
+    if (!addr.streetTole.trim()) return t("errStreet");
     if (addr.hasTempAddress && !addr.sameAsPermanent) {
-      if (!addr.tempState) return "Please select Province for Temporary Address.";
-      if (!addr.tempDistrict) return "Please select District for Temporary Address.";
-      if (!addr.tempMunicipality) return "Please select Municipality for Temporary Address.";
-      if (!addr.tempWardNo.trim()) return "Please enter Ward No for Temporary Address.";
-      if (!addr.tempStreetTole.trim()) return "Please enter Street/Tole for Temporary Address.";
+      if (!addr.tempState) return t("errTempProvince");
+      if (!addr.tempDistrict) return t("errTempDistrict");
+      if (!addr.tempMunicipality) return t("errTempMunicipality");
+      if (!addr.tempWardNo.trim()) return t("errTempWard");
+      if (!addr.tempStreetTole.trim()) return t("errTempStreet");
     }
     return "";
   };
 
   const validateDocs = () => {
-    if (!docs.citizenshipFront.dataUrl) return "Please upload Citizenship Certificate (Front).";
-    if (!docs.selfie.dataUrl) return "Please upload Selfie with Citizenship.";
-    if (!docs.photo.dataUrl) return "Please upload your Photo.";
-    if (!docs.nationalId.dataUrl) return "Please upload your National ID.";
+    if (!docs.citizenshipFront.dataUrl) return t("errCitizenshipFront");
+    if (!docs.selfie.dataUrl) return t("errSelfie");
+    if (!docs.photo.dataUrl) return t("errPhoto");
+    if (!docs.nationalId.dataUrl) return t("errNationalId");
     return "";
   };
 
   // ── Screen handlers ────────────────────────────────────────────────────────
   const handleVerifyOtp = () => {
     const entered = otp.join("");
-    if (entered.length < 6) { setOtpError("Please enter all 6 digits."); return; }
+    if (entered.length < 6) { setOtpError(t("otpIncomplete")); return; }
     if (!member) return;
-    if (entered !== member.otp) { setOtpError("Incorrect OTP. Please check the code sent to your phone."); return; }
+    if (entered !== member.otp) { setOtpError(t("otpIncorrect")); return; }
     setOtpError("");
     setVerifiedOtp(entered);
     setScreen("general");
@@ -585,7 +587,7 @@ export default function KycFlow({ code }: { code: string }) {
   };
 
   const handleSubmit = () => {
-    if (!agreed) { setSubmitErr("Please read and accept the agreement before submitting."); return; }
+    if (!agreed) { setSubmitErr(t("errAgree")); return; }
     if (!member) return;
     setSubmitErr("");
     setSubmitting(true);
@@ -645,7 +647,7 @@ export default function KycFlow({ code }: { code: string }) {
       if (result.ok) {
         setScreen("success");
       } else {
-        setSubmitErr(result.error ?? "Submission failed. Please try again.");
+        setSubmitErr(result.error ?? t("submitFailed"));
       }
     }, 800);
   };
@@ -712,7 +714,7 @@ export default function KycFlow({ code }: { code: string }) {
             </div>
             <div className="flex justify-between">
               <dt className="text-slate-400">{t("successBranch")}</dt>
-              <dd className="font-bold text-slate-800">{general.memberBranch}</dd>
+              <dd className="font-bold text-slate-800">{translateKycOption(general.memberBranch, lang)}</dd>
             </div>
             <div className="flex justify-between">
               <dt className="text-slate-400">{t("successSubmittedAt")}</dt>
@@ -722,10 +724,10 @@ export default function KycFlow({ code }: { code: string }) {
         </div>
         <div className="flex w-full max-w-xs flex-col gap-2">
           <button
-            onClick={() => navigate("/admin")}
+            onClick={() => navigate("/")}
             className="w-full rounded-xl bg-[#145C45] py-3 text-sm font-bold text-white transition hover:bg-[#0f4534] cursor-pointer"
           >
-            {t("goToManagerPortal")}
+            {t("backToHome")}
           </button>
           <button
             onClick={() => setScreen("status")}
@@ -779,7 +781,7 @@ export default function KycFlow({ code }: { code: string }) {
                 <button
                   type="button"
                   onClick={() => setOtp(member.otp.split(""))}
-                  title="Click to auto-fill OTP (demo mode)"
+                  title={t("otpAutoFillTitle")}
                   className="font-mono font-extrabold text-amber-600 underline underline-offset-2 cursor-pointer"
                 >
                   {member.otp}
@@ -856,7 +858,9 @@ export default function KycFlow({ code }: { code: string }) {
 
             <div className="mt-4 text-center">
               {secondsLeft > 0 ? (
-                <p className="text-xs text-slate-400">Resend OTP in <span className="font-bold text-[#145C45]">{secondsLeft}s</span></p>
+                <p className="text-xs text-slate-400">
+                  {t("otpResendCountdown", { seconds: secondsLeft })}
+                </p>
               ) : (
                 <button
                   onClick={() => {
@@ -878,7 +882,7 @@ export default function KycFlow({ code }: { code: string }) {
             <p className="text-[10px] text-[#145C45] font-semibold">
               {org.nameNepali} &middot; {org.nameEnglish}
             </p>
-            <p className="text-[10px] text-slate-400">Secure KYC Verification Portal</p>
+            <p className="text-[10px] text-slate-400">{t("secureKycPortal")}</p>
           </div>
         </div>
 
@@ -907,8 +911,8 @@ export default function KycFlow({ code }: { code: string }) {
                   className={selectCls}
                 >
                   <option value="">{t("clientTypeSelect")}</option>
-                  {CLIENT_TYPES.map((t2) => (
-                    <option key={t2} value={t2}>{t2}</option>
+                  {CLIENT_TYPES.map((type) => (
+                    <option key={type} value={type}>{translateKycOption(type, lang)}</option>
                   ))}
                 </select>
               </FormRow>
@@ -937,7 +941,7 @@ export default function KycFlow({ code }: { code: string }) {
                         className="h-4 w-4"
                         style={{ accentColor: "#145C45" }}
                       />
-                      {v.toUpperCase()}
+                      {translateKycOption(v, lang)}
                     </label>
                   ))}
                 </div>
@@ -952,7 +956,7 @@ export default function KycFlow({ code }: { code: string }) {
                 >
                   <option value="">{t("memberBranchSelect")}</option>
                   {MEMBER_BRANCHES.map((b) => (
-                    <option key={b} value={b}>{b}</option>
+                    <option key={b} value={b}>{translateKycOption(b, lang)}</option>
                   ))}
                 </select>
               </FormRow>
@@ -963,7 +967,7 @@ export default function KycFlow({ code }: { code: string }) {
                   type="text"
                   value={general.panNumber}
                   onChange={(e) => setGeneral({ ...general, panNumber: e.target.value })}
-                  placeholder={"PAN Number (optional)"}
+                  placeholder={t("panOptional")}
                   className={inputCls}
                 />
               </FormRow>
@@ -974,7 +978,7 @@ export default function KycFlow({ code }: { code: string }) {
                   type="email"
                   value={general.email}
                   onChange={(e) => setGeneral({ ...general, email: e.target.value })}
-                  placeholder="Email address"
+                  placeholder={t("emailPlaceholder")}
                   className={inputCls}
                 />
               </FormRow>
@@ -1003,10 +1007,10 @@ export default function KycFlow({ code }: { code: string }) {
             memberName={memberName}
             memberPhone={memberPhone}
             rows={[
-              { label: t("clientType"), value: general.clientType },
+              { label: t("clientType"), value: translateKycOption(general.clientType, lang) },
               { label: t("mobileNumber"), value: member.phone },
-              { label: t("submission"), value: general.submissionType.toUpperCase() },
-              { label: t("memberBranch"), value: general.memberBranch },
+              { label: t("submission"), value: translateKycOption(general.submissionType, lang) },
+              { label: t("memberBranch"), value: translateKycOption(general.memberBranch, lang) },
               { label: t("panNumber"), value: general.panNumber },
               { label: t("email"), value: general.email },
             ]}
@@ -1054,7 +1058,7 @@ export default function KycFlow({ code }: { code: string }) {
                   className={selectCls}
                 >
                   {COUNTRIES.map((c) => (
-                    <option key={c} value={c}>{c}</option>
+                    <option key={c} value={c}>{translateKycOption(c, lang)}</option>
                   ))}
                 </select>
               </FormRow>
@@ -1065,9 +1069,9 @@ export default function KycFlow({ code }: { code: string }) {
                   onChange={(e) => setAddr({ ...addr, state: e.target.value, district: "", municipality: "" })}
                   className={selectCls}
                 >
-                  <option value="">Select State</option>
+                  <option value="">{t("selectState")}</option>
                   {NEPAL_PROVINCES.map((p) => (
-                    <option key={p} value={p}>{p}</option>
+                    <option key={p} value={p}>{translateKycOption(p, lang)}</option>
                   ))}
                 </select>
               </FormRow>
@@ -1079,9 +1083,9 @@ export default function KycFlow({ code }: { code: string }) {
                   className={selectCls}
                   disabled={!addr.state}
                 >
-                  <option value="">Select District</option>
+                  <option value="">{t("selectDistrict")}</option>
                   {districts.map((d) => (
-                    <option key={d} value={d}>{d}</option>
+                    <option key={d} value={d}>{translateKycOption(d, lang)}</option>
                   ))}
                 </select>
               </FormRow>
@@ -1093,14 +1097,18 @@ export default function KycFlow({ code }: { code: string }) {
                   className={selectCls}
                   disabled={!addr.district}
                 >
-                  <option value="">Select Municipality</option>
+                  <option value="">{t("selectMunicipality")}</option>
                   {municipalities.map((m) => (
-                    <option key={m} value={m}>{m}</option>
+                    <option key={m} value={m}>{translateKycOption(m, lang)}</option>
                   ))}
                   {addr.district && (
                     <>
-                      <option value={`${addr.district} Municipality`}>{addr.district} Municipality</option>
-                      <option value={`${addr.district} Rural Municipality`}>{addr.district} Rural Municipality</option>
+                      <option value={`${addr.district} Municipality`}>
+                        {translateKycOption(`${addr.district} Municipality`, lang)}
+                      </option>
+                      <option value={`${addr.district} Rural Municipality`}>
+                        {translateKycOption(`${addr.district} Rural Municipality`, lang)}
+                      </option>
                     </>
                   )}
                 </select>
@@ -1111,7 +1119,7 @@ export default function KycFlow({ code }: { code: string }) {
                   type="text"
                   value={addr.wardNo}
                   onChange={(e) => setAddr({ ...addr, wardNo: e.target.value })}
-                  placeholder="Ward Number"
+                  placeholder={t("wardNumberPlaceholder")}
                   className={inputCls}
                 />
               </FormRow>
@@ -1121,7 +1129,7 @@ export default function KycFlow({ code }: { code: string }) {
                   type="text"
                   value={addr.streetTole}
                   onChange={(e) => setAddr({ ...addr, streetTole: e.target.value })}
-                  placeholder="Street/Tole"
+                  placeholder={t("streetTolePlaceholder")}
                   className={inputCls}
                 />
               </FormRow>
@@ -1145,7 +1153,7 @@ export default function KycFlow({ code }: { code: string }) {
                 onClick={() => setAddr({ ...addr, hasTempAddress: !addr.hasTempAddress })}
                 className="mt-2 flex items-center gap-1 text-sm font-semibold text-[#145C45] hover:underline cursor-pointer"
               >
-                {addr.hasTempAddress ? t("hideTemporaryAddress") : t("addTemporaryAddress")} Temporary Address
+                {addr.hasTempAddress ? t("hideTemporaryAddress") : t("addTemporaryAddress")}
               </button>
 
               {addr.hasTempAddress && !addr.sameAsPermanent && (
@@ -1154,43 +1162,47 @@ export default function KycFlow({ code }: { code: string }) {
 
                   <FormRow label={t("tempCountry")} required half>
                     <select value={addr.tempCountry} onChange={(e) => setAddr({ ...addr, tempCountry: e.target.value })} className={selectCls}>
-                      {COUNTRIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                      {COUNTRIES.map((c) => <option key={c} value={c}>{translateKycOption(c, lang)}</option>)}
                     </select>
                   </FormRow>
 
                   <FormRow label={t("stateProvince")} required half>
                     <select value={addr.tempState} onChange={(e) => setAddr({ ...addr, tempState: e.target.value, tempDistrict: "", tempMunicipality: "" })} className={selectCls}>
-                      <option value="">Select State</option>
-                      {NEPAL_PROVINCES.map((p) => <option key={p} value={p}>{p}</option>)}
+                      <option value="">{t("selectState")}</option>
+                      {NEPAL_PROVINCES.map((p) => <option key={p} value={p}>{translateKycOption(p, lang)}</option>)}
                     </select>
                   </FormRow>
 
                   <FormRow label={t("district")} required half>
                     <select value={addr.tempDistrict} onChange={(e) => setAddr({ ...addr, tempDistrict: e.target.value, tempMunicipality: "" })} className={selectCls} disabled={!addr.tempState}>
-                      <option value="">Select District</option>
-                      {tempDistricts.map((d) => <option key={d} value={d}>{d}</option>)}
+                      <option value="">{t("selectDistrict")}</option>
+                      {tempDistricts.map((d) => <option key={d} value={d}>{translateKycOption(d, lang)}</option>)}
                     </select>
                   </FormRow>
 
                   <FormRow label={t("municipality")} required half>
                     <select value={addr.tempMunicipality} onChange={(e) => setAddr({ ...addr, tempMunicipality: e.target.value })} className={selectCls} disabled={!addr.tempDistrict}>
-                      <option value="">Select Municipality</option>
-                      {tempMunicipalities.map((m) => <option key={m} value={m}>{m}</option>)}
+                      <option value="">{t("selectMunicipality")}</option>
+                      {tempMunicipalities.map((m) => <option key={m} value={m}>{translateKycOption(m, lang)}</option>)}
                       {addr.tempDistrict && (
                         <>
-                          <option value={`${addr.tempDistrict} Municipality`}>{addr.tempDistrict} Municipality</option>
-                          <option value={`${addr.tempDistrict} Rural Municipality`}>{addr.tempDistrict} Rural Municipality</option>
+                          <option value={`${addr.tempDistrict} Municipality`}>
+                            {translateKycOption(`${addr.tempDistrict} Municipality`, lang)}
+                          </option>
+                          <option value={`${addr.tempDistrict} Rural Municipality`}>
+                            {translateKycOption(`${addr.tempDistrict} Rural Municipality`, lang)}
+                          </option>
                         </>
                       )}
                     </select>
                   </FormRow>
 
                   <FormRow label={t("wardNo")} required half>
-                    <input type="text" value={addr.tempWardNo} onChange={(e) => setAddr({ ...addr, tempWardNo: e.target.value })} placeholder="Ward Number" className={inputCls} />
+                    <input type="text" value={addr.tempWardNo} onChange={(e) => setAddr({ ...addr, tempWardNo: e.target.value })} placeholder={t("wardNumberPlaceholder")} className={inputCls} />
                   </FormRow>
 
                   <FormRow label={t("streetTole")} required half>
-                    <input type="text" value={addr.tempStreetTole} onChange={(e) => setAddr({ ...addr, tempStreetTole: e.target.value })} placeholder="Street/Tole" className={inputCls} />
+                    <input type="text" value={addr.tempStreetTole} onChange={(e) => setAddr({ ...addr, tempStreetTole: e.target.value })} placeholder={t("streetTolePlaceholder")} className={inputCls} />
                   </FormRow>
                 </div>
               )}
@@ -1442,7 +1454,7 @@ export default function KycFlow({ code }: { code: string }) {
             <div className="sticky top-4 rounded-xl border border-[#DDF3E7] bg-white shadow-sm overflow-hidden">
               <div className="bg-[#145C45] px-4 py-3 flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-[#DDF3E7] shrink-0" />
-                <span className="text-xs font-bold text-white">Application Summary</span>
+                <span className="text-xs font-bold text-white">{t("applicationSummary")}</span>
               </div>
               <div className="px-4 py-3 space-y-2">
                 <div className="flex items-center gap-2 py-1 border-b border-[#DDF3E7]">
@@ -1454,15 +1466,15 @@ export default function KycFlow({ code }: { code: string }) {
                     <p className="text-[10px] text-slate-500">+977 {memberPhone}</p>
                   </div>
                 </div>
-                <PreviewRow label="Client Type" value={general.clientType} />
-                <PreviewRow label="Branch" value={general.memberBranch} />
-                <PreviewRow label="Email" value={general.email} />
-                <PreviewRow label="Province" value={addr.state} />
-                <PreviewRow label="District" value={addr.district} />
-                <PreviewRow label="Municipality" value={addr.municipality} />
-                <PreviewRow label="Ward No" value={addr.wardNo} />
+                <PreviewRow label={t("clientType")} value={translateKycOption(general.clientType, lang)} />
+                <PreviewRow label={t("memberBranch")} value={translateKycOption(general.memberBranch, lang)} />
+                <PreviewRow label={t("email")} value={general.email} />
+                <PreviewRow label={t("stateProvince")} value={translateKycOption(addr.state, lang)} />
+                <PreviewRow label={t("district")} value={translateKycOption(addr.district, lang)} />
+                <PreviewRow label={t("municipality")} value={translateKycOption(addr.municipality, lang)} />
+                <PreviewRow label={t("wardNo")} value={addr.wardNo} />
                 <div className="pt-1">
-                  <p className="text-[10px] font-bold text-[#145C45] uppercase tracking-wide mb-1">Documents</p>
+                  <p className="text-[10px] font-bold text-[#145C45] uppercase tracking-wide mb-1">{t("documents")}</p>
                   <p className="text-xs font-semibold text-slate-700">
                     {Object.values(docs).filter((d) => d.dataUrl).length} of {Object.keys(docs).length} uploaded
                   </p>
@@ -1545,21 +1557,12 @@ function MemberStatusScreen({ member }: { member: Member }) {
         </dl>
       </div>
 
-      {member.status === "approved" || member.status === "printed" ? (
-        <button
-          onClick={() => navigate("/")}
-          className="rounded-xl bg-[#145C45] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#0f4534]"
-        >
-          {t("backToHome")}
-        </button>
-      ) : (
-        <button
-          onClick={() => navigate("/admin")}
-          className="rounded-xl bg-[#145C45] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#0f4534]"
-        >
-          {t("goToManagerPortal")}
-        </button>
-      )}
+      <button
+        onClick={() => navigate("/")}
+        className="rounded-xl bg-[#145C45] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#0f4534]"
+      >
+        {t("backToHome")}
+      </button>
     </div>
   );
 }

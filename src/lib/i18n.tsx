@@ -18,6 +18,23 @@ const en = {
   memberPortalHint: "Enter your invitation code received via SMS to complete verification.",
   country: "Country",
   province: "Province",
+  selectState: "Select State",
+  selectDistrict: "Select District",
+  selectMunicipality: "Select Municipality",
+  panOptional: "PAN Number (optional)",
+  emailPlaceholder: "Email address",
+  wardNumberPlaceholder: "Ward Number",
+  streetTolePlaceholder: "Street / Tole",
+  otpResendCountdown: "Resend OTP in {seconds}s",
+  otpIncomplete: "Please enter all 6 digits.",
+  otpAutoFillTitle: "Click to auto-fill OTP (demo mode)",
+  secureKycPortal: "Secure KYC Verification Portal",
+  attached: "Attached",
+  remove: "Remove",
+  upload: "Upload",
+  autoSaved: "Your data is auto-saved as you type.",
+  otpIncorrect: "Incorrect OTP. Please check the code sent to your phone.",
+  submitFailed: "Submission failed. Please try again.",
 
   // ── Member KYC – OTP screen ───────────────────────────────────────────────
   otpTitle: "OTP Verification",
@@ -118,7 +135,7 @@ const en = {
   successSubmittedAt: "Submitted At",
   goToManagerPortal: "Go to Manager Portal",
   trackApplication: "Track Application Status",
-  backToHome: "Back to Home",
+  backToHome: "Back to Main Page",
 
   // ── Member KYC – status screen ────────────────────────────────────────────
   statusMsgSubmitted: "Your KYC has been received and is in the review queue.",
@@ -214,6 +231,23 @@ const ne: Record<TranslationKey, string> = {
   memberPortalHint: "सत्यापन पूरा गर्न आफ्नो SMS मा पठाइएको निमन्त्रणा कोड प्रविष्ट गर्नुहोस्।",
   country: "देश",
   province: "प्रदेश",
+  selectState: "प्रदेश छान्नुहोस्",
+  selectDistrict: "जिल्ला छान्नुहोस्",
+  selectMunicipality: "पालिका छान्नुहोस्",
+  panOptional: "प्यान नम्बर (वैकल्पिक)",
+  emailPlaceholder: "इमेल ठेगाना",
+  wardNumberPlaceholder: "वडा नम्बर",
+  streetTolePlaceholder: "सडक / टोल",
+  otpResendCountdown: "{seconds} सेकेन्डमा OTP पुनः पठाउन सकिन्छ",
+  otpIncomplete: "कृपया ६ वटै अंक प्रविष्ट गर्नुहोस्।",
+  otpAutoFillTitle: "डेमोमा OTP स्वतः भर्न क्लिक गर्नुहोस्",
+  secureKycPortal: "सुरक्षित KYC प्रमाणीकरण पोर्टल",
+  attached: "संलग्न गरिएको",
+  remove: "हटाउनुहोस्",
+  upload: "अपलोड गर्नुहोस्",
+  autoSaved: "तपाईंले लेख्दै गर्दा विवरण स्वतः सुरक्षित हुन्छ।",
+  otpIncorrect: "OTP मिलेन। कृपया फोनमा पठाइएको कोड जाँच गर्नुहोस्।",
+  submitFailed: "पेश गर्न सकिएन। कृपया पुनः प्रयास गर्नुहोस्।",
 
   // ── Member KYC – OTP screen ───────────────────────────────────────────────
   otpTitle: "OTP प्रमाणीकरण",
@@ -307,14 +341,14 @@ const ne: Record<TranslationKey, string> = {
 
   // ── Member KYC – success screen ───────────────────────────────────────────
   successTitle: "KYC सफलतापूर्वक पेश भयो!",
-  successThankYou: "धन्यवाद {name}, तपाईंको आवेदन र कागजातहरू सफलतापूर्वक सही गरियो। अब यसको अवस्था समीक्षाका लागि पर्छ।",
+  successThankYou: "धन्यवाद {name}। तपाईंको आवेदन र कागजातहरू सुरक्षित गरिएका छन्। आवेदनको अवस्था अहिले समीक्षाधीन छ।",
   successMemberCode: "सदस्य कोड",
   successEmail: "इमेल",
   successBranch: "कार्यालय",
   successSubmittedAt: "पेश भएको समय",
   goToManagerPortal: "व्यवस्थापक पोर्टलमा जाऊनुहोस्",
-  trackApplication: "आवेदन अवस्था छुनुहोस्",
-  backToHome: "घर परेर जानुहोस्",
+  trackApplication: "आवेदनको स्थिति हेर्नुहोस्",
+  backToHome: "मुख्य पृष्ठमा फर्कनुहोस्",
 
   // ── Member KYC – status screen ────────────────────────────────────────────
   statusMsgSubmitted: "तपाईंको KYC प्राप्त भयो र समीक्षाको प्रतीक्षामा छ।",
@@ -381,7 +415,7 @@ const ne: Record<TranslationKey, string> = {
   signingIn: "साइन इन गरिँदैछ…",
   password: "पासवर्ड",
   invalidCredentials: "इमेल वा पासवर्ड गलत छ। कृपया पुनः प्रयास गर्नुहोस्।",
-  returnToHome: "घर परेर जानुहोस्",
+  returnToHome: "मुख्य पृष्ठमा फर्कनुहोस्",
   logout: "लगआउट",
 
   // ── SMS modal ─────────────────────────────────────────────────────────────
