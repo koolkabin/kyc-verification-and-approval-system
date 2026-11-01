@@ -119,36 +119,36 @@ export default function SubmissionDetail({ id }: { id: string }) {
           Submitted KYC Information
         </h3>
         <dl className="space-y-2.5 text-xs sm:text-sm">
-          <div className="flex justify-between gap-4 py-1 border-b border-slate-50">
+          <div className="grid grid-cols-1 gap-1 py-1 border-b border-slate-50 sm:flex sm:justify-between sm:gap-4">
             <dt className="text-slate-500 font-medium">Residential Address</dt>
-            <dd className="text-right font-bold text-slate-900 max-w-[65%]">
+            <dd className="break-words font-bold text-slate-900 sm:max-w-[65%] sm:text-right">
               {sub.address || "—"}
             </dd>
           </div>
-          <div className="flex justify-between gap-4 py-1 border-b border-slate-50">
+          <div className="grid grid-cols-1 gap-1 py-1 border-b border-slate-50 sm:flex sm:justify-between sm:gap-4">
             <dt className="text-slate-500 font-medium">Document Proof Type</dt>
-            <dd className="text-right font-bold text-slate-900">
+            <dd className="break-words font-bold text-slate-900 sm:text-right">
               {sub.idDocType ?? "Government ID"}
             </dd>
           </div>
-          <div className="flex justify-between gap-4 py-1 border-b border-slate-50">
+          <div className="grid grid-cols-1 gap-1 py-1 border-b border-slate-50 sm:flex sm:justify-between sm:gap-4">
             <dt className="text-slate-500 font-medium">Submitted On</dt>
-            <dd className="text-right font-bold text-slate-800">
+            <dd className="break-words font-bold text-slate-800 sm:text-right">
               {formatDateTime(sub.submittedAt)}
             </dd>
           </div>
           {sub.reviewedAt && (
-            <div className="flex justify-between gap-4 py-1 border-b border-slate-50">
+            <div className="grid grid-cols-1 gap-1 py-1 border-b border-slate-50 sm:flex sm:justify-between sm:gap-4">
               <dt className="text-slate-500 font-medium">Review Decision</dt>
-              <dd className="text-right font-bold text-slate-800">
+              <dd className="break-words font-bold text-slate-800 sm:text-right">
                 {formatDateTime(sub.reviewedAt)} · {sub.reviewedBy}
               </dd>
             </div>
           )}
           {sub.printedAt && (
-            <div className="flex justify-between gap-4 py-1 border-b border-slate-50">
+            <div className="grid grid-cols-1 gap-1 py-1 border-b border-slate-50 sm:flex sm:justify-between sm:gap-4">
               <dt className="text-slate-500 font-medium">Printed At</dt>
-              <dd className="text-right font-bold text-slate-800">
+              <dd className="break-words font-bold text-slate-800 sm:text-right">
                 {formatDateTime(sub.printedAt)}
               </dd>
             </div>

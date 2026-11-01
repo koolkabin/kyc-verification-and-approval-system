@@ -289,7 +289,7 @@ export default function Members() {
 
       {/* Members Directory List */}
       <div className="rounded-3xl bg-white p-5 shadow-sm border border-slate-200/80 space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <h3 className="flex items-center gap-2 text-sm font-extrabold text-slate-900">
             <UsersIcon className="h-4 w-4 text-[#145C45]" /> Registered Cooperative Members ({members.length})
           </h3>
@@ -314,7 +314,7 @@ export default function Members() {
                     : "border-slate-200 bg-slate-50/60 hover:bg-slate-100/60"
                 }`}
               >
-                <div className="flex items-center gap-3">
+                <div className="flex min-w-0 items-center gap-3">
                   <Avatar name={m.name} size="sm" />
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
@@ -345,7 +345,7 @@ export default function Members() {
                 </div>
 
                 {/* Action Buttons for this member */}
-                <div className="flex items-center gap-1.5 self-end sm:self-auto">
+                <div className="flex flex-wrap items-center justify-end gap-1.5 self-stretch sm:self-auto">
                   {/* Send / Preview SMS Button */}
                   <button
                     onClick={() => handleQueueSms(m.id)}

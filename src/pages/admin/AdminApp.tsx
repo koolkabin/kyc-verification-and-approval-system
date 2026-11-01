@@ -47,9 +47,9 @@ export default function AdminApp({
     <div className="min-h-dvh bg-[#F8FAFC] text-slate-900">
       {/* ── Main Dark Green Header ─────────────────────────────────────── */}
       <header className="sticky top-0 z-30 border-b border-[#0f4534] bg-[#145C45] shadow-md">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3">
+        <div className="mx-auto flex max-w-5xl flex-col gap-3 px-3 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:px-4">
           {/* Left: logo / back */}
-          <div className="flex items-center gap-3 min-w-0">
+          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
             {isDetail ? (
               <button
                 onClick={() => navigate("/admin")}
@@ -77,11 +77,11 @@ export default function AdminApp({
           </div>
 
           {/* Right: language toggle + logout */}
-          <div className="shrink-0 flex items-center gap-2">
+          <div className="flex shrink-0 items-center justify-end gap-2">
             <LanguageToggle />
             <button
               onClick={handleLogout}
-              className="inline-flex items-center gap-1.5 rounded-full bg-white/10 border border-white/20 px-3 py-1.5 text-xs font-bold text-[#DDF3E7] hover:bg-white/20 hover:text-white active:scale-95 transition cursor-pointer"
+              className="inline-flex min-h-10 items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-bold text-[#DDF3E7] transition hover:bg-white/20 hover:text-white active:scale-95 cursor-pointer"
               aria-label="Logout from manager portal"
             >
               <LogOut className="h-3.5 w-3.5" />
@@ -92,8 +92,8 @@ export default function AdminApp({
 
         {/* ── Tab Navigation ──────────────────────────────────────────── */}
         {!isDetail && (
-          <nav className="mx-auto max-w-5xl px-4 pb-2.5">
-            <div className="flex flex-wrap items-center gap-2 pt-1">
+          <nav className="no-scrollbar mx-auto max-w-5xl overflow-x-auto px-3 pb-2.5 sm:px-4">
+            <div className="flex w-max min-w-full items-center gap-2 pt-1">
               {TABS.map((t) => {
                 const Icon = t.icon;
                 const active = section === t.key;
@@ -105,7 +105,7 @@ export default function AdminApp({
                         t.key === "dashboard" ? "/admin" : `/admin/${t.key}`
                       )
                     }
-                    className={`flex items-center justify-center gap-2 whitespace-nowrap rounded-xl px-4 py-2 text-xs font-bold transition active:scale-95 sm:text-sm cursor-pointer ${active
+                    className={`flex min-h-10 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-xl px-3 py-2 text-xs font-bold transition active:scale-95 sm:px-4 sm:text-sm cursor-pointer ${active
                         ? "bg-[#DDF3E7] text-[#145C45] shadow-md font-extrabold"
                         : "bg-white/10 text-[#DDF3E7] hover:bg-white/20 hover:text-white"
                       }`}
@@ -121,7 +121,7 @@ export default function AdminApp({
       </header>
 
       {/* ── Main Content ──────────────────────────────────────────────── */}
-      <main className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-5 sm:py-6">
+      <main className="mx-auto w-full max-w-5xl px-3 py-4 sm:px-6 sm:py-6 lg:px-8">
         {isDetail ? (
           <SubmissionDetail id={id ?? ""} />
         ) : section === "dashboard" ? (

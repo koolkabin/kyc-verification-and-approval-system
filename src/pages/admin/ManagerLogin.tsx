@@ -57,23 +57,18 @@ export default function ManagerLogin() {
   };
 
   return (
-    <div className="auth-page relative flex min-h-dvh w-full flex-col items-center justify-start overflow-x-clip bg-[#145C45] px-3 pb-6 pt-16 text-slate-900 sm:px-6 sm:py-12 lg:px-8">
-      {/* Language toggle (English / नेपाली) */}
+    <div className="auth-page relative flex min-h-dvh w-full flex-col items-center justify-start overflow-x-clip bg-[#145C45] px-3 pt-16 pb-16 text-slate-900 sm:px-6 sm:pt-12 sm:pb-12 lg:px-8">
       <div className="absolute top-4 right-4 z-20">
         <LanguageToggle />
       </div>
       {/* Ambient Radial Highlights */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -top-40 -left-40 h-96 w-96 rounded-full bg-emerald-400/10 blur-3xl"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-[#DDF3E7]/10 blur-3xl"
-      />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-emerald-400/10 blur-3xl" />
+        <div className="absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-[#DDF3E7]/10 blur-3xl" />
+      </div>
 
       {/* ── Login Card ─────────────────────────────────────────────────── */}
-      <div className="relative z-10 my-0 w-full max-w-md rounded-3xl border border-slate-200/70 bg-white p-5 shadow-2xl animate-fade-up sm:my-auto sm:p-8">
+      <div className="relative z-10 my-auto w-full max-w-md rounded-3xl border border-slate-200/70 bg-white p-4 shadow-2xl animate-fade-up sm:p-8">
         {/* Card Header: Cooperative Identity */}
         <div className="mb-6 flex flex-col items-center text-center">
           <div className="mx-auto mb-3 flex items-center justify-center rounded-2xl p-1 bg-white/10 backdrop-blur-md ring-2 ring-white/20 shadow-2xl">

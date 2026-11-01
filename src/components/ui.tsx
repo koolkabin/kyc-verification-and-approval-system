@@ -156,7 +156,7 @@ export function StatusStepper({ status }: { status: KycStatus }) {
                   )}
                 </div>
                 <span
-                  className={`text-[10px] sm:text-xs font-semibold text-center whitespace-nowrap ${
+                  className={`max-w-[3.5rem] text-[9px] leading-tight sm:max-w-none sm:text-xs font-semibold text-center whitespace-normal ${
                     state === "current"
                       ? "text-blue-900 font-bold"
                       : state === "done"

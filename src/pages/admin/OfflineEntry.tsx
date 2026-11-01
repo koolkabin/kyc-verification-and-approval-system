@@ -83,8 +83,8 @@ export default function OfflineEntry() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-4 pb-10">
-      <div className="flex items-center justify-between">
-        <div>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
           <h2 className="text-xl sm:text-2xl font-black text-slate-900">
             Offline KYC Entry Desk
           </h2>
@@ -95,7 +95,7 @@ export default function OfflineEntry() {
         <button
           type="button"
           onClick={handleFillDemo}
-          className="flex items-center gap-1 rounded-full bg-[#DDF3E7] border border-[#145C45]/30 px-3 py-1.5 text-xs font-bold text-[#145C45] hover:bg-[#DDF3E7]/70 transition cursor-pointer"
+          className="flex min-h-10 w-fit items-center gap-1 rounded-full border border-[#145C45]/30 bg-[#DDF3E7] px-3 py-1.5 text-xs font-bold text-[#145C45] transition hover:bg-[#DDF3E7]/70 cursor-pointer"
         >
           <Sparkles className="h-3.5 w-3.5 text-[#145C45]" /> Auto-fill Sample
         </button>

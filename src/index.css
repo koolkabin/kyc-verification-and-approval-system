@@ -10,6 +10,12 @@ body,
   min-height: 100dvh;
 }
 
+html,
+body {
+  max-width: 100%;
+  overflow-x: clip;
+}
+
 body {
   @apply bg-[#F8FAFC] text-slate-900 antialiased;
   font-family: var(--font-sans);
@@ -29,10 +35,17 @@ body:has(.auth-page),
 /* Auth screens (landing page + manager login): gradient container must fill full height */
 .auth-page {
   min-height: 100dvh;
+  min-height: 100svh;
 }
 
 #root {
   min-height: 100dvh;
+}
+
+img,
+video,
+canvas {
+  max-width: 100%;
 }
 
 /* Animations */

@@ -33,7 +33,7 @@ export default function PrintView({ id }: { id: string }) {
     <div className="min-h-dvh bg-slate-100 pb-12">
       {/* Action Bar (Hidden during actual paper print) */}
       <div className="no-print sticky top-0 z-30 border-b border-teal-900 bg-teal-950 px-4 py-3 shadow-md">
-        <div className="mx-auto flex max-w-3xl items-center justify-between gap-2">
+        <div className="mx-auto flex max-w-3xl flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <button
             onClick={() => navigate(`/admin/submissions/${sub.id}`)}
             className="flex items-center gap-1.5 rounded-xl bg-teal-900/80 hover:bg-teal-800 px-3.5 py-2 text-xs sm:text-sm font-bold text-teal-200 transition cursor-pointer"
@@ -50,7 +50,7 @@ export default function PrintView({ id }: { id: string }) {
       </div>
 
       {/* Official KYC Document (Printable Area) */}
-      <div className="print-area mx-auto mt-6 max-w-3xl rounded-3xl bg-white p-8 sm:p-10 shadow-xl border border-slate-200/80">
+      <div className="print-area mx-3 mt-4 max-w-3xl rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xl sm:mx-auto sm:mt-6 sm:rounded-3xl sm:p-8 lg:p-10">
         {/* Organization Header with Logo */}
         <div className="border-b-2 border-teal-900 pb-5">
           <div className="flex items-center justify-center gap-4 text-center">
@@ -193,13 +193,13 @@ export default function PrintView({ id }: { id: string }) {
         )}
 
         {/* Signatures & Seal Section */}
-        <div className="mt-10 flex justify-between border-t-2 border-slate-300 pt-6 text-center text-xs">
-          <div className="w-44">
+        <div className="mt-8 flex flex-col gap-8 border-t-2 border-slate-300 pt-6 text-center text-xs sm:mt-10 sm:flex-row sm:justify-between">
+          <div className="w-full sm:w-44">
             <div className="border-b border-dashed border-slate-400 pb-10" />
             <p className="mt-2 font-bold text-slate-800">अधिकृत व्यवस्थापक (Manager)</p>
             <p className="text-[10px] text-slate-500">{org.nameNepali}</p>
           </div>
-          <div className="w-44">
+          <div className="w-full sm:w-44">
             <div className="border-b border-dashed border-slate-400 pb-10" />
             <p className="mt-2 font-bold text-slate-800">सदस्यको हस्ताक्षर (Signature)</p>
             <p className="text-[10px] text-slate-500">{sub.memberName}</p>

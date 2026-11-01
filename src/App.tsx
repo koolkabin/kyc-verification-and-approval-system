@@ -68,8 +68,7 @@ function LandingPage() {
   };
 
   return (
-    <div className="auth-page relative flex min-h-dvh w-full flex-col items-center justify-start overflow-x-clip bg-[#145C45] px-3 pb-6 pt-16 text-slate-900 selection:bg-[#DDF3E7] selection:text-[#145C45] sm:px-6 sm:py-12 lg:px-8">
-      {/* Language toggle (English / नेपाली) */}
+    <div className="auth-page relative flex min-h-dvh w-full flex-col items-center justify-start overflow-x-clip bg-[#145C45] px-3 pt-16 pb-16 text-slate-900 selection:bg-[#DDF3E7] selection:text-[#145C45] sm:px-6 sm:pt-12 sm:pb-12 lg:px-8">
       <div className="absolute top-4 right-4 z-20">
         <LanguageToggle />
       </div>
@@ -105,17 +104,13 @@ function LandingPage() {
       </div>
 
       {/* Ambient Radial Highlights */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -top-40 -left-40 h-96 w-96 rounded-full bg-emerald-400/10 blur-3xl"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-[#DDF3E7]/10 blur-3xl"
-      />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-emerald-400/10 blur-3xl" />
+        <div className="absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-[#DDF3E7]/10 blur-3xl" />
+      </div>
 
       {/* ── Single centered white card: branding, form & actions ─────── */}
-      <div className="relative z-10 my-0 w-full max-w-md rounded-3xl border border-slate-200/70 bg-white p-5 shadow-2xl animate-fade-up sm:my-auto sm:p-8">
+      <div className="relative z-10 my-auto w-full max-w-md rounded-3xl border border-slate-200/70 bg-white p-4 shadow-2xl animate-fade-up sm:p-8">
         {/* ── Header: Cooperative Identity & Branding ─────────────────── */}
         <header className="relative z-10 w-full text-center mb-6 sm:mb-8 animate-fade-down">
         {/* Logo Container */}
@@ -348,7 +343,7 @@ function LandingPage() {
       </main>
 
       {/* ── Footer: Copyright & System Note ──────────────────────────── */}
-      <footer className="relative z-10 w-full text-center mt-6 pt-4 border-t border-slate-200 text-[11px] text-slate-500 space-y-1">
+      <footer className="relative z-10 mt-6 w-full break-words border-t border-slate-200 pt-4 text-center text-[11px] text-slate-500 space-y-1">
         <p>
           &copy; {new Date().getFullYear()} {org.nameNepali} &middot; {org.nameEnglish}
         </p>

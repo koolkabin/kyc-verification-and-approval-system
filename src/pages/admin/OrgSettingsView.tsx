@@ -48,8 +48,8 @@ export default function OrgSettingsView() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-200 pb-4">
         <div>
-          <div className="flex items-center gap-2">
-            <h2 className="text-xl sm:text-2xl font-black text-slate-900">
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 break-words">
               Cooperative Organization Settings
             </h2>
             <span className="rounded-full bg-[#DDF3E7] border border-[#145C45]/30 px-2.5 py-0.5 text-[11px] font-bold text-[#145C45]">
@@ -93,7 +93,7 @@ export default function OrgSettingsView() {
       {/* Main Settings Form */}
       <form onSubmit={handleSave} className="space-y-6">
         {/* Card 1: Names & Identity */}
-        <div className="rounded-3xl bg-white p-6 shadow-sm border border-slate-200/80 space-y-4">
+        <div className="rounded-3xl bg-white p-4 shadow-sm border border-slate-200/80 space-y-4 sm:p-6">
           <h3 className="text-sm font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-2">
             <Building2 className="h-4 w-4 text-[#145C45]" /> 1. Cooperative Identity &amp; Legal Names
           </h3>
@@ -162,7 +162,7 @@ export default function OrgSettingsView() {
         </div>
 
         {/* Card 2: Legal Registration Numbers */}
-        <div className="rounded-3xl bg-white p-6 shadow-sm border border-slate-200/80 space-y-4">
+        <div className="rounded-3xl bg-white p-4 shadow-sm border border-slate-200/80 space-y-4 sm:p-6">
           <h3 className="text-sm font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-[#145C45]" /> 2. Registration &amp; Tax Information
           </h3>
@@ -197,7 +197,7 @@ export default function OrgSettingsView() {
         </div>
 
         {/* Card 3: Address & Contact */}
-        <div className="rounded-3xl bg-white p-6 shadow-sm border border-slate-200/80 space-y-4">
+        <div className="rounded-3xl bg-white p-4 shadow-sm border border-slate-200/80 space-y-4 sm:p-6">
           <h3 className="text-sm font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-2">
             <Building2 className="h-4 w-4 text-[#145C45]" /> 3. Registered Address &amp; Contact
           </h3>
@@ -258,7 +258,7 @@ export default function OrgSettingsView() {
         </div>
 
         {/* Card 4: Logo & Demo Watermark */}
-        <div className="rounded-3xl bg-white p-6 shadow-sm border border-slate-200/80 space-y-4">
+        <div className="rounded-3xl bg-white p-4 shadow-sm border border-slate-200/80 space-y-4 sm:p-6">
           <h3 className="text-sm font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-2">
             <Building2 className="h-4 w-4 text-[#145C45]" /> 4. Emblem &amp; Sample Data Flag
           </h3>
@@ -268,7 +268,7 @@ export default function OrgSettingsView() {
               <label className="block text-xs font-bold text-slate-700 uppercase mb-2">
                 Official Logo / Vector Emblem
               </label>
-              <div className="flex gap-3">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-3">
                 {[
                   { id: "emblem", label: "Classic Coop Emblem" },
                   { id: "hands", label: "Cooperation Hands" },
@@ -312,10 +312,10 @@ export default function OrgSettingsView() {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center justify-end gap-3 pt-2">
+        <div className="flex flex-col-reverse items-stretch justify-end gap-3 pt-2 sm:flex-row sm:items-center">
           <button
             type="submit"
-            className="flex items-center gap-2 rounded-2xl bg-[#145C45] hover:bg-[#0f4534] active:scale-[0.98] text-white font-extrabold px-6 py-3 text-sm shadow-md shadow-[#145C45]/20 transition cursor-pointer"
+            className="flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-[#145C45] px-4 py-3 text-sm font-extrabold text-white shadow-md shadow-[#145C45]/20 transition hover:bg-[#0f4534] active:scale-[0.98] cursor-pointer sm:px-6"
           >
             <Save className="h-4 w-4" /> Save Organization Settings
           </button>
@@ -324,4 +324,3 @@ export default function OrgSettingsView() {
     </div>
   );
 }
-

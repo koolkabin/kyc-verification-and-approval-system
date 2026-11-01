@@ -149,7 +149,7 @@ export default function Dashboard() {
 
       {/* Filter Tabs & Submissions List */}
       <div className="space-y-3">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2 pb-1">
+        <div className="grid grid-cols-2 gap-2 pb-1 sm:grid-cols-3 lg:grid-cols-5">
           {FILTERS.map((f) => (
             <button
               key={f.key}
