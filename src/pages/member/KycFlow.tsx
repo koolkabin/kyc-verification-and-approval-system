@@ -40,7 +40,7 @@ import { useI18n, type TranslationKey } from "../../lib/i18n";
 import { navigate } from "../../lib/router";
 import { formatDateTime } from "../../lib/utils";
 import { StatusPill } from "../../components/ui";
-import { fileToDataUrl } from "../../lib/image";
+import { fileToDataUrl, fileToRawDataUrl } from "../../lib/image";
 import { CoopLogo } from "../../components/CoopLogo";
 import LanguageToggle from "../../components/LanguageToggle";
 import {
@@ -222,13 +222,24 @@ function DocRow({
       </div>
       <div className="flex shrink-0 items-center gap-2">
         {value.dataUrl ? (
-          <button
-            type="button"
-            onClick={() => onChange(emptyDoc())}
-            className="flex items-center gap-1 rounded border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 cursor-pointer"
-          >
-            <X className="h-3.5 w-3.5" /> {t("remove")}
-          </button>
+          <>
+            <button
+              type="button"
+              onClick={() => {
+                if (value.dataUrl.startsWith("data:")) window.open(value.dataUrl, "_blank");
+              }}
+              className="flex items-center gap-1 rounded border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 cursor-pointer"
+            >
+              <Eye className="h-3.5 w-3.5" /> {t("view")}
+            </button>
+            <button
+              type="button"
+              onClick={() => onChange(emptyDoc())}
+              className="flex items-center gap-1 rounded border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 cursor-pointer"
+            >
+              <X className="h-3.5 w-3.5" /> {t("remove")}
+            </button>
+          </>
         ) : (
           <button
             type="button"
@@ -250,7 +261,7 @@ function DocRow({
               const url = await fileToDataUrl(f);
               onChange({ dataUrl: url, name: f.name });
             } else {
-              onChange({ dataUrl: "pdf:" + f.name, name: f.name });
+              onChange({ dataUrl: await fileToRawDataUrl(f), name: f.name });
             }
             e.target.value = "";
           }}
