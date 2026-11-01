@@ -18,11 +18,13 @@ import {
   type ChangeEvent,
   type ReactNode,
 } from "react";
+import { createPortal } from "react-dom";
 import {
   ArrowLeft,
   CheckCircle2,
   ChevronRight,
   Clock,
+  Download,
   Eye,
   FileText,
   KeyRound,
@@ -309,57 +311,67 @@ function DocViewer({ doc, onClose }: { doc: Doc; onClose: () => void }) {
   const { t } = useI18n();
   const isImage = doc.dataUrl.startsWith("data:image/");
   const isPdf = doc.dataUrl.startsWith("data:application/pdf");
+  const canDownload = isImage || isPdf;
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-label={doc.name || t("view")}
       onClick={onClose}
     >
       <div
-        className="relative max-h-full w-full max-w-2xl overflow-hidden rounded-xl bg-white shadow-2xl"
+        className="relative flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between gap-2 border-b border-slate-200 bg-[#145C45] px-4 py-3">
-          <p className="flex min-w-0 items-center gap-2 text-xs font-bold text-white">
-            <FileText className="h-4 w-4 shrink-0 text-[#DDF3E7]" /> {doc.name || t("view")}
+        <div className="flex items-center justify-between gap-4 px-5 pt-4 pb-3 sm:px-7">
+          <p className="min-w-0 truncate text-sm font-semibold text-slate-800">
+            {doc.name || t("view")}
           </p>
           <button
             type="button"
             onClick={onClose}
             aria-label={t("close")}
-            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20 cursor-pointer"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 cursor-pointer"
           >
-            <X className="h-4 w-4" />
+            <X className="h-5 w-5" />
           </button>
         </div>
-        <div className="flex max-h-[70vh] items-center justify-center overflow-auto bg-slate-100 p-4">
+        <div className="flex min-h-0 flex-1 items-center justify-center overflow-auto bg-white px-5 pb-3 sm:px-10">
           {isImage ? (
             <img
               src={doc.dataUrl}
               alt={doc.name}
-              className="max-h-[60vh] w-auto max-w-full rounded object-contain shadow-sm"
+              className="max-h-[72vh] w-auto max-w-full object-contain"
             />
           ) : isPdf ? (
             <iframe
-              src={doc.dataUrl}
+              src={`${doc.dataUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
               title={doc.name}
-              className="h-[60vh] w-full rounded border-0 bg-white"
+              className="h-[72vh] w-full border-0 bg-white"
             />
           ) : (
-            <div className="space-y-3 text-center">
+            <div className="space-y-3 py-12 text-center">
               <p className="text-sm font-semibold text-slate-700">{t("docPreviewUnsupported")}</p>
-              <a
-                href={doc.dataUrl}
-                download={doc.name || "document"}
-                className="inline-flex items-center gap-2 rounded-lg bg-[#145C45] px-4 py-2 text-sm font-bold text-white"
-              >
-                <FileText className="h-4 w-4" /> {t("downloadDocument")}
-              </a>
             </div>
           )}
         </div>
+        <div className="flex justify-end px-5 pt-2 pb-4 sm:px-7">
+          {canDownload && (
+            <a
+              href={doc.dataUrl}
+              download={doc.name || "document"}
+              className="inline-flex items-center gap-2 rounded-md px-2 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+            >
+              <Download className="h-4 w-4" />
+              {t("downloadDocument")}
+            </a>
+          )}
+        </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -1413,6 +1425,9 @@ export default function KycFlow({ code }: { code: string }) {
               </button>
             </div>
           </div>
+          {viewingDoc && (
+            <DocViewer doc={viewingDoc} onClose={() => setViewingDoc(null)} />
+          )}
 
           {/* Live Preview — documents checklist */}
           <div className="hidden lg:block w-64 shrink-0">
@@ -1597,9 +1612,6 @@ export default function KycFlow({ code }: { code: string }) {
               </div>
             </div>
           </div>
-
-          {/* Document viewer modal */}
-          {viewingDoc && <DocViewer doc={viewingDoc} onClose={() => setViewingDoc(null)} />}
         </div>
       </WizardShell>
     );
