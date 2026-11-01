@@ -25,8 +25,14 @@ const QUICK_REJECTION_REASONS = [
 ];
 
 export default function SubmissionDetail({ id }: { id: string }) {
-  const { state, getSubmission, approveSubmission, rejectSubmission, markPrinted } =
-    useStore();
+  const {
+    state,
+    getSubmission,
+    approveSubmission,
+    rejectSubmission,
+    markPrinted,
+    setEvidenceVerification,
+  } = useStore();
   const sub = getSubmission(id);
   const [rejectOpen, setRejectOpen] = useState(false);
   const [enlargedImage, setEnlargedImage] = useState<{
@@ -236,6 +242,103 @@ export default function SubmissionDetail({ id }: { id: string }) {
             )}
           </div>
         </div>
+      </div>
+
+      {/* Signature and thumbprint verification */}
+      <div className="rounded-3xl bg-white p-5 shadow-sm border border-slate-200/80 space-y-3">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+          Signature &amp; Thumbprint Verification
+        </h3>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {(
+            [
+              {
+                evidence: "signature",
+                label: "Member Signature",
+                image: sub.signatureDataUrl,
+                fileName: sub.signatureName,
+                verified: sub.signatureVerified,
+                verifiedAt: sub.signatureVerifiedAt,
+                verifiedBy: sub.signatureVerifiedBy,
+              },
+              {
+                evidence: "thumbprint",
+                label: "Member Thumbprint",
+                image: sub.thumbprintDataUrl,
+                fileName: sub.thumbprintName,
+                verified: sub.thumbprintVerified,
+                verifiedAt: sub.thumbprintVerifiedAt,
+                verifiedBy: sub.thumbprintVerifiedBy,
+              },
+            ] as const
+          ).map((item) => (
+            <div
+              key={item.evidence}
+              className="rounded-2xl border border-slate-200 bg-slate-50 p-3 space-y-3"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs font-bold text-slate-700">{item.label}</span>
+                <span
+                  className={`rounded-md px-2 py-0.5 text-[10px] font-bold ${
+                    item.verified
+                      ? "bg-emerald-100 text-emerald-800"
+                      : "bg-amber-100 text-amber-800"
+                  }`}
+                >
+                  {item.verified ? "Verified by reviewer" : "Not verified"}
+                </span>
+              </div>
+              {item.image ? (
+                <button
+                  type="button"
+                  onClick={() =>
+                    setEnlargedImage({
+                      url: item.image!,
+                      title: `${item.label} - ${sub.memberName}`,
+                    })
+                  }
+                  className="block w-full overflow-hidden rounded-xl border border-slate-200 bg-white"
+                >
+                  <img
+                    src={item.image}
+                    alt={item.label}
+                    className="h-40 w-full object-contain"
+                  />
+                </button>
+              ) : (
+                <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-slate-300 bg-white text-xs text-slate-400">
+                  No {item.label.toLowerCase()} uploaded
+                </div>
+              )}
+              {item.fileName && (
+                <p className="truncate text-[11px] text-slate-500">{item.fileName}</p>
+              )}
+              {item.verified && item.verifiedAt && (
+                <p className="text-[11px] text-emerald-800">
+                  Verified {formatDateTime(item.verifiedAt)}
+                  {item.verifiedBy ? ` · ${item.verifiedBy}` : ""}
+                </p>
+              )}
+              <button
+                type="button"
+                disabled={!item.image}
+                onClick={() =>
+                  setEvidenceVerification(
+                    sub.id,
+                    item.evidence,
+                    !item.verified
+                  )
+                }
+                className="w-full rounded-xl border border-[#145C45] px-3 py-2 text-xs font-bold text-[#145C45] transition hover:bg-[#DDF3E7] disabled:cursor-not-allowed disabled:border-slate-200 disabled:text-slate-400 disabled:hover:bg-transparent"
+              >
+                {item.verified ? "Undo verification" : "Mark as verified"}
+              </button>
+            </div>
+          ))}
+        </div>
+        <p className="text-[11px] text-slate-500">
+          Verification is a manual reviewer confirmation of the uploaded image, not biometric or identity authentication.
+        </p>
       </div>
 
       {/* User-Friendly Mobile-Focused Action Card */}

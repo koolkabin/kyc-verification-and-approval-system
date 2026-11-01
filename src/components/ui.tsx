@@ -276,7 +276,7 @@ export function Modal({
 }
 
 /**
- * Mobile SMS Simulator Modal showing the exact SMS received by the member
+ * Mobile SMS preview showing the message text queued for manual sending
  * (e.g. kyc.coop/abc123 + OTP 123456)
  */
 export function SmsModal({
@@ -319,8 +319,11 @@ export function SmsModal({
   };
 
   return (
-    <Modal open={open} onClose={onClose} title={t("smsDelivered")}>
+    <Modal open={open} onClose={onClose} title={t("smsQueuedTitle")}>
       <div className="space-y-4">
+        <p className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs font-semibold text-amber-900">
+          {t("smsQueuedNotice")}
+        </p>
         <div className="flex items-center gap-3 rounded-2xl bg-[#DDF3E7]/80 p-3.5 border border-[#145C45]/20">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#145C45] text-white shadow-sm">
             <Smartphone className="h-5 w-5" />
@@ -339,7 +342,7 @@ export function SmsModal({
             <span className="flex items-center gap-1 font-semibold text-[#DDF3E7]">
               <MessageSquare className="h-3 w-3" /> SMS &middot; {orgTag.toUpperCase()}
             </span>
-            <span>Just now</span>
+            <span>Queued locally · not sent</span>
           </div>
           <div className="rounded-xl bg-slate-800 p-3.5 text-sm leading-relaxed text-slate-100 border border-slate-700">
             <p>

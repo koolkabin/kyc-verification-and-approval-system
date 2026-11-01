@@ -194,12 +194,16 @@ function DocRow({
   required,
   value,
   onChange,
+  onView,
+  accept = "image/*,.pdf",
 }: {
   label: string;
   hint?: string;
   required?: boolean;
   value: Doc;
   onChange: (d: Doc) => void;
+  onView?: (d: Doc) => void;
+  accept?: string;
 }) {
   const ref = useRef<HTMLInputElement>(null);
   const { t } = useI18n();
@@ -225,12 +229,17 @@ function DocRow({
           <>
             <button
               type="button"
-              onClick={() => {
-                if (value.dataUrl.startsWith("data:")) window.open(value.dataUrl, "_blank");
-              }}
+              onClick={() => onView?.(value)}
               className="flex items-center gap-1 rounded border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 cursor-pointer"
             >
               <Eye className="h-3.5 w-3.5" /> {t("view")}
+            </button>
+            <button
+              type="button"
+              onClick={() => ref.current?.click()}
+              className="flex items-center gap-1 rounded border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 cursor-pointer"
+            >
+              <Upload className="h-3.5 w-3.5" /> {t("replace")}
             </button>
             <button
               type="button"
@@ -252,7 +261,7 @@ function DocRow({
         <input
           ref={ref}
           type="file"
-          accept="image/*,.pdf"
+          accept={accept}
           className="hidden"
           onChange={async (e: ChangeEvent<HTMLInputElement>) => {
             const f = e.target.files?.[0];
@@ -266,6 +275,54 @@ function DocRow({
             e.target.value = "";
           }}
         />
+      </div>
+    </div>
+  );
+}
+
+// ─── Helper: Document Viewer Modal ───────────────────────────────────────────
+function DocViewer({ doc, onClose }: { doc: Doc; onClose: () => void }) {
+  const { t } = useI18n();
+  const isImage = doc.dataUrl.startsWith("data:image/");
+  const isPdf = doc.dataUrl.startsWith("data:application/pdf");
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 p-4"
+      onClick={onClose}
+    >
+      <div
+        className="relative max-h-full w-full max-w-2xl overflow-hidden rounded-xl bg-white shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between gap-2 border-b border-slate-200 bg-[#145C45] px-4 py-3">
+          <p className="flex min-w-0 items-center gap-2 text-xs font-bold text-white">
+            <FileText className="h-4 w-4 shrink-0 text-[#DDF3E7]" /> {doc.name || t("view")}
+          </p>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label={t("close")}
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20 cursor-pointer"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+        <div className="flex max-h-[70vh] items-center justify-center overflow-auto bg-slate-100 p-4">
+          {isImage ? (
+            <img
+              src={doc.dataUrl}
+              alt={doc.name}
+              className="max-h-[60vh] w-auto max-w-full rounded object-contain shadow-sm"
+            />
+          ) : isPdf ? (
+            <iframe
+              src={doc.dataUrl}
+              title={doc.name}
+              className="h-[60vh] w-full rounded border-0 bg-white"
+            />
+          ) : null}
+        </div>
       </div>
     </div>
   );
@@ -480,6 +537,7 @@ export default function KycFlow({ code }: { code: string }) {
   const [addrErr, setAddrErr] = useState("");
 
   // Step 3 — Documents
+  const [viewingDoc, setViewingDoc] = useState<Doc | null>(null);
   const [docs, setDocs] = useState({
     citizenshipFront: emptyDoc(),
     citizenshipBack: emptyDoc(),
@@ -491,6 +549,8 @@ export default function KycFlow({ code }: { code: string }) {
     agreement: emptyDoc(),
     nationalId: emptyDoc(),
     companyReg: emptyDoc(),
+    signature: emptyDoc(),
+    thumbprint: emptyDoc(),
   });
   const [docsErr, setDocsErr] = useState("");
 
@@ -562,6 +622,7 @@ export default function KycFlow({ code }: { code: string }) {
     if (!docs.selfie.dataUrl) return t("errSelfie");
     if (!docs.photo.dataUrl) return t("errPhoto");
     if (!docs.nationalId.dataUrl) return t("errNationalId");
+    if (!docs.signature.dataUrl || !docs.thumbprint.dataUrl) return t("errSignatureThumbprint");
     return "";
   };
 
@@ -653,6 +714,10 @@ export default function KycFlow({ code }: { code: string }) {
         nationalIdName: docs.nationalId.name || undefined,
         companyRegDataUrl: docs.companyReg.dataUrl || undefined,
         companyRegName: docs.companyReg.name || undefined,
+        signatureDataUrl: docs.signature.dataUrl || undefined,
+        signatureName: docs.signature.name || undefined,
+        thumbprintDataUrl: docs.thumbprint.dataUrl || undefined,
+        thumbprintName: docs.thumbprint.name || undefined,
       });
       setSubmitting(false);
       if (result.ok) {
@@ -1285,15 +1350,17 @@ export default function KycFlow({ code }: { code: string }) {
             </p>
 
             <div className="divide-y divide-slate-100">
-              <DocRow label={t("citizenshipFrontBack")} hint={t("hintCitizenship")} required value={docs.citizenshipFront} onChange={setDoc("citizenshipFront")} />
-              <DocRow label={t("selfieWithCitizenship")} hint={t("hintSelfie")} required value={docs.selfie} onChange={setDoc("selfie")} />
-              <DocRow label={t("birthCertificate")} hint={t("hintBirthCert")} value={docs.birthCert} onChange={setDoc("birthCert")} />
-              <DocRow label={t("panCard")} hint={t("hintPan")} value={docs.panDoc} onChange={setDoc("panDoc")} />
-              <DocRow label={t("kycForm")} hint={t("hintKycForm")} required value={docs.kycForm} onChange={setDoc("kycForm")} />
-              <DocRow label={t("photoUpload")} hint={t("hintPhoto")} required value={docs.photo} onChange={setDoc("photo")} />
-              <DocRow label={t("onlineAgreement")} hint={t("hintOnlineAgreement")} required value={docs.agreement} onChange={setDoc("agreement")} />
-              <DocRow label={t("nationalId")} hint={t("hintNationalId")} required value={docs.nationalId} onChange={setDoc("nationalId")} />
-              <DocRow label={t("companyRegistration")} hint={t("hintCompanyReg")} value={docs.companyReg} onChange={setDoc("companyReg")} />
+              <DocRow label={t("citizenshipFrontBack")} hint={t("hintCitizenship")} required value={docs.citizenshipFront} onChange={setDoc("citizenshipFront")} onView={setViewingDoc} />
+              <DocRow label={t("selfieWithCitizenship")} hint={t("hintSelfie")} required value={docs.selfie} onChange={setDoc("selfie")} onView={setViewingDoc} />
+              <DocRow label={t("birthCertificate")} hint={t("hintBirthCert")} value={docs.birthCert} onChange={setDoc("birthCert")} onView={setViewingDoc} />
+              <DocRow label={t("panCard")} hint={t("hintPan")} value={docs.panDoc} onChange={setDoc("panDoc")} onView={setViewingDoc} />
+              <DocRow label={t("kycForm")} hint={t("hintKycForm")} required value={docs.kycForm} onChange={setDoc("kycForm")} onView={setViewingDoc} />
+              <DocRow label={t("photoUpload")} hint={t("hintPhoto")} required value={docs.photo} onChange={setDoc("photo")} onView={setViewingDoc} />
+              <DocRow label={t("onlineAgreement")} hint={t("hintOnlineAgreement")} required value={docs.agreement} onChange={setDoc("agreement")} onView={setViewingDoc} />
+              <DocRow label={t("nationalId")} hint={t("hintNationalId")} required value={docs.nationalId} onChange={setDoc("nationalId")} onView={setViewingDoc} />
+              <DocRow label={t("companyRegistration")} hint={t("hintCompanyReg")} value={docs.companyReg} onChange={setDoc("companyReg")} onView={setViewingDoc} />
+              <DocRow label={t("signatureImage")} hint={t("imageFileHint")} required value={docs.signature} onChange={setDoc("signature")} onView={setViewingDoc} accept="image/*" />
+              <DocRow label={t("thumbprintImage")} hint={t("imageFileHint")} required value={docs.thumbprint} onChange={setDoc("thumbprint")} onView={setViewingDoc} accept="image/*" />
             </div>
 
             {docsErr && (
@@ -1343,6 +1410,8 @@ export default function KycFlow({ code }: { code: string }) {
                     { key: "agreement", label: t("onlineAgreement") },
                     { key: "nationalId", label: t("nationalId") },
                     { key: "companyReg", label: t("companyRegistration") },
+                    { key: "signature", label: t("signatureImage") },
+                    { key: "thumbprint", label: t("thumbprintImage") },
                   ] as { key: keyof typeof docs; label: string }[]
                 ).map(({ key, label }) => (
                   <div key={key} className="flex items-center gap-2 py-0.5">
@@ -1493,6 +1562,9 @@ export default function KycFlow({ code }: { code: string }) {
               </div>
             </div>
           </div>
+
+          {/* Document viewer modal */}
+          {viewingDoc && <DocViewer doc={viewingDoc} onClose={() => setViewingDoc(null)} />}
         </div>
       </WizardShell>
     );

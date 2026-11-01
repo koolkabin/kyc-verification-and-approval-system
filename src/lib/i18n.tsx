@@ -31,6 +31,7 @@ const en = {
   secureKycPortal: "Secure KYC Verification Portal",
   attached: "Attached",
   remove: "Remove",
+  replace: "Replace",
   upload: "Upload",
   view: "View",
   autoSaved: "Your data is auto-saved as you type.",
@@ -39,8 +40,8 @@ const en = {
 
   // ── Member KYC – OTP screen ───────────────────────────────────────────────
   otpTitle: "OTP Verification",
-  otpGreeting: "Hi {name}, we sent a 6-digit code to your phone.",
-  smsReceivedFrom: "SMS received from {org}",
+  otpGreeting: "Hi {name}, demo mode: use the code shown in this SMS preview.",
+  smsReceivedFrom: "Simulated SMS preview from {org}",
   smsBody: "Dear {name}, your KYC link: kyc.coop/{code} — OTP: {otp}",
   otpValid: "Valid for 10 minutes. Do not share this OTP.",
   enterOtp: "Enter Verification Code",
@@ -99,6 +100,7 @@ const en = {
   errSelfie: "Please upload the Selfie with Citizenship.",
   errPhoto: "Please upload your Photo.",
   errNationalId: "Please upload your National ID.",
+  errSignatureThumbprint: "Please upload both your signature and thumbprint images.",
   errAgree: "Please read and accept the agreement before submitting.",
 
   // ── Member KYC – documents ─────────────────────────────────────────────────
@@ -113,6 +115,9 @@ const en = {
   onlineAgreement: "Online Agreement Form",
   nationalId: "National ID",
   companyRegistration: "Company Registration Document",
+  signatureImage: "Signature image",
+  thumbprintImage: "Thumbprint image",
+  imageFileHint: "Image file",
   hintCitizenship: "(.pdf, .jpg format)",
   hintSelfie: "(.jpg format)",
   hintBirthCert: "(.pdf, .jpg format)",
@@ -207,9 +212,10 @@ const en = {
   logout: "Logout",
 
   // ── SMS modal ─────────────────────────────────────────────────────────────
-  smsDelivered: "SMS Delivered to Member",
+  smsQueuedTitle: "SMS Queued — Not Delivered",
+  smsQueuedNotice: "Saved in this browser only. No SMS was sent. Copy the message to send it manually or connect an SMS provider.",
   smsRecipient: "Recipient",
-  smsFrom: "SMS received from {org}",
+  smsFrom: "SMS preview from {org}",
   openMemberForm: "Open Member KYC Form (Step 3)",
   copySms: "Copy SMS Text",
   copied: "Copied to clipboard!",
@@ -245,6 +251,7 @@ const ne: Record<TranslationKey, string> = {
   secureKycPortal: "सुरक्षित KYC प्रमाणीकरण पोर्टल",
   attached: "संलग्न गरिएको",
   remove: "हटाउनुहोस्",
+  replace: "प्रतिस्थापन गर्नुहोस्",
   upload: "अपलोड गर्नुहोस्",
   view: "हेर्नुहोस्",
   autoSaved: "तपाईंले लेख्दै गर्दा विवरण स्वतः सुरक्षित हुन्छ।",
@@ -253,8 +260,8 @@ const ne: Record<TranslationKey, string> = {
 
   // ── Member KYC – OTP screen ───────────────────────────────────────────────
   otpTitle: "OTP प्रमाणीकरण",
-  otpGreeting: "नमस्ते {name}, हामीले तपाईंको फोनमा ६-अंकको कोड पठाएका छौं।",
-  smsReceivedFrom: "{org} बाट SMS प्राप्त भयो",
+  otpGreeting: "नमस्ते {name}, डेमोमा यस SMS पूर्वावलोकनमा देखाइएको कोड प्रयोग गर्नुहोस्।",
+  smsReceivedFrom: "{org} बाट नमुना SMS पूर्वावलोकन",
   smsBody: "प्रिय {name}, तपाईंको KYC लिंक: kyc.coop/{code} — OTP: {otp}",
   otpValid: "यो कोड १० मिनेटसम्म मान्य छ। यसलाई अरूसँग साझा नगर्नुहोस्।",
   enterOtp: "प्रमाणीकरण कोड प्रविष्ट गर्नुहोस्",
@@ -313,6 +320,7 @@ const ne: Record<TranslationKey, string> = {
   errSelfie: "कृपया नागरिकता सँग आफ्नो सेल्फी अपलोड गर्नुहोस्।",
   errPhoto: "कृपया आफ्नो फोटो अपलोड गर्नुहोस्।",
   errNationalId: "कृपया आफ्नो राष्ट्रिय परिचय पत्र अपलोड गर्नुहोस्।",
+  errSignatureThumbprint: "कृपया हस्ताक्षर र औँठाछाप दुवै तस्बिर अपलोड गर्नुहोस्।",
   errAgree: "पेश गर्नुअघि कृपया सम्झौता पढेर स्वीकार गर्नुहोस्।",
 
   // ── Member KYC – documents ─────────────────────────────────────────────────
@@ -327,6 +335,9 @@ const ne: Record<TranslationKey, string> = {
   onlineAgreement: "अनलाइन सम्झौता फारम",
   nationalId: "राष्ट्रिय परिचय पत्र",
   companyRegistration: "कम्पनी दर्ता कागजात",
+  signatureImage: "हस्ताक्षरको तस्बिर",
+  thumbprintImage: "औँठाछापको तस्बिर",
+  imageFileHint: "तस्बिर फाइल",
   hintCitizenship: "(.pdf, .jpg बाटो)",
   hintSelfie: "(.jpg बाटो)",
   hintBirthCert: "(.pdf, .jpg बाटो)",
@@ -421,9 +432,10 @@ const ne: Record<TranslationKey, string> = {
   logout: "लगआउट",
 
   // ── SMS modal ─────────────────────────────────────────────────────────────
-  smsDelivered: "SMS सदस्यलाई पठाइयो",
+  smsQueuedTitle: "SMS कतारमा राखियो — पठाइएको छैन",
+  smsQueuedNotice: "यो ब्राउजरमा मात्र सुरक्षित गरिएको छ। SMS पठाइएको छैन। सन्देश प्रतिलिपि गरेर आफैँ पठाउनुहोस् वा SMS प्रदायक जडान गर्नुहोस्।",
   smsRecipient: "प्राप्तकर्ता",
-  smsFrom: "{org} बाट SMS प्राप्त भयो",
+  smsFrom: "{org} बाट SMS पूर्वावलोकन",
   openMemberForm: "सदस्य KYC फारम खोल्नुहोस् (चरण ३)",
   copySms: "SMS पाठ प्रतिलिपि गर्नुहोस्",
   copied: "कपी भयो!",

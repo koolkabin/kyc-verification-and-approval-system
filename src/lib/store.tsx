@@ -133,6 +133,10 @@ export interface SubmitKycInput {
   nationalIdName?: string;
   companyRegDataUrl?: string;
   companyRegName?: string;
+  signatureDataUrl?: string;
+  signatureName?: string;
+  thumbprintDataUrl?: string;
+  thumbprintName?: string;
 }
 
 export interface OfflineEntryInput {
@@ -152,6 +156,7 @@ export interface SmsInviteData {
   inviteCode: string;
   otp: string;
   link: string;
+  queuedAt: number;
 }
 
 interface StoreValue {
@@ -161,11 +166,16 @@ interface StoreValue {
   findByInviteCode: (code: string) => Member | undefined;
   addMembers: (rows: MemberInput[]) => Member[];
   resendInvite: (memberId: string) => void;
-  sendMemberSms: (memberId: string) => SmsInviteData | null;
+  queueMemberSms: (memberId: string) => SmsInviteData | null;
   submitKyc: (input: SubmitKycInput) => { ok: boolean; error?: string };
   startReview: (submissionId: string) => void;
   approveSubmission: (submissionId: string) => void;
   rejectSubmission: (submissionId: string, remark: string) => void;
+  setEvidenceVerification: (
+    submissionId: string,
+    evidence: "signature" | "thumbprint",
+    verified: boolean
+  ) => void;
   markPrinted: (submissionId: string) => void;
   offlineAdd: (input: OfflineEntryInput) => KycSubmission;
   updateOrgSettings: (patch: Partial<OrgSettings>) => void;
@@ -516,17 +526,18 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       }));
     };
 
-    const sendMemberSms = (memberId: string): SmsInviteData | null => {
+    const queueMemberSms = (memberId: string): SmsInviteData | null => {
       const member = state.members.find((m) => m.id === memberId);
       if (!member) return null;
       const otp = member.otp || generateOtp();
       const inviteCode = member.inviteCode;
+      const queuedAt = Date.now();
 
       setState((s) => ({
         ...s,
         members: s.members.map((m) =>
           m.id === memberId
-            ? { ...m, otp, otpExpiresAt: Date.now() + 30 * 60 * 1000 }
+            ? { ...m, otp, otpExpiresAt: queuedAt + 30 * 60 * 1000, smsQueuedAt: queuedAt }
             : m
         ),
       }));
@@ -537,6 +548,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         phone: member.phone,
         inviteCode,
         otp,
+        queuedAt,
         link: `${window.location.origin}${window.location.pathname}#/kyc/${inviteCode.toLowerCase()}`,
       };
     };
@@ -612,6 +624,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         nationalIdName: input.nationalIdName,
         companyRegDataUrl: input.companyRegDataUrl,
         companyRegName: input.companyRegName,
+        signatureDataUrl: input.signatureDataUrl,
+        signatureName: input.signatureName,
+        thumbprintDataUrl: input.thumbprintDataUrl,
+        thumbprintName: input.thumbprintName,
         status: "pending",
         submittedAt: Date.now(),
       };
@@ -675,6 +691,35 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       }));
     };
 
+    const setEvidenceVerification: StoreValue["setEvidenceVerification"] = (
+      submissionId,
+      evidence,
+      verified
+    ) => {
+      const verifiedAt = verified ? Date.now() : undefined;
+      const verifiedBy = verified ? "Manager · Suresh" : undefined;
+      setState((s) => ({
+        ...s,
+        submissions: s.submissions.map((submission) =>
+          submission.id === submissionId
+            ? evidence === "signature"
+              ? {
+                  ...submission,
+                  signatureVerified: verified,
+                  signatureVerifiedAt: verifiedAt,
+                  signatureVerifiedBy: verifiedBy,
+                }
+              : {
+                  ...submission,
+                  thumbprintVerified: verified,
+                  thumbprintVerifiedAt: verifiedAt,
+                  thumbprintVerifiedBy: verifiedBy,
+                }
+            : submission
+        ),
+      }));
+    };
+
     const markPrinted = (submissionId: string) => {
       const sub = state.submissions.find((s) => s.id === submissionId);
       if (!sub || sub.status !== "approved") return;
@@ -734,11 +779,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       findByInviteCode,
       addMembers,
       resendInvite,
-      sendMemberSms,
+      queueMemberSms,
       submitKyc,
       startReview,
       approveSubmission,
       rejectSubmission,
+      setEvidenceVerification,
       markPrinted,
       offlineAdd,
       updateOrgSettings,

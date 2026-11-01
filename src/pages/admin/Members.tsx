@@ -9,7 +9,7 @@ import {
   MessageSquare,
   Plus,
   RefreshCcw,
-  Send,
+  Clock,
   Smartphone,
   Sparkles,
   Upload,
@@ -22,7 +22,7 @@ import { parseCsv } from "../../lib/csv";
 import { navigate } from "../../lib/router";
 
 export default function Members() {
-  const { state, addMembers, resendInvite, sendMemberSms } = useStore();
+  const { state, addMembers, resendInvite, queueMemberSms } = useStore();
   const fileRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
   const [parsed, setParsed] = useState<{
@@ -53,8 +53,8 @@ export default function Members() {
     setNotice(result.errors[0] ?? "");
   };
 
-  const handleSendSms = (memberId: string) => {
-    const sms = sendMemberSms(memberId);
+  const handleQueueSms = (memberId: string) => {
+    const sms = queueMemberSms(memberId);
     if (sms) {
       setActiveSms(sms);
     }
@@ -82,7 +82,7 @@ export default function Members() {
       },
     ]);
     setManual({ name: "", phone: "", membershipCode: "" });
-    setNotice("✓ Member added! SMS invite generated.");
+    setNotice("✓ Member added! Invite details generated; no SMS was sent.");
     setTimeout(() => setNotice(""), 3000);
   };
 
@@ -91,10 +91,10 @@ export default function Members() {
       {/* Page Header */}
       <div>
         <h2 className="text-xl sm:text-2xl font-black text-slate-900">
-          Member Management & SMS Dispatch
+          Member Directory & Local SMS Queue
         </h2>
         <p className="text-xs sm:text-sm text-slate-500">
-          Manage member directory and trigger SMS invitations containing personalized links and OTP codes.
+          Prepare SMS invitations with personalized links and OTP codes. The prototype queues them locally; no real SMS is sent.
         </p>
       </div>
 
@@ -103,13 +103,13 @@ export default function Members() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-[#145C45]/50 px-2.5 py-0.5 text-[11px] font-bold text-[#DDF3E7] border border-[#1a7357]/60">
-              <Sparkles className="h-3 w-3 text-amber-300" /> Step 2: Member Receives SMS
+              <Sparkles className="h-3 w-3 text-amber-300" /> SMS invitation queue
             </span>
             <h3 className="text-base sm:text-lg font-black text-white">
-              Send SMS to Ram Sharma (+977 9812345678)
+              Prepare invitation for Ram Sharma (+977 9812345678)
             </h3>
             <p className="text-xs text-[#DDF3E7] leading-relaxed max-w-xl">
-              System sends Ram a personalized link and OTP:{" "}
+              Queue the invitation text locally, then copy and send it manually or connect an SMS provider:{" "}
               <span className="font-mono font-bold text-amber-300">
                 kyc.coop/abc123 + OTP 123456
               </span>
@@ -118,10 +118,10 @@ export default function Members() {
           </div>
           <div className="flex flex-wrap sm:flex-col gap-2 shrink-0">
             <button
-              onClick={() => handleSendSms("mem_ram")}
+              onClick={() => handleQueueSms("mem_ram")}
               className="flex items-center justify-center gap-2 rounded-2xl bg-[#145C45] hover:bg-[#0f4534] active:scale-95 px-5 py-3 text-xs sm:text-sm font-bold text-white shadow-lg shadow-[#145C45]/30 transition cursor-pointer"
             >
-              <Send className="h-4 w-4" /> Send SMS to Ram
+              <Clock className="h-4 w-4" /> Queue SMS text
             </button>
             <button
               onClick={() => navigate("/kyc/abc123")}
@@ -293,7 +293,7 @@ export default function Members() {
           <h3 className="flex items-center gap-2 text-sm font-extrabold text-slate-900">
             <UsersIcon className="h-4 w-4 text-[#145C45]" /> Registered Cooperative Members ({members.length})
           </h3>
-          <span className="text-xs text-slate-400">Step 2: Trigger SMS</span>
+          <span className="text-xs text-slate-400">Queue only · no SMS delivery</span>
         </div>
 
         <div className="space-y-2.5">
@@ -336,6 +336,11 @@ export default function Members() {
                       </span>{" "}
                       · OTP: <span className="font-mono font-bold text-amber-700">{m.otp}</span>
                     </p>
+                    {m.smsQueuedAt && (
+                      <p className="mt-1 text-[11px] font-bold text-amber-700">
+                        Invitation queued locally · not delivered
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -343,12 +348,12 @@ export default function Members() {
                 <div className="flex items-center gap-1.5 self-end sm:self-auto">
                   {/* Send / Preview SMS Button */}
                   <button
-                    onClick={() => handleSendSms(m.id)}
+                    onClick={() => handleQueueSms(m.id)}
                     className="flex items-center gap-1 rounded-xl bg-[#145C45] hover:bg-[#0f4534] active:scale-95 text-white px-3 py-2 text-xs font-bold shadow-sm transition cursor-pointer"
-                    title="Send SMS and view link & OTP"
+                    title="Queue SMS text locally and copy it for manual sending"
                   >
-                    <Send className="h-3.5 w-3.5" />
-                    <span>Send SMS</span>
+                    <Clock className="h-3.5 w-3.5" />
+                    <span>Queue SMS</span>
                   </button>
 
                   {/* Copy Link */}

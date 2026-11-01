@@ -61,6 +61,7 @@ export interface Member {
   otpExpiresAt: number;
   invitedAt: number;
   status: KycStatus;
+  smsQueuedAt?: number;
   isDemo?: boolean;
 }
 
@@ -120,6 +121,16 @@ export interface KycSubmission {
   nationalIdName?: string;
   companyRegDataUrl?: string;
   companyRegName?: string;
+  signatureDataUrl?: string;
+  signatureName?: string;
+  signatureVerified?: boolean;
+  signatureVerifiedAt?: number;
+  signatureVerifiedBy?: string;
+  thumbprintDataUrl?: string;
+  thumbprintName?: string;
+  thumbprintVerified?: boolean;
+  thumbprintVerifiedAt?: number;
+  thumbprintVerifiedBy?: string;
   // Legacy doc fields (for backward compat with seed data)
   idDocType?: string;
   idDocDataUrl?: string;
