@@ -28,10 +28,11 @@ import {
   KeyRound,
   Loader2,
   MessageSquare,
+  Pencil,
+  Plus,
   Printer,
   ShieldCheck,
   Sparkles,
-  Upload,
   User,
   X,
 } from "lucide-react";
@@ -207,9 +208,15 @@ function DocRow({
 }) {
   const ref = useRef<HTMLInputElement>(null);
   const { t } = useI18n();
+  const [uploadError, setUploadError] = useState("");
+
+  const openFilePicker = () => {
+    setUploadError("");
+    ref.current?.click();
+  };
 
   return (
-    <div className="flex items-center justify-between gap-3 border-b border-slate-100 py-2.5 last:border-0">
+    <div className="relative flex items-center justify-between gap-3 border-b border-slate-100 py-2.5 last:border-0">
       <div className="min-w-0 flex-1">
         <p className="text-sm font-semibold text-slate-800">
           {label}
@@ -230,33 +237,46 @@ function DocRow({
             <button
               type="button"
               onClick={() => onView?.(value)}
-              className="flex items-center gap-1 rounded border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 cursor-pointer"
+              aria-label={`${t("view")} ${label}`}
+              title={`${t("view")} ${label}`}
+              className="flex h-9 w-9 items-center justify-center rounded border border-slate-300 bg-white text-slate-600 transition hover:bg-slate-50 hover:text-[#145C45] cursor-pointer"
             >
-              <Eye className="h-3.5 w-3.5" /> {t("view")}
+              <Eye className="h-4 w-4" />
             </button>
             <button
               type="button"
-              onClick={() => ref.current?.click()}
-              className="flex items-center gap-1 rounded border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 cursor-pointer"
+              onClick={openFilePicker}
+              aria-label={`${t("edit")} ${label}`}
+              title={`${t("edit")} ${label}`}
+              className="flex h-9 w-9 items-center justify-center rounded border border-slate-300 bg-white text-slate-600 transition hover:bg-slate-50 hover:text-[#145C45] cursor-pointer"
             >
-              <Upload className="h-3.5 w-3.5" /> {t("replace")}
+              <Pencil className="h-4 w-4" />
             </button>
             <button
               type="button"
               onClick={() => onChange(emptyDoc())}
-              className="flex items-center gap-1 rounded border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 cursor-pointer"
+              aria-label={`${t("remove")} ${label}`}
+              title={`${t("remove")} ${label}`}
+              className="flex h-9 w-9 items-center justify-center rounded border border-slate-300 bg-white text-slate-600 transition hover:bg-slate-50 hover:text-rose-600 cursor-pointer"
             >
-              <X className="h-3.5 w-3.5" /> {t("remove")}
+              <X className="h-4 w-4" />
             </button>
           </>
         ) : (
           <button
             type="button"
-            onClick={() => ref.current?.click()}
-            className="flex items-center gap-1.5 rounded border border-[#145C45] bg-white px-3 py-1.5 text-xs font-bold text-[#145C45] shadow-sm transition hover:bg-[#DDF3E7] active:scale-95 cursor-pointer"
+            onClick={openFilePicker}
+            aria-label={`${t("upload")} ${label}`}
+            title={`${t("upload")} ${label}`}
+            className="flex h-9 w-9 items-center justify-center rounded border border-[#145C45] bg-white text-[#145C45] shadow-sm transition hover:bg-[#DDF3E7] active:scale-95 cursor-pointer"
           >
-            <Upload className="h-3.5 w-3.5" /> {t("upload")}
+            <Plus className="h-5 w-5" />
           </button>
+        )}
+        {uploadError && (
+          <p role="alert" className="absolute right-0 top-full z-10 max-w-48 rounded bg-red-50 px-2 py-1 text-[10px] font-semibold text-red-700 shadow">
+            {uploadError}
+          </p>
         )}
         <input
           ref={ref}
@@ -266,13 +286,17 @@ function DocRow({
           onChange={async (e: ChangeEvent<HTMLInputElement>) => {
             const f = e.target.files?.[0];
             if (!f) return;
-            if (f.type.startsWith("image/")) {
-              const url = await fileToDataUrl(f);
-              onChange({ dataUrl: url, name: f.name });
-            } else {
-              onChange({ dataUrl: await fileToRawDataUrl(f), name: f.name });
+            setUploadError("");
+            try {
+              const dataUrl = f.type.startsWith("image/")
+                ? await fileToDataUrl(f)
+                : await fileToRawDataUrl(f);
+              onChange({ dataUrl, name: f.name });
+            } catch {
+              setUploadError(t("docReadError"));
+            } finally {
+              e.target.value = "";
             }
-            e.target.value = "";
           }}
         />
       </div>
@@ -321,7 +345,18 @@ function DocViewer({ doc, onClose }: { doc: Doc; onClose: () => void }) {
               title={doc.name}
               className="h-[60vh] w-full rounded border-0 bg-white"
             />
-          ) : null}
+          ) : (
+            <div className="space-y-3 text-center">
+              <p className="text-sm font-semibold text-slate-700">{t("docPreviewUnsupported")}</p>
+              <a
+                href={doc.dataUrl}
+                download={doc.name || "document"}
+                className="inline-flex items-center gap-2 rounded-lg bg-[#145C45] px-4 py-2 text-sm font-bold text-white"
+              >
+                <FileText className="h-4 w-4" /> {t("downloadDocument")}
+              </a>
+            </div>
+          )}
         </div>
       </div>
     </div>
