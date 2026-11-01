@@ -7,7 +7,7 @@
 html,
 body,
 #root {
-  min-height: 100%;
+  min-height: 100dvh;
 }
 
 body {
@@ -15,9 +15,20 @@ body {
   font-family: var(--font-sans);
 }
 
+/*
+ * Auth screens (landing page + manager login) render a full-height dark green
+ * background. Keep the background on the root elements in sync with the gradient
+ * container so the default background never shows through below the container.
+ */
 html:has(.auth-page),
-body:has(.auth-page) {
-  background-color: #0a382a;
+body:has(.auth-page),
+#root:has(.auth-page) {
+  background-color: #145C45;
+}
+
+/* Auth screens (landing page + manager login): gradient container must fill full height */
+.auth-page {
+  min-height: 100dvh;
 }
 
 #root {

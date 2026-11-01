@@ -68,7 +68,7 @@ function LandingPage() {
   };
 
   return (
-    <div className="auth-page relative flex min-h-dvh w-full flex-col items-center justify-start overflow-x-clip bg-gradient-to-br from-[#145C45] via-[#115E59] to-[#0A382A] px-3 pb-6 pt-16 text-slate-900 selection:bg-[#DDF3E7] selection:text-[#145C45] sm:px-6 sm:py-12 lg:px-8">
+    <div className="auth-page relative flex min-h-dvh w-full flex-col items-center justify-start overflow-x-clip bg-[#145C45] px-3 pb-6 pt-16 text-slate-900 selection:bg-[#DDF3E7] selection:text-[#145C45] sm:px-6 sm:py-12 lg:px-8">
       {/* Language toggle (English / नेपाली) */}
       <div className="absolute top-4 right-4 z-20">
         <LanguageToggle />
