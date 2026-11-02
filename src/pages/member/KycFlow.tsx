@@ -539,7 +539,13 @@ function WizardShell({
 // ═══════════════════════════════════════════════════════════════════════════════
 // MAIN COMPONENT
 // ═══════════════════════════════════════════════════════════════════════════════
-export default function KycFlow({ code }: { code: string }) {
+export default function KycFlow({
+  code,
+  managerMode = false,
+}: {
+  code: string;
+  managerMode?: boolean;
+}) {
   const { state, findByInviteCode, submitKyc, resendInvite } = useStore();
   const { t, lang } = useI18n();
   const org = state.orgSettings;
@@ -609,12 +615,21 @@ export default function KycFlow({ code }: { code: string }) {
   // Name / phone (pre-filled from member record)
   const [memberName, setMemberName] = useState("");
   const memberPhone = member?.phone ?? "";
+  const memberLink = member
+    ? `${window.location.origin}${window.location.pathname}#/kyc/${member.inviteCode.toLowerCase()}`
+    : "";
 
   // ── Effects ────────────────────────────────────────────────────────────────
   useEffect(() => {
     if (member) {
       setMemberName(member.name);
-      setScreen(member.status === "invited" ? "otp" : "status");
+      setScreen(
+        member.status === "invited"
+          ? managerMode
+            ? "general"
+            : "otp"
+          : "status"
+      );
     } else {
       setScreen("invalid");
     }
@@ -899,7 +914,12 @@ export default function KycFlow({ code }: { code: string }) {
             </div>
             <div className="rounded-xl bg-white border border-slate-200 p-3.5 shadow-sm">
               <p className="text-xs text-slate-600 leading-relaxed">
-                {t("smsBody", { name: member.name, code: member.inviteCode.toLowerCase(), otp: member.otp }).split("— OTP:")[0]}
+                {t("smsBody", {
+                  name: member.name,
+                  code: member.inviteCode.toLowerCase(),
+                  link: memberLink,
+                  otp: member.otp,
+                }).split("— OTP:")[0]}
                 {" — OTP: "}
                 <button
                   type="button"
@@ -1017,7 +1037,11 @@ export default function KycFlow({ code }: { code: string }) {
   // ── Render: Step 1 — General Details ──────────────────────────────────────
   if (screen === "general" && member) {
     return (
-      <WizardShell memberName={memberName} currentStep="general" onCancel={() => setScreen("otp")}>
+      <WizardShell
+        memberName={memberName}
+        currentStep="general"
+        onCancel={() => managerMode ? navigate("/admin/members") : setScreen("otp")}
+      >
         <div className="flex gap-5">
           {/* Form */}
           <div className="flex-1 min-w-0 rounded-xl bg-white p-4 shadow-sm border border-slate-200">
