@@ -8,7 +8,6 @@ import {
   Link2,
   MessageSquare,
   Plus,
-  RefreshCcw,
   Clock,
   Upload,
   UserPlus,
@@ -20,7 +19,7 @@ import { parseCsv } from "../../lib/csv";
 import { navigate } from "../../lib/router";
 
 export default function Members() {
-  const { state, addMembers, resendInvite, queueMemberSms } = useStore();
+  const { state, addMembers, queueMemberSms } = useStore();
   const fileRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
   const [parsed, setParsed] = useState<{
@@ -341,19 +340,6 @@ export default function Members() {
                     <ExternalLink className="h-3.5 w-3.5" />
                   </button>
 
-                  {/* Refresh OTP */}
-                  <button
-                    onClick={() => {
-                      resendInvite(m.id);
-                      setNotice(`✓ New OTP generated for ${m.name}`);
-                      setTimeout(() => setNotice(""), 2000);
-                    }}
-                    className="rounded-xl border border-slate-200 bg-white hover:bg-slate-100 p-2 text-slate-500 transition"
-                    title="Regenerate OTP"
-                    aria-label="Resend"
-                  >
-                    <RefreshCcw className="h-3.5 w-3.5" />
-                  </button>
                 </div>
               </div>
             );
