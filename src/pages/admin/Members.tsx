@@ -10,8 +10,6 @@ import {
   Plus,
   RefreshCcw,
   Clock,
-  Smartphone,
-  Sparkles,
   Upload,
   UserPlus,
   Users as UsersIcon,
@@ -98,41 +96,6 @@ export default function Members() {
         <p className="text-xs sm:text-sm text-slate-500">
         Prepare invitations with each member's phone number, personal link, and OTP. Open your SMS app to send; messages are not sent automatically.
         </p>
-      </div>
-
-      {/* Step 2 Callout Banner: Ram's SMS Link */}
-      <div className="rounded-3xl bg-gradient-to-br from-[#145C45] via-[#1a7357] to-[#0f4534] p-5 text-white shadow-xl border border-[#145C45]/60">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#145C45]/50 px-2.5 py-0.5 text-[11px] font-bold text-[#DDF3E7] border border-[#1a7357]/60">
-              <Sparkles className="h-3 w-3 text-amber-300" /> SMS invitation queue
-            </span>
-            <h3 className="text-base sm:text-lg font-black text-white">
-              Prepare invitation for Ram Sharma (+977 9812345678)
-            </h3>
-            <p className="text-xs text-[#DDF3E7] leading-relaxed max-w-xl">
-              Open an SMS invitation for Ram with his member-specific link and invite code:{" "}
-              <span className="font-mono font-bold text-amber-300">
-                ABC123 · OTP 123456
-              </span>
-              . He can use the link and verify with the OTP.
-            </p>
-          </div>
-          <div className="flex flex-wrap sm:flex-col gap-2 shrink-0">
-            <button
-              onClick={() => handleQueueSms("mem_ram")}
-              className="flex items-center justify-center gap-2 rounded-2xl bg-[#145C45] hover:bg-[#0f4534] active:scale-95 px-5 py-3 text-xs sm:text-sm font-bold text-white shadow-lg shadow-[#145C45]/30 transition cursor-pointer"
-            >
-              <Clock className="h-4 w-4" /> Queue SMS text
-            </button>
-            <button
-              onClick={() => navigate("/manager-kyc/abc123")}
-              className="flex items-center justify-center gap-1.5 rounded-2xl bg-[#145C45]/90 hover:bg-[#0f4534] px-4 py-2.5 text-xs font-semibold text-[#DDF3E7] transition cursor-pointer"
-            >
-              <Smartphone className="h-3.5 w-3.5" /> Open Ram's KYC (abc123)
-            </button>
-          </div>
-        </div>
       </div>
 
       {notice && (
