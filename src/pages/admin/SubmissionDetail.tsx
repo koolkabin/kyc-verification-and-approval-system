@@ -25,8 +25,14 @@ const QUICK_REJECTION_REASONS = [
 ];
 
 export default function SubmissionDetail({ id }: { id: string }) {
-  const { state, getSubmission, approveSubmission, rejectSubmission, markPrinted } =
-    useStore();
+  const {
+    state,
+    getSubmission,
+    approveSubmission,
+    rejectSubmission,
+    markPrinted,
+    setEvidenceVerification,
+  } = useStore();
   const sub = getSubmission(id);
   const [rejectOpen, setRejectOpen] = useState(false);
   const [enlargedImage, setEnlargedImage] = useState<{
@@ -47,7 +53,7 @@ export default function SubmissionDetail({ id }: { id: string }) {
         <p className="mt-3 font-bold text-slate-700">Submission not found</p>
         <button
           onClick={() => navigate("/admin")}
-          className="mt-4 rounded-xl bg-blue-700 px-5 py-2.5 text-sm font-bold text-white hover:bg-blue-800 transition"
+          className="mt-4 rounded-xl bg-[#145C45] px-5 py-2.5 text-sm font-bold text-white hover:bg-[#0f4534] transition cursor-pointer"
         >
           Back to Dashboard
         </button>
@@ -71,11 +77,11 @@ export default function SubmissionDetail({ id }: { id: string }) {
       <div className="flex items-center justify-between">
         <button
           onClick={() => navigate("/admin")}
-          className="flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-blue-900 transition"
+          className="flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-[#145C45] transition cursor-pointer"
         >
           <ArrowLeft className="h-4 w-4" /> Back to Submissions
         </button>
-        <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-900 border border-blue-200">
+        <span className="rounded-full bg-[#DDF3E7] px-3 py-1 text-xs font-bold text-[#145C45] border border-[#145C45]/30">
           KYC-{sub.membershipCode}
         </span>
       </div>
@@ -96,7 +102,7 @@ export default function SubmissionDetail({ id }: { id: string }) {
             </h2>
             <p className="text-xs text-slate-500 font-medium">
               Member Code: <span className="font-bold text-slate-700">{sub.membershipCode}</span> ·
-              Phone: <span className="font-bold text-slate-700">+91 {sub.phone}</span>
+              Phone: <span className="font-bold text-slate-700 font-mono">+977 {sub.phone}</span>
             </p>
           </div>
           <StatusPill status={sub.status} />
@@ -113,36 +119,36 @@ export default function SubmissionDetail({ id }: { id: string }) {
           Submitted KYC Information
         </h3>
         <dl className="space-y-2.5 text-xs sm:text-sm">
-          <div className="flex justify-between gap-4 py-1 border-b border-slate-50">
+          <div className="grid grid-cols-1 gap-1 py-1 border-b border-slate-50 sm:flex sm:justify-between sm:gap-4">
             <dt className="text-slate-500 font-medium">Residential Address</dt>
-            <dd className="text-right font-bold text-slate-900 max-w-[65%]">
+            <dd className="break-words font-bold text-slate-900 sm:max-w-[65%] sm:text-right">
               {sub.address || "—"}
             </dd>
           </div>
-          <div className="flex justify-between gap-4 py-1 border-b border-slate-50">
+          <div className="grid grid-cols-1 gap-1 py-1 border-b border-slate-50 sm:flex sm:justify-between sm:gap-4">
             <dt className="text-slate-500 font-medium">Document Proof Type</dt>
-            <dd className="text-right font-bold text-slate-900">
+            <dd className="break-words font-bold text-slate-900 sm:text-right">
               {sub.idDocType ?? "Government ID"}
             </dd>
           </div>
-          <div className="flex justify-between gap-4 py-1 border-b border-slate-50">
+          <div className="grid grid-cols-1 gap-1 py-1 border-b border-slate-50 sm:flex sm:justify-between sm:gap-4">
             <dt className="text-slate-500 font-medium">Submitted On</dt>
-            <dd className="text-right font-bold text-slate-800">
+            <dd className="break-words font-bold text-slate-800 sm:text-right">
               {formatDateTime(sub.submittedAt)}
             </dd>
           </div>
           {sub.reviewedAt && (
-            <div className="flex justify-between gap-4 py-1 border-b border-slate-50">
+            <div className="grid grid-cols-1 gap-1 py-1 border-b border-slate-50 sm:flex sm:justify-between sm:gap-4">
               <dt className="text-slate-500 font-medium">Review Decision</dt>
-              <dd className="text-right font-bold text-slate-800">
+              <dd className="break-words font-bold text-slate-800 sm:text-right">
                 {formatDateTime(sub.reviewedAt)} · {sub.reviewedBy}
               </dd>
             </div>
           )}
           {sub.printedAt && (
-            <div className="flex justify-between gap-4 py-1 border-b border-slate-50">
+            <div className="grid grid-cols-1 gap-1 py-1 border-b border-slate-50 sm:flex sm:justify-between sm:gap-4">
               <dt className="text-slate-500 font-medium">Printed At</dt>
-              <dd className="text-right font-bold text-slate-800">
+              <dd className="break-words font-bold text-slate-800 sm:text-right">
                 {formatDateTime(sub.printedAt)}
               </dd>
             </div>
@@ -170,7 +176,7 @@ export default function SubmissionDetail({ id }: { id: string }) {
           <div className="rounded-2xl border border-slate-200 p-3 bg-slate-50 flex flex-col justify-between">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold text-slate-700">Member Photo</span>
-              <span className="text-[10px] text-blue-700 bg-blue-100 font-bold px-2 py-0.5 rounded-md">
+              <span className="text-[10px] font-bold text-[#145C45] bg-[#DDF3E7] px-2 py-0.5 rounded-md">
                 Passport Photo
               </span>
             </div>
@@ -206,7 +212,7 @@ export default function SubmissionDetail({ id }: { id: string }) {
               <span className="text-xs font-bold text-slate-700">
                 {sub.idDocType ?? "ID Document"}
               </span>
-              <span className="text-[10px] text-blue-700 bg-blue-100 font-bold px-2 py-0.5 rounded-md">
+              <span className="text-[10px] font-bold text-[#145C45] bg-[#DDF3E7] px-2 py-0.5 rounded-md">
                 Front Proof
               </span>
             </div>
@@ -236,6 +242,103 @@ export default function SubmissionDetail({ id }: { id: string }) {
             )}
           </div>
         </div>
+      </div>
+
+      {/* Signature and thumbprint verification */}
+      <div className="rounded-3xl bg-white p-5 shadow-sm border border-slate-200/80 space-y-3">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+          Signature &amp; Thumbprint Verification
+        </h3>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {(
+            [
+              {
+                evidence: "signature",
+                label: "Member Signature",
+                image: sub.signatureDataUrl,
+                fileName: sub.signatureName,
+                verified: sub.signatureVerified,
+                verifiedAt: sub.signatureVerifiedAt,
+                verifiedBy: sub.signatureVerifiedBy,
+              },
+              {
+                evidence: "thumbprint",
+                label: "Member Thumbprint",
+                image: sub.thumbprintDataUrl,
+                fileName: sub.thumbprintName,
+                verified: sub.thumbprintVerified,
+                verifiedAt: sub.thumbprintVerifiedAt,
+                verifiedBy: sub.thumbprintVerifiedBy,
+              },
+            ] as const
+          ).map((item) => (
+            <div
+              key={item.evidence}
+              className="rounded-2xl border border-slate-200 bg-slate-50 p-3 space-y-3"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs font-bold text-slate-700">{item.label}</span>
+                <span
+                  className={`rounded-md px-2 py-0.5 text-[10px] font-bold ${
+                    item.verified
+                      ? "bg-emerald-100 text-emerald-800"
+                      : "bg-amber-100 text-amber-800"
+                  }`}
+                >
+                  {item.verified ? "Verified by reviewer" : "Not verified"}
+                </span>
+              </div>
+              {item.image ? (
+                <button
+                  type="button"
+                  onClick={() =>
+                    setEnlargedImage({
+                      url: item.image!,
+                      title: `${item.label} - ${sub.memberName}`,
+                    })
+                  }
+                  className="block w-full overflow-hidden rounded-xl border border-slate-200 bg-white"
+                >
+                  <img
+                    src={item.image}
+                    alt={item.label}
+                    className="h-40 w-full object-contain"
+                  />
+                </button>
+              ) : (
+                <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-slate-300 bg-white text-xs text-slate-400">
+                  No {item.label.toLowerCase()} uploaded
+                </div>
+              )}
+              {item.fileName && (
+                <p className="truncate text-[11px] text-slate-500">{item.fileName}</p>
+              )}
+              {item.verified && item.verifiedAt && (
+                <p className="text-[11px] text-emerald-800">
+                  Verified {formatDateTime(item.verifiedAt)}
+                  {item.verifiedBy ? ` · ${item.verifiedBy}` : ""}
+                </p>
+              )}
+              <button
+                type="button"
+                disabled={!item.image}
+                onClick={() =>
+                  setEvidenceVerification(
+                    sub.id,
+                    item.evidence,
+                    !item.verified
+                  )
+                }
+                className="w-full rounded-xl border border-[#145C45] px-3 py-2 text-xs font-bold text-[#145C45] transition hover:bg-[#DDF3E7] disabled:cursor-not-allowed disabled:border-slate-200 disabled:text-slate-400 disabled:hover:bg-transparent"
+              >
+                {item.verified ? "Undo verification" : "Mark as verified"}
+              </button>
+            </div>
+          ))}
+        </div>
+        <p className="text-[11px] text-slate-500">
+          Verification is a manual reviewer confirmation of the uploaded image, not biometric or identity authentication.
+        </p>
       </div>
 
       {/* User-Friendly Mobile-Focused Action Card */}
@@ -272,7 +375,7 @@ export default function SubmissionDetail({ id }: { id: string }) {
             </div>
             <button
               onClick={handlePrint}
-              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-900 hover:bg-blue-950 active:scale-[0.98] py-3.5 text-sm font-extrabold text-white shadow-lg shadow-slate-900/25 transition focus:outline-none focus:ring-4 focus:ring-slate-400"
+              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#145C45] hover:bg-[#0f4534] active:scale-[0.98] py-3.5 text-sm font-extrabold text-white shadow-lg shadow-[#145C45]/20 transition focus:outline-none focus:ring-4 focus:ring-[#DDF3E7] cursor-pointer"
             >
               <Printer className="h-5 w-5" />
               <span>Print Official KYC Document</span>
@@ -282,8 +385,8 @@ export default function SubmissionDetail({ id }: { id: string }) {
 
         {sub.status === "printed" && (
           <div className="space-y-2">
-            <div className="flex items-center gap-2 rounded-2xl bg-blue-50 p-3 text-xs font-bold text-blue-900 border border-blue-200">
-              <CheckCircle2 className="h-4 w-4 shrink-0 text-blue-700" />
+            <div className="flex items-center gap-2 rounded-2xl bg-[#DDF3E7] p-3 text-xs font-bold text-[#145C45] border border-[#145C45]/30">
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-[#145C45]" />
               This KYC has been printed and archived in society records.
             </div>
             <button

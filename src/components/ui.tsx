@@ -11,7 +11,18 @@ import {
 } from "lucide-react";
 import type { KycStatus } from "../lib/types";
 import { KYC_FLOW, STATUS_LABEL } from "../lib/types";
+import { useI18n, type TranslationKey } from "../lib/i18n";
 import { navigate } from "../lib/router";
+import { useStore } from "../lib/store";
+
+const STATUS_I18N_KEYS: Record<string, TranslationKey> = {
+  invited: "statusInvited",
+  submitted: "statusSubmitted",
+  pending: "statusPending",
+  approved: "statusApproved",
+  rejected: "statusRejected",
+  printed: "statusPrinted",
+};
 
 const STATUS_STYLES: Record<
   string,
@@ -37,7 +48,7 @@ const STATUS_STYLES: Record<
   },
   approved: {
     pill: "bg-emerald-50 text-emerald-800 border-emerald-200 font-semibold",
-    dot: "bg-emerald-600",
+    dot: "bg-[#059669]",
     text: "text-emerald-800",
     bg: "bg-emerald-50",
   },
@@ -48,21 +59,23 @@ const STATUS_STYLES: Record<
     bg: "bg-rose-50",
   },
   printed: {
-    pill: "bg-blue-50 text-blue-900 border-blue-300 font-semibold",
-    dot: "bg-blue-700",
-    text: "text-blue-900",
-    bg: "bg-blue-50",
+    pill: "bg-[#DDF3E7] text-[#145C45] border-[#145C45]/30 font-semibold",
+    dot: "bg-[#145C45]",
+    text: "text-[#145C45]",
+    bg: "bg-[#DDF3E7]",
   },
 };
 
 export function StatusPill({ status }: { status: KycStatus }) {
+  const { t } = useI18n();
   const s = STATUS_STYLES[status] ?? STATUS_STYLES.invited;
+  const labelKey = STATUS_I18N_KEYS[status] ?? "statusInvited";
   return (
     <span
       className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${s.pill}`}
     >
       <span className={`h-1.5 w-1.5 rounded-full ${s.dot}`} />
-      {STATUS_LABEL[status]}
+      {t(labelKey)}
     </span>
   );
 }
@@ -91,6 +104,8 @@ export function StatusIcon({
 }
 
 export function StatusStepper({ status }: { status: KycStatus }) {
+  const { t } = useI18n();
+
   if (status === "rejected") {
     return (
       <div className="rounded-2xl border border-rose-200 bg-rose-50/80 p-4">
@@ -116,11 +131,11 @@ export function StatusStepper({ status }: { status: KycStatus }) {
           const state =
             i < currentIdx ? "done" : i === currentIdx ? "current" : "todo";
           const labels = [
-            "Invited",
-            "Submitted",
-            "Review",
-            "Approved",
-            "Printed",
+            t("stepInvited"),
+            t("stepSubmitted"),
+            t("stepReview"),
+            t("stepApproved"),
+            t("stepPrinted"),
           ];
           return (
             <li key={step} className="flex flex-1 items-center last:flex-none">
@@ -141,7 +156,7 @@ export function StatusStepper({ status }: { status: KycStatus }) {
                   )}
                 </div>
                 <span
-                  className={`text-[10px] sm:text-xs font-semibold text-center whitespace-nowrap ${
+                  className={`max-w-[3.5rem] text-[9px] leading-tight sm:max-w-none sm:text-xs font-semibold text-center whitespace-normal ${
                     state === "current"
                       ? "text-blue-900 font-bold"
                       : state === "done"
@@ -185,7 +200,7 @@ export function Avatar({
     (parts[0]?.[0] ?? "?").toUpperCase() + (parts[1]?.[0] ?? "").toUpperCase();
   return (
     <div
-      className={`${sizes} shrink-0 rounded-2xl bg-gradient-to-br from-blue-700 via-indigo-800 to-slate-900 flex items-center justify-center font-extrabold text-white shadow-sm ring-1 ring-white/20`}
+      className={`${sizes} shrink-0 rounded-2xl bg-gradient-to-br from-[#145C45] via-[#1a7357] to-[#0f4534] flex items-center justify-center font-extrabold text-white shadow-sm ring-1 ring-white/20`}
     >
       {initial}
     </div>
@@ -261,7 +276,7 @@ export function Modal({
 }
 
 /**
- * Mobile SMS Simulator Modal showing the exact SMS received by the member
+ * Mobile SMS preview showing the message text queued for manual sending
  * (e.g. kyc.coop/abc123 + OTP 123456)
  */
 export function SmsModal({
@@ -279,10 +294,14 @@ export function SmsModal({
     link?: string;
   } | null;
 }) {
+  const { state } = useStore();
+  const { t } = useI18n();
+  const org = state.orgSettings;
   const [copied, setCopied] = useState(false);
   if (!open || !data) return null;
 
-  const smsText = `Sangam Cooperative: Dear ${data.name}, please complete your KYC form at kyc.coop/${data.inviteCode.toLowerCase()} . Your verification OTP is: ${data.otp} (Valid for 10 min).`;
+  const orgTag = org.shortName || org.nameEnglish || "Coop KYC";
+  const smsText = t("smsBody", { name: data.name, code: data.inviteCode.toLowerCase(), otp: data.otp });
 
   const copyText = async () => {
     try {
@@ -300,52 +319,34 @@ export function SmsModal({
   };
 
   return (
-    <Modal open={open} onClose={onClose} title="SMS Delivered to Member">
+    <Modal open={open} onClose={onClose} title={t("smsQueuedTitle")}>
       <div className="space-y-4">
-        <div className="flex items-center gap-3 rounded-2xl bg-blue-50/80 p-3.5 border border-blue-100">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-900 text-white">
+        <p className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs font-semibold text-amber-900">
+          {t("smsQueuedNotice")}
+        </p>
+        <div className="flex items-center gap-3 rounded-2xl bg-[#DDF3E7]/80 p-3.5 border border-[#145C45]/20">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#145C45] text-white shadow-sm">
             <Smartphone className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-xs font-semibold text-blue-900/70">
-              Recipient: <span className="font-bold text-blue-950">{data.name}</span>
+            <p className="text-xs font-semibold text-[#145C45]/80">
+              {t("smsRecipient")}: <span className="font-bold text-[#145C45]">{data.name}</span>
             </p>
-            <p className="text-xs text-blue-800 font-mono">+91 {data.phone}</p>
+            <p className="text-xs text-[#145C45] font-mono">+977 {data.phone}</p>
           </div>
         </div>
 
         {/* Realistic Mobile SMS Card */}
         <div className="rounded-2xl border-2 border-slate-200 bg-slate-900 p-4 text-white shadow-inner">
           <div className="mb-2 flex items-center justify-between text-[11px] text-slate-400">
-            <span className="flex items-center gap-1 font-semibold text-blue-300">
-              <MessageSquare className="h-3 w-3" /> SMS · SANGAM-COOP
+            <span className="flex items-center gap-1 font-semibold text-[#DDF3E7]">
+              <MessageSquare className="h-3 w-3" /> SMS &middot; {orgTag.toUpperCase()}
             </span>
-            <span>Just now</span>
+            <span>Queued locally · not sent</span>
           </div>
           <div className="rounded-xl bg-slate-800 p-3.5 text-sm leading-relaxed text-slate-100 border border-slate-700">
             <p>
-              Dear <span className="font-semibold text-white">{data.name}</span>,
-            </p>
-            <p className="mt-1">
-              Please complete your cooperative KYC verification using this secure
-              link:
-            </p>
-            <div className="my-2.5 rounded-lg bg-blue-950/80 p-2.5 border border-blue-800/80 font-mono text-xs text-blue-200">
-              <div className="flex items-center justify-between">
-                <span>🔗 Link:</span>
-                <span className="font-bold text-white underline">
-                  kyc.coop/{data.inviteCode.toLowerCase()}
-                </span>
-              </div>
-              <div className="mt-1 flex items-center justify-between">
-                <span>🔑 OTP Code:</span>
-                <span className="text-base font-extrabold tracking-widest text-amber-300">
-                  {data.otp}
-                </span>
-              </div>
-            </div>
-            <p className="text-xs text-slate-400">
-              Valid for 10 minutes. Do not share this OTP with anyone.
+              {t("smsBody", { name: data.name, code: data.inviteCode.toLowerCase(), otp: data.otp })}
             </p>
           </div>
         </div>
@@ -353,22 +354,22 @@ export function SmsModal({
         <div className="space-y-2 pt-1">
           <button
             onClick={handleOpenLink}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-700 hover:bg-blue-800 active:scale-[0.99] py-3.5 text-sm font-bold text-white shadow-md shadow-blue-700/20 transition"
+            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#145C45] hover:bg-[#0f4534] active:scale-[0.99] py-3.5 text-sm font-bold text-white shadow-md transition cursor-pointer"
           >
-            <ExternalLink className="h-4 w-4" /> Open Member KYC Form (Step 3)
+            <ExternalLink className="h-4 w-4" /> {t("openMemberForm")}
           </button>
           <div className="flex gap-2">
             <button
               onClick={copyText}
-              className="flex-1 rounded-xl border border-slate-200 bg-white py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition"
+              className="flex-1 rounded-xl border border-[#145C45]/30 bg-[#DDF3E7]/40 py-2.5 text-xs font-semibold text-[#145C45] hover:bg-[#DDF3E7] transition cursor-pointer"
             >
-              {copied ? "✓ Copied to clipboard!" : "Copy SMS Text"}
+              {copied ? t("copied") : t("copySms")}
             </button>
             <button
               onClick={onClose}
-              className="rounded-xl border border-slate-200 bg-slate-100 px-4 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-200 transition"
+              className="rounded-xl border border-slate-200 bg-slate-100 px-4 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-200 transition cursor-pointer"
             >
-              Done
+              {t("close")}
             </button>
           </div>
         </div>

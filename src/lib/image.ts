@@ -31,6 +31,18 @@ export function fileToDataUrl(file: File, maxDim = 1024): Promise<string> {
 }
 
 /**
+ * Reads any file (e.g. PDF) into a data URL so it can be stored & viewed later.
+ */
+export function fileToRawDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(new Error("Could not read file"));
+    reader.readAsDataURL(file);
+  });
+}
+
+/**
  * Generates an SVG Data URL of a clean passport-size member portrait for instant demo testing.
  */
 export function createSampleMemberPhoto(name = "Ram Sharma"): string {

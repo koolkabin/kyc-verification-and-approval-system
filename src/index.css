@@ -1,22 +1,51 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-sans: "Plus Jakarta Sans", "Mukta", "Noto Sans Devanagari", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 html,
 body,
 #root {
-  min-height: 100%;
+  min-height: 100dvh;
+}
+
+html,
+body {
+  max-width: 100%;
+  overflow-x: clip;
 }
 
 body {
-  @apply bg-slate-100 text-slate-900 antialiased;
+  @apply bg-[#F8FAFC] text-slate-900 antialiased;
   font-family: var(--font-sans);
+}
+
+/*
+ * Auth screens (landing page + manager login) render a full-height dark green
+ * background. Keep the background on the root elements in sync with the gradient
+ * container so the default background never shows through below the container.
+ */
+html:has(.auth-page),
+body:has(.auth-page),
+#root:has(.auth-page) {
+  background-color: #145C45;
+}
+
+/* Auth screens (landing page + manager login): gradient container must fill full height */
+.auth-page {
+  min-height: 100dvh;
+  min-height: 100svh;
 }
 
 #root {
   min-height: 100dvh;
+}
+
+img,
+video,
+canvas {
+  max-width: 100%;
 }
 
 /* Animations */

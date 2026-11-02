@@ -6,14 +6,79 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { KycSubmission, Member, MemberInput } from "./types";
+import type { KycSubmission, Member, MemberInput, OrgSettings } from "./types";
+import { DEFAULT_ORG_SETTINGS } from "./types";
 
-const STORAGE_KEY = "coop-kyc-state-v4";
+const STORAGE_KEY = "coop-kyc-state-v5";
 const DAY = 24 * 60 * 60 * 1000;
+
+const DEMO_MEMBERS: Omit<Member, "otpExpiresAt" | "invitedAt">[] = [
+  {
+    id: "demo_aarya",
+    name: "Aarya Shrestha",
+    phone: "9800000101",
+    membershipCode: "AD236",
+    inviteCode: "DEMOA1",
+    otp: "236814",
+    status: "invited",
+    isDemo: true,
+  },
+  {
+    id: "demo_bikash",
+    name: "Bikash Rai",
+    phone: "9800000102",
+    membershipCode: "BR517",
+    inviteCode: "DEMOB2",
+    otp: "517203",
+    status: "invited",
+    isDemo: true,
+  },
+  {
+    id: "demo_chandra",
+    name: "Chandra Gurung",
+    phone: "9800000103",
+    membershipCode: "CG804",
+    inviteCode: "DEMOC3",
+    otp: "804126",
+    status: "invited",
+    isDemo: true,
+  },
+  {
+    id: "demo_deepa",
+    name: "Deepa Karki",
+    phone: "9800000104",
+    membershipCode: "DK392",
+    inviteCode: "DEMOD4",
+    otp: "392615",
+    status: "invited",
+    isDemo: true,
+  },
+  {
+    id: "demo_eshan",
+    name: "Eshan Thapa",
+    phone: "9800000105",
+    membershipCode: "ET648",
+    inviteCode: "DEMOE5",
+    otp: "648317",
+    status: "invited",
+    isDemo: true,
+  },
+  {
+    id: "demo_farida",
+    name: "Farida Ansari",
+    phone: "9800000106",
+    membershipCode: "FA731",
+    inviteCode: "DEMOF6",
+    otp: "731952",
+    status: "invited",
+    isDemo: true,
+  },
+];
 
 export interface AppState {
   members: Member[];
   submissions: KycSubmission[];
+  orgSettings: OrgSettings;
 }
 
 export interface SubmitKycInput {
@@ -68,6 +133,10 @@ export interface SubmitKycInput {
   nationalIdName?: string;
   companyRegDataUrl?: string;
   companyRegName?: string;
+  signatureDataUrl?: string;
+  signatureName?: string;
+  thumbprintDataUrl?: string;
+  thumbprintName?: string;
 }
 
 export interface OfflineEntryInput {
@@ -87,6 +156,7 @@ export interface SmsInviteData {
   inviteCode: string;
   otp: string;
   link: string;
+  queuedAt: number;
 }
 
 interface StoreValue {
@@ -96,13 +166,19 @@ interface StoreValue {
   findByInviteCode: (code: string) => Member | undefined;
   addMembers: (rows: MemberInput[]) => Member[];
   resendInvite: (memberId: string) => void;
-  sendMemberSms: (memberId: string) => SmsInviteData | null;
+  queueMemberSms: (memberId: string) => SmsInviteData | null;
   submitKyc: (input: SubmitKycInput) => { ok: boolean; error?: string };
   startReview: (submissionId: string) => void;
   approveSubmission: (submissionId: string) => void;
   rejectSubmission: (submissionId: string, remark: string) => void;
+  setEvidenceVerification: (
+    submissionId: string,
+    evidence: "signature" | "thumbprint",
+    verified: boolean
+  ) => void;
   markPrinted: (submissionId: string) => void;
   offlineAdd: (input: OfflineEntryInput) => KycSubmission;
+  updateOrgSettings: (patch: Partial<OrgSettings>) => void;
   resetState: () => void;
 }
 
@@ -183,6 +259,44 @@ export function seedState(): AppState {
       invitedAt: now - 15 * DAY,
       status: "rejected",
     },
+    {
+      id: "mem_arjun",
+      name: "Arjun Bhandari",
+      phone: "9867654322",
+      membershipCode: "MEM006",
+      inviteCode: "KYC2T8P",
+      otp: "446677",
+      otpExpiresAt: now + 45 * 60 * 1000,
+      invitedAt: now - 1 * DAY,
+      status: "invited",
+    },
+    {
+      id: "mem_kamal",
+      name: "Kamal Pandey",
+      phone: "9867654323",
+      membershipCode: "MEM007",
+      inviteCode: "KYC6T4R",
+      otp: "887766",
+      otpExpiresAt: now + 25 * 60 * 1000,
+      invitedAt: now - 2 * DAY,
+      status: "pending",
+    },
+    {
+      id: "mem_reshma",
+      name: "Reshma Khatri",
+      phone: "9867654324",
+      membershipCode: "MEM008",
+      inviteCode: "KYC9W7Q",
+      otp: "554433",
+      otpExpiresAt: now + 10 * 60 * 1000,
+      invitedAt: now - 6 * 60 * 1000,
+      status: "approved",
+    },
+    ...DEMO_MEMBERS.map((member) => ({
+      ...member,
+      otpExpiresAt: now + 365 * DAY,
+      invitedAt: now,
+    })),
   ];
 
   const submissions: KycSubmission[] = [
@@ -272,9 +386,52 @@ export function seedState(): AppState {
       reviewedBy: "Manager · Suresh",
       remark: "Address on citizenship proof does not match permanent address provided",
     },
+    {
+      id: "sub_kamal",
+      memberId: "mem_kamal",
+      memberName: "Kamal Pandey",
+      phone: "9867654323",
+      membershipCode: "MEM007",
+      email: "kamal@email.com",
+      clientType: "Individual",
+      memberBranch: "Head Office - Kathmandu",
+      country: "Nepal",
+      state: "Bagmati Province",
+      district: "Kathmandu",
+      municipality: "Kathmandu Metropolitan City",
+      wardNo: "22",
+      streetTole: "Bishnu Temple Road",
+      address: "Ward 22, Bishnu Temple Road, Kathmandu Metropolitan City, Kathmandu, Bagmati Province, Nepal",
+      idDocType: "Citizenship",
+      status: "pending",
+      submittedAt: now - 4 * 60 * 1000,
+    },
+    {
+      id: "sub_reshma",
+      memberId: "mem_reshma",
+      memberName: "Reshma Khatri",
+      phone: "9867654324",
+      membershipCode: "MEM008",
+      email: "reshma@email.com",
+      clientType: "Individual",
+      memberBranch: "Biratnagar Branch",
+      country: "Nepal",
+      state: "Koshi Province",
+      district: "Morang",
+      municipality: "Biratnagar Metropolitan City",
+      wardNo: "15",
+      streetTole: "Green View Lane",
+      address: "Ward 15, Green View Lane, Biratnagar Metropolitan City, Morang, Koshi Province, Nepal",
+      idDocType: "PAN Card",
+      status: "approved",
+      submittedAt: now - 3 * DAY,
+      reviewedAt: now - 2 * DAY,
+      reviewedBy: "Manager · Suresh",
+      remark: "All credentials and documents verified successfully",
+    },
   ];
 
-  return { members, submissions };
+  return { members, submissions, orgSettings: DEFAULT_ORG_SETTINGS };
 }
 
 function loadState(): AppState {
@@ -283,7 +440,22 @@ function loadState(): AppState {
     if (raw) {
       const parsed = JSON.parse(raw) as AppState;
       if (Array.isArray(parsed.members) && Array.isArray(parsed.submissions)) {
-        return parsed;
+        const existingIds = new Set(parsed.members.map((member) => member.id));
+        const now = Date.now();
+        const demoMembers = DEMO_MEMBERS
+          .filter((member) => !existingIds.has(member.id))
+          .map((member) => ({
+            ...member,
+            otpExpiresAt: now + 365 * DAY,
+            invitedAt: now,
+          }));
+        return {
+          ...parsed,
+          members: [...parsed.members, ...demoMembers],
+          orgSettings: parsed.orgSettings
+            ? { ...DEFAULT_ORG_SETTINGS, ...parsed.orgSettings }
+            : DEFAULT_ORG_SETTINGS,
+        };
       }
     }
   } catch {
@@ -346,7 +518,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           m.id === memberId
             ? {
                 ...m,
-                otp: m.id === "mem_ram" ? "123456" : generateOtp(),
+                otp: m.otp,
                 otpExpiresAt: Date.now() + 30 * 60 * 1000,
               }
             : m
@@ -354,17 +526,18 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       }));
     };
 
-    const sendMemberSms = (memberId: string): SmsInviteData | null => {
+    const queueMemberSms = (memberId: string): SmsInviteData | null => {
       const member = state.members.find((m) => m.id === memberId);
       if (!member) return null;
-      const otp = member.id === "mem_ram" ? "123456" : member.otp || generateOtp();
+      const otp = member.otp || generateOtp();
       const inviteCode = member.inviteCode;
+      const queuedAt = Date.now();
 
       setState((s) => ({
         ...s,
         members: s.members.map((m) =>
           m.id === memberId
-            ? { ...m, otp, otpExpiresAt: Date.now() + 30 * 60 * 1000 }
+            ? { ...m, otp, otpExpiresAt: queuedAt + 30 * 60 * 1000, smsQueuedAt: queuedAt }
             : m
         ),
       }));
@@ -375,6 +548,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         phone: member.phone,
         inviteCode,
         otp,
+        queuedAt,
         link: `${window.location.origin}${window.location.pathname}#/kyc/${inviteCode.toLowerCase()}`,
       };
     };
@@ -450,11 +624,16 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         nationalIdName: input.nationalIdName,
         companyRegDataUrl: input.companyRegDataUrl,
         companyRegName: input.companyRegName,
+        signatureDataUrl: input.signatureDataUrl,
+        signatureName: input.signatureName,
+        thumbprintDataUrl: input.thumbprintDataUrl,
+        thumbprintName: input.thumbprintName,
         status: "pending",
         submittedAt: Date.now(),
       };
 
       setState((s) => ({
+        ...s,
         members: s.members.map((m) =>
           m.id === member.id ? { ...m, status: "pending" } : m
         ),
@@ -470,6 +649,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       const sub = state.submissions.find((s) => s.id === submissionId);
       if (!sub) return;
       setState((s) => ({
+        ...s,
         submissions: s.submissions.map((x) =>
           x.id === submissionId ? { ...x, status: "pending" } : x
         ),
@@ -483,6 +663,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       const sub = state.submissions.find((s) => s.id === submissionId);
       if (!sub) return;
       setState((s) => ({
+        ...s,
         submissions: s.submissions.map((x) =>
           x.id === submissionId
             ? { ...x, status: "approved", reviewedAt: Date.now(), reviewedBy: "Manager · Suresh" }
@@ -498,6 +679,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       const sub = state.submissions.find((s) => s.id === submissionId);
       if (!sub) return;
       setState((s) => ({
+        ...s,
         submissions: s.submissions.map((x) =>
           x.id === submissionId
             ? { ...x, status: "rejected", reviewedAt: Date.now(), reviewedBy: "Manager · Suresh", remark }
@@ -509,10 +691,40 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       }));
     };
 
+    const setEvidenceVerification: StoreValue["setEvidenceVerification"] = (
+      submissionId,
+      evidence,
+      verified
+    ) => {
+      const verifiedAt = verified ? Date.now() : undefined;
+      const verifiedBy = verified ? "Manager · Suresh" : undefined;
+      setState((s) => ({
+        ...s,
+        submissions: s.submissions.map((submission) =>
+          submission.id === submissionId
+            ? evidence === "signature"
+              ? {
+                  ...submission,
+                  signatureVerified: verified,
+                  signatureVerifiedAt: verifiedAt,
+                  signatureVerifiedBy: verifiedBy,
+                }
+              : {
+                  ...submission,
+                  thumbprintVerified: verified,
+                  thumbprintVerifiedAt: verifiedAt,
+                  thumbprintVerifiedBy: verifiedBy,
+                }
+            : submission
+        ),
+      }));
+    };
+
     const markPrinted = (submissionId: string) => {
       const sub = state.submissions.find((s) => s.id === submissionId);
       if (!sub || sub.status !== "approved") return;
       setState((s) => ({
+        ...s,
         submissions: s.submissions.map((x) =>
           x.id === submissionId ? { ...x, status: "printed", printedAt: Date.now() } : x
         ),
@@ -540,6 +752,16 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       return sub;
     };
 
+    const updateOrgSettings = (patch: Partial<OrgSettings>) => {
+      setState((s) => ({
+        ...s,
+        orgSettings: {
+          ...s.orgSettings,
+          ...patch,
+        },
+      }));
+    };
+
     const resetState = () => {
       const fresh = seedState();
       setState(fresh);
@@ -557,13 +779,15 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       findByInviteCode,
       addMembers,
       resendInvite,
-      sendMemberSms,
+      queueMemberSms,
       submitKyc,
       startReview,
       approveSubmission,
       rejectSubmission,
+      setEvidenceVerification,
       markPrinted,
       offlineAdd,
+      updateOrgSettings,
       resetState,
     };
   }, [state]);

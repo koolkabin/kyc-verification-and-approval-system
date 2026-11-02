@@ -13,7 +13,7 @@ export default function OfflineEntry() {
     phone: "",
     membershipCode: "",
     address: "",
-    idDocType: "Aadhaar",
+    idDocType: "Citizenship (नागरिकता)",
   });
   const [idDoc, setIdDoc] = useState<{ dataUrl?: string; name?: string }>({});
   const [busy, setBusy] = useState(false);
@@ -61,12 +61,12 @@ export default function OfflineEntry() {
         <p className="mt-2 text-xs sm:text-sm text-slate-500 leading-relaxed">
           The manually recorded KYC for{" "}
           <span className="font-bold text-slate-900">{form.memberName}</span> has been saved in the database
-          and placed into the <span className="font-bold text-blue-900">Pending Review</span> queue.
+          and placed into the <span className="font-bold text-[#145C45]">Pending Review</span> queue.
         </p>
         <div className="mt-6 flex flex-col sm:flex-row gap-2">
           <button
             onClick={() => navigate(`/admin/submissions/${doneId}`)}
-            className="flex-1 rounded-2xl bg-blue-700 hover:bg-blue-800 py-3 text-xs sm:text-sm font-bold text-white shadow-md shadow-blue-700/20 transition"
+            className="flex-1 rounded-2xl bg-[#145C45] hover:bg-[#0f4534] py-3 text-xs sm:text-sm font-bold text-white shadow-md shadow-[#145C45]/20 transition"
           >
             Review Submission
           </button>
@@ -83,8 +83,8 @@ export default function OfflineEntry() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-4 pb-10">
-      <div className="flex items-center justify-between">
-        <div>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
           <h2 className="text-xl sm:text-2xl font-black text-slate-900">
             Offline KYC Entry Desk
           </h2>
@@ -95,9 +95,9 @@ export default function OfflineEntry() {
         <button
           type="button"
           onClick={handleFillDemo}
-          className="flex items-center gap-1 rounded-full bg-blue-50 border border-blue-200 px-3 py-1.5 text-xs font-bold text-blue-900 hover:bg-blue-100 transition"
+          className="flex min-h-10 w-fit items-center gap-1 rounded-full border border-[#145C45]/30 bg-[#DDF3E7] px-3 py-1.5 text-xs font-bold text-[#145C45] transition hover:bg-[#DDF3E7]/70 cursor-pointer"
         >
-          <Sparkles className="h-3.5 w-3.5 text-blue-700" /> Auto-fill Sample
+          <Sparkles className="h-3.5 w-3.5 text-[#145C45]" /> Auto-fill Sample
         </button>
       </div>
 
@@ -112,7 +112,7 @@ export default function OfflineEntry() {
               value={form.memberName}
               onChange={(e) => setForm({ ...form, memberName: e.target.value })}
               placeholder="e.g. Ram Bahadur"
-              className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-xs sm:text-sm outline-none transition focus:border-blue-700 focus:ring-2 focus:ring-blue-100"
+              className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-xs sm:text-sm outline-none transition focus:border-[#145C45] focus:ring-2 focus:ring-[#DDF3E7]"
             />
           </Field>
           <Field label="Mobile Phone Number" required>
@@ -121,7 +121,7 @@ export default function OfflineEntry() {
               value={form.phone}
               onChange={(e) => setForm({ ...form, phone: e.target.value })}
               placeholder="e.g. 9812345678"
-              className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-xs sm:text-sm outline-none transition focus:border-blue-700 focus:ring-2 focus:ring-blue-100"
+              className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-xs sm:text-sm outline-none transition focus:border-teal-700 focus:ring-2 focus:ring-teal-100 font-mono"
             />
           </Field>
         </div>
@@ -132,22 +132,27 @@ export default function OfflineEntry() {
               value={form.membershipCode}
               onChange={(e) => setForm({ ...form, membershipCode: e.target.value })}
               placeholder="e.g. MEM008 (or auto)"
-              className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-xs sm:text-sm outline-none transition focus:border-blue-700 focus:ring-2 focus:ring-blue-100"
+              className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-xs sm:text-sm outline-none transition focus:border-[#145C45] focus:ring-2 focus:ring-[#DDF3E7]"
             />
           </Field>
           <Field label="Identity Document Type">
             <select
               value={form.idDocType}
               onChange={(e) => setForm({ ...form, idDocType: e.target.value })}
-              className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-xs sm:text-sm outline-none transition focus:border-blue-700 focus:ring-2 focus:ring-blue-100 bg-white"
+              className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-xs sm:text-sm outline-none transition focus:border-teal-700 focus:ring-2 focus:ring-teal-100 bg-white cursor-pointer"
             >
-              {["Aadhaar", "Citizenship", "PAN Card", "Voter ID", "Passport", "Driving License"].map(
-                (t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
-                )
-              )}
+              {[
+                "Citizenship (नागरिकता)",
+                "National ID (राष्ट्रिय परिचयपत्र)",
+                "Passport (राहदानी)",
+                "PAN Card (स्थायी लेखा नं.)",
+                "Voter ID (मतदाता परिचयपत्र)",
+                "Driving License (सवारी चालक अनुमतिपत्र)",
+              ].map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
             </select>
           </Field>
         </div>
@@ -158,8 +163,8 @@ export default function OfflineEntry() {
             rows={3}
             value={form.address}
             onChange={(e) => setForm({ ...form, address: e.target.value })}
-            placeholder="House no., street, ward, village/city, district"
-            className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-xs sm:text-sm outline-none transition focus:border-blue-700 focus:ring-2 focus:ring-blue-100"
+            placeholder="Ward no., street, municipality / rural municipality, district"
+            className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-xs sm:text-sm outline-none transition focus:border-teal-700 focus:ring-2 focus:ring-teal-100"
           />
         </Field>
 
@@ -207,7 +212,7 @@ export default function OfflineEntry() {
         <button
           type="submit"
           disabled={busy}
-          className="flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-700 hover:bg-blue-800 active:scale-[0.98] py-3.5 text-sm font-bold text-white shadow-md shadow-blue-700/20 transition disabled:opacity-60"
+          className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#145C45] hover:bg-[#0f4534] active:scale-[0.98] py-3.5 text-sm font-bold text-white shadow-md shadow-[#145C45]/20 transition disabled:opacity-60 cursor-pointer"
         >
           {busy ? (
             <Loader2 className="h-4 w-4 animate-spin" />
