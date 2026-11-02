@@ -368,7 +368,19 @@ function Routes() {
 
   let page: ReactNode;
 
-  if (parts[0] === "kyc" || parts[0] === "form") {
+  if (parts[0] === "manager-kyc") {
+    const code = parts[1] ?? "";
+    if (!code) return <LandingPage />;
+    page = (
+      <ProtectedRoute>
+        <KycFlow
+          key={`manager-${code.toLowerCase()}`}
+          code={code.toLowerCase()}
+          managerMode
+        />
+      </ProtectedRoute>
+    );
+  } else if (parts[0] === "kyc" || parts[0] === "form") {
     const code = parts[1] ?? "";
     if (!code) return <LandingPage />;
     page = <KycFlow key={code.toLowerCase()} code={code.toLowerCase()} />;

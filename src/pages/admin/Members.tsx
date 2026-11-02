@@ -57,6 +57,8 @@ export default function Members() {
     const sms = queueMemberSms(memberId);
     if (sms) {
       setActiveSms(sms);
+    } else {
+      setNotice("Could not prepare this invitation. The member record was not found.");
     }
   };
 
@@ -94,7 +96,7 @@ export default function Members() {
           Member Directory & Local SMS Queue
         </h2>
         <p className="text-xs sm:text-sm text-slate-500">
-          Prepare SMS invitations with personalized links and OTP codes. The prototype queues them locally; no real SMS is sent.
+        Prepare invitations with each member's phone number, personal link, and OTP. Open your SMS app to send; messages are not sent automatically.
         </p>
       </div>
 
@@ -109,11 +111,11 @@ export default function Members() {
               Prepare invitation for Ram Sharma (+977 9812345678)
             </h3>
             <p className="text-xs text-[#DDF3E7] leading-relaxed max-w-xl">
-              Queue the invitation text locally, then copy and send it manually or connect an SMS provider:{" "}
+              Open an SMS invitation for Ram with his member-specific link and invite code:{" "}
               <span className="font-mono font-bold text-amber-300">
-                kyc.coop/abc123 + OTP 123456
+                ABC123 · OTP 123456
               </span>
-              . Ram can then verify the OTP and fill the pre-filled form.
+              . He can use the link and verify with the OTP.
             </p>
           </div>
           <div className="flex flex-wrap sm:flex-col gap-2 shrink-0">
@@ -124,7 +126,7 @@ export default function Members() {
               <Clock className="h-4 w-4" /> Queue SMS text
             </button>
             <button
-              onClick={() => navigate("/kyc/abc123")}
+              onClick={() => navigate("/manager-kyc/abc123")}
               className="flex items-center justify-center gap-1.5 rounded-2xl bg-[#145C45]/90 hover:bg-[#0f4534] px-4 py-2.5 text-xs font-semibold text-[#DDF3E7] transition cursor-pointer"
             >
               <Smartphone className="h-3.5 w-3.5" /> Open Ram's KYC (abc123)
@@ -330,9 +332,9 @@ export default function Members() {
                     </div>
                     <p className="text-xs text-slate-500 font-medium">
                       Code: <span className="font-bold text-slate-700">{m.membershipCode}</span> · Phone:{" "}
-                      <span className="font-mono text-slate-700">+977 {m.phone}</span> · Link:{" "}
-                      <span className="font-mono font-bold text-[#145C45]">
-                        kyc.coop/{m.inviteCode.toLowerCase()}
+                      <span className="font-mono text-slate-700">+977 {m.phone}</span> · Invite link:{" "}
+                      <span className="font-mono font-bold text-[#145C45] break-all">
+                        {window.location.origin}{window.location.pathname}#/kyc/{m.inviteCode.toLowerCase()}
                       </span>{" "}
                       · OTP: <span className="font-mono font-bold text-amber-700">{m.otp}</span>
                     </p>
@@ -368,7 +370,7 @@ export default function Members() {
 
                   {/* Open Direct */}
                   <button
-                    onClick={() => navigate(`/kyc/${m.inviteCode.toLowerCase()}`)}
+                    onClick={() => navigate(`/manager-kyc/${m.inviteCode.toLowerCase()}`)}
                     className="flex items-center gap-1 rounded-xl border border-[#145C45]/30 bg-[#145C45]/5 hover:bg-[#DDF3E7] px-2.5 py-2 text-xs font-bold text-[#145C45] transition cursor-pointer"
                     title="Open form page"
                     aria-label="Open Form"

@@ -277,7 +277,7 @@ export function Modal({
 
 /**
  * Mobile SMS preview showing the message text queued for manual sending
- * (e.g. kyc.coop/abc123 + OTP 123456)
+ * (the member-specific invitation link and OTP)
  */
 export function SmsModal({
   open,
@@ -301,7 +301,15 @@ export function SmsModal({
   if (!open || !data) return null;
 
   const orgTag = org.shortName || org.nameEnglish || "Coop KYC";
-  const smsText = t("smsBody", { name: data.name, code: data.inviteCode.toLowerCase(), otp: data.otp });
+  const inviteLink =
+    data.link ??
+    `${window.location.origin}${window.location.pathname}#/kyc/${data.inviteCode.toLowerCase()}`;
+  const smsText = t("smsInviteBody", {
+    name: data.name,
+    code: data.inviteCode,
+    link: inviteLink,
+  });
+  const smsAppLink = `sms:${data.phone}?body=${encodeURIComponent(smsText)}`;
 
   const copyText = async () => {
     try {
@@ -315,7 +323,7 @@ export function SmsModal({
 
   const handleOpenLink = () => {
     onClose();
-    navigate(`/kyc/${data.inviteCode.toLowerCase()}`);
+    navigate(`/manager-kyc/${data.inviteCode.toLowerCase()}`);
   };
 
   return (
@@ -346,7 +354,7 @@ export function SmsModal({
           </div>
           <div className="rounded-xl bg-slate-800 p-3.5 text-sm leading-relaxed text-slate-100 border border-slate-700">
             <p>
-              {t("smsBody", { name: data.name, code: data.inviteCode.toLowerCase(), otp: data.otp })}
+              {smsText}
             </p>
           </div>
         </div>
@@ -358,6 +366,12 @@ export function SmsModal({
           >
             <ExternalLink className="h-4 w-4" /> {t("openMemberForm")}
           </button>
+          <a
+            href={smsAppLink}
+            className="flex w-full items-center justify-center gap-2 rounded-2xl border border-[#145C45]/30 bg-[#DDF3E7]/40 py-3 text-sm font-bold text-[#145C45] transition hover:bg-[#DDF3E7]"
+          >
+            <MessageSquare className="h-4 w-4" /> {t("openSmsApp")}
+          </a>
           <div className="flex gap-2">
             <button
               onClick={copyText}
