@@ -264,7 +264,7 @@ function LandingPage() {
                 Select an available member to fill their code. Use the displayed OTP on the next screen.
               </p>
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               {demoMembers.map((member) => {
                 const available = member.status === "invited";
                 const selected = selectedDemoId === member.id;

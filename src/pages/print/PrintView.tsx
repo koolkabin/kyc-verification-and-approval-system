@@ -53,19 +53,19 @@ export default function PrintView({ id }: { id: string }) {
       <div className="print-area mx-3 mt-4 max-w-3xl rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xl sm:mx-auto sm:mt-6 sm:rounded-3xl sm:p-8 lg:p-10">
         {/* Organization Header with Logo */}
         <div className="border-b-2 border-teal-900 pb-5">
-          <div className="flex items-center justify-center gap-4 text-center">
+          <div className="flex min-w-0 items-center justify-center gap-3 text-center sm:gap-4">
             <CoopLogo settings={org} className="h-14 w-14 sm:h-16 sm:w-16 shrink-0" />
-            <div>
-              <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+            <div className="min-w-0">
+              <h1 className="break-words text-lg font-black tracking-tight text-slate-900 sm:text-2xl">
                 {org.nameNepali}
               </h1>
-              <p className="text-xs sm:text-sm font-bold uppercase tracking-wider text-teal-900">
+              <p className="break-words text-xs font-bold uppercase tracking-wider text-teal-900 sm:text-sm">
                 {org.nameEnglish}
               </p>
-              <p className="text-xs text-slate-600 mt-0.5">
+              <p className="break-words text-xs text-slate-600 mt-0.5">
                 {org.addressNepali || org.addressEnglish}
               </p>
-              <p className="text-[11px] font-semibold text-slate-500 mt-0.5">
+              <p className="break-words text-[11px] font-semibold text-slate-500 mt-0.5">
                 {org.regNo} &middot; {org.panNo} &middot; फोन: {org.phone}
               </p>
             </div>
@@ -129,7 +129,7 @@ export default function PrintView({ id }: { id: string }) {
               </h2>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 text-left text-xs">
+            <div className="grid grid-cols-1 gap-3 text-left text-xs sm:grid-cols-2">
               <div className="rounded-xl bg-slate-50 p-2.5 border border-slate-100">
                 <p className="text-[10px] font-bold uppercase text-slate-400">सदस्य कोड (Member Code)</p>
                 <p className="font-extrabold text-teal-950 mt-0.5">{sub.membershipCode}</p>
@@ -138,7 +138,7 @@ export default function PrintView({ id }: { id: string }) {
                 <p className="text-[10px] font-bold uppercase text-slate-400">सम्पर्क फोन (Mobile)</p>
                 <p className="font-mono font-bold text-slate-900 mt-0.5">+977 {sub.phone}</p>
               </div>
-              <div className="col-span-2 rounded-xl bg-slate-50 p-2.5 border border-slate-100">
+              <div className="rounded-xl bg-slate-50 p-2.5 border border-slate-100 sm:col-span-2">
                 <p className="text-[10px] font-bold uppercase text-slate-400">स्थायी ठेगाना (Permanent Address)</p>
                 <p className="font-semibold text-slate-800 mt-0.5">{sub.address || "—"}</p>
               </div>
@@ -155,7 +155,7 @@ export default function PrintView({ id }: { id: string }) {
         </div>
 
         {/* Audit & Decision Log */}
-        <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+        <div className="mt-5 grid grid-cols-1 gap-3 text-xs sm:grid-cols-2 lg:grid-cols-4">
           <div className="rounded-xl border border-slate-200 p-2.5">
             <p className="text-[10px] font-bold uppercase text-slate-400">आवेदन मिति (Submitted)</p>
             <p className="font-bold text-slate-800 mt-1">{formatDateTime(sub.submittedAt)}</p>

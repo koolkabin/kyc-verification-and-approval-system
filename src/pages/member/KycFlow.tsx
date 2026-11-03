@@ -572,11 +572,11 @@ function BottomBar({
 }) {
   const { t } = useI18n();
   return (
-    <div className="fixed bottom-0 inset-x-0 z-20 flex items-center justify-end gap-3 border-t border-slate-200 bg-white/95 px-4 py-3 backdrop-blur no-print">
+    <div className="fixed bottom-0 inset-x-0 z-20 flex flex-wrap items-center justify-center gap-2 border-t border-slate-200 bg-white/95 px-3 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur no-print sm:justify-end sm:gap-3 sm:px-4">
       <button
         type="button"
         onClick={onCancel}
-        className="rounded border border-red-400 bg-white px-4 py-2 text-xs font-bold text-red-600 transition hover:bg-red-50"
+        className="min-h-11 flex-1 rounded border border-red-400 bg-white px-3 py-2 text-xs font-bold text-red-600 transition hover:bg-red-50 sm:flex-none sm:px-4"
       >
         {t("cancelApplication")}
       </button>
@@ -584,7 +584,7 @@ function BottomBar({
         <button
           type="button"
           onClick={onSubmit}
-          className="rounded bg-[#059669] px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-emerald-700"
+          className="min-h-11 flex-1 rounded bg-[#059669] px-3 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-emerald-700 sm:flex-none sm:px-4"
         >
           {t("submitApplication")}
         </button>
@@ -614,7 +614,7 @@ function WizardShell({
   const org = state.orgSettings;
 
   return (
-    <div className="min-h-dvh bg-[#F8FAFC] pb-20">
+    <div className="min-h-dvh bg-[#F8FAFC] pb-24 sm:pb-20">
       {/* Header */}
       <div className="bg-[#145C45] shadow-md px-4 py-3">
         <div className="mx-auto flex max-w-4xl items-center gap-3">
@@ -645,7 +645,7 @@ function WizardShell({
       <StepProgress current={currentStep} />
 
       {/* Content */}
-      <div className="mx-auto max-w-4xl px-4 pt-4">{children}</div>
+      <div className="mx-auto max-w-4xl px-3 pt-4 sm:px-4">{children}</div>
 
       {/* Persistent bottom bar */}
       <BottomBar
@@ -1010,12 +1010,12 @@ export default function KycFlow({
         </div>
 
         {/* Top green header strip */}
-        <div className="bg-[#145C45] px-4 pt-10 pb-20 text-center text-white">
+        <div className="w-full bg-[#145C45] px-4 pt-14 pb-20 text-center text-white sm:pt-10">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-white/15 backdrop-blur mb-4 shadow-lg border border-white/20">
             <ShieldCheck className="h-9 w-9 text-white" />
           </div>
           <h1 className="text-2xl font-black tracking-tight">{t("otpTitle")}</h1>
-          <p className="mt-2 text-sm text-[#DDF3E7] max-w-xs mx-auto">
+          <p className="mx-auto mt-2 max-w-xs text-sm text-[#DDF3E7]">
             {t("otpGreeting", { name: member.name })}
           </p>
           <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/20 px-4 py-1.5">
@@ -1025,15 +1025,15 @@ export default function KycFlow({
         </div>
 
         {/* White floating card */}
-        <div className="mx-4 sm:mx-auto -mt-12 w-full max-w-sm rounded-2xl bg-white shadow-xl border border-slate-100 overflow-hidden flex-1">
+        <div className="-mt-12 mx-auto flex w-[calc(100%-2rem)] max-w-sm flex-1 flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-xl">
           {/* Simulated SMS card */}
-          <div className="bg-slate-50 border-b border-slate-200 px-5 pt-5 pb-4">
-            <div className="flex items-center gap-2 text-[11px] font-bold text-[#145C45] mb-2">
-              <MessageSquare className="h-3.5 w-3.5" />
-              <span>{t("smsReceivedFrom", { org: orgTag })}</span>
+          <div className="border-b border-slate-200 bg-slate-50 px-4 pt-5 pb-4 sm:px-5">
+            <div className="mb-2 flex min-w-0 items-center gap-2 text-[11px] font-bold text-[#145C45]">
+              <MessageSquare className="h-3.5 w-3.5 shrink-0" />
+              <span className="min-w-0 break-words">{t("smsReceivedFrom", { org: orgTag })}</span>
             </div>
             <div className="rounded-xl bg-white border border-slate-200 p-3.5 shadow-sm">
-              <p className="text-xs text-slate-600 leading-relaxed">
+              <p className="break-words text-xs leading-relaxed text-slate-600 [overflow-wrap:anywhere]">
                 {t("smsBody", {
                   name: member.name,
                   code: member.inviteCode.toLowerCase(),
@@ -1055,11 +1055,11 @@ export default function KycFlow({
           </div>
 
           {/* OTP entry section */}
-          <div className="px-5 py-5">
+          <div className="px-4 py-5 sm:px-5">
             <label className="mb-3 block text-center text-xs font-bold uppercase tracking-widest text-slate-500">
               {t("enterOtp")}
             </label>
-            <div className="flex justify-center gap-2">
+            <div className="flex justify-center gap-1.5 sm:gap-2">
               {otp.map((d, i) => (
                 <input
                   key={i}
@@ -1096,7 +1096,7 @@ export default function KycFlow({
                     setOtp(next);
                     document.getElementById(`otp-${Math.min(txt.length, 5)}`)?.focus();
                   }}
-                  className={`h-12 w-10 rounded-lg border-2 text-center text-xl font-extrabold outline-none transition-all ${
+                  className={`h-11 w-9 rounded-lg border-2 text-center text-xl font-extrabold outline-none transition-all sm:h-12 sm:w-10 ${
                     d
                       ? "border-[#145C45] bg-[#DDF3E7] text-[#145C45]"
                       : "border-slate-200 bg-slate-50 text-slate-800 focus:border-[#145C45] focus:ring-2 focus:ring-[#DDF3E7]"
@@ -1141,8 +1141,8 @@ export default function KycFlow({
           </div>
 
           {/* Footer */}
-          <div className="border-t border-slate-100 bg-[#DDF3E7]/30 px-5 py-3 text-center">
-            <p className="text-[10px] text-[#145C45] font-semibold">
+          <div className="border-t border-slate-100 bg-[#DDF3E7]/30 px-4 py-3 text-center sm:px-5">
+            <p className="break-words text-[10px] font-semibold text-[#145C45]">
               {org.nameNepali} &middot; {org.nameEnglish}
             </p>
             <p className="text-[10px] text-slate-400">{t("secureKycPortal")}</p>
@@ -1169,7 +1169,7 @@ export default function KycFlow({
               {t("stepGeneral")}
             </h2>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {/* Client Type */}
               <FormRow label={t("clientType")} required half>
                 <SearchableSelect
@@ -1315,7 +1315,7 @@ export default function KycFlow({
 
             {/* ── Permanent Address ───────────────────────── */}
             <p className="mb-2 text-xs font-bold text-[#145C45] uppercase tracking-wide">{t("permanentAddress")}</p>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <FormRow label={t("countryOfResidence")} required half>
                 <SearchableSelect
                   value={addr.country}
@@ -1421,7 +1421,7 @@ export default function KycFlow({
               </button>
 
               {addr.hasTempAddress && !addr.sameAsPermanent && (
-                <div className="mt-3 grid grid-cols-2 gap-3">
+                <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <p className="col-span-2 text-xs font-bold text-[#145C45] uppercase tracking-wide">{t("temporaryAddress")}</p>
 
                   <FormRow label={t("tempCountry")} required half>
