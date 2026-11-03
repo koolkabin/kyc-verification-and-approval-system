@@ -22,6 +22,7 @@ import { createPortal } from "react-dom";
 import {
   ArrowLeft,
   CheckCircle2,
+  ChevronDown,
   ChevronRight,
   Clock,
   Download,
@@ -33,6 +34,7 @@ import {
   Pencil,
   Plus,
   Printer,
+  Search,
   ShieldCheck,
   Sparkles,
   User,
@@ -189,6 +191,124 @@ const inputCls =
 
 const selectCls =
   "w-full rounded border border-slate-300 bg-white px-2.5 py-1.5 text-sm text-slate-900 outline-none transition focus:border-[#145C45] focus:ring-2 focus:ring-[#DDF3E7] cursor-pointer disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed";
+
+type SearchableSelectOption = {
+  value: string;
+  label: string;
+};
+
+function SearchableSelect({
+  value,
+  options,
+  placeholder,
+  onChange,
+  disabled = false,
+}: {
+  value: string;
+  options: SearchableSelectOption[];
+  placeholder: string;
+  onChange: (value: string) => void;
+  disabled?: boolean;
+}) {
+  const { t } = useI18n();
+  const [isOpen, setIsOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const containerRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+  const selectedOption = options.find((option) => option.value === value);
+  const normalizedQuery = query.trim().toLocaleLowerCase();
+  const filteredOptions = options.filter((option) =>
+    `${option.label} ${option.value}`.toLocaleLowerCase().includes(normalizedQuery),
+  );
+
+  useEffect(() => {
+    if (!isOpen) return;
+    searchRef.current?.focus();
+    const handlePointerDown = (event: PointerEvent) => {
+      if (event.target instanceof Node && !containerRef.current?.contains(event.target)) {
+        setIsOpen(false);
+        setQuery("");
+      }
+    };
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, [isOpen]);
+
+  const close = () => {
+    setIsOpen(false);
+    setQuery("");
+  };
+
+  return (
+    <div className="relative" ref={containerRef}>
+      <button
+        type="button"
+        role="combobox"
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+        aria-label={placeholder}
+        disabled={disabled}
+        onClick={() => setIsOpen((open) => !open)}
+        onKeyDown={(event) => {
+          if (event.key === "ArrowDown" && !isOpen) {
+            event.preventDefault();
+            setIsOpen(true);
+          }
+        }}
+        className={`${selectCls} flex items-center justify-between gap-2 text-left`}
+      >
+        <span className={selectedOption ? "" : "text-slate-400"}>
+          {selectedOption?.label ?? placeholder}
+        </span>
+        <ChevronDown className={`h-4 w-4 shrink-0 text-slate-500 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+      </button>
+      {isOpen && (
+        <div className="absolute z-30 mt-1 w-full rounded-md border border-slate-200 bg-white p-2 shadow-lg">
+          <div className="flex items-center gap-2 rounded border border-slate-300 px-2 focus-within:border-[#145C45] focus-within:ring-2 focus-within:ring-[#DDF3E7]">
+            <Search className="h-4 w-4 shrink-0 text-slate-400" aria-hidden="true" />
+            <input
+              ref={searchRef}
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Escape") close();
+                if (event.key === "Enter" && filteredOptions.length === 1) {
+                  onChange(filteredOptions[0].value);
+                  close();
+                }
+              }}
+              placeholder={t("searchOptions")}
+              aria-label={t("searchOptions")}
+              className="w-full py-1.5 text-sm text-slate-900 outline-none placeholder:text-slate-400"
+            />
+          </div>
+          <div role="listbox" aria-label={placeholder} className="mt-1 max-h-56 overflow-y-auto">
+            {filteredOptions.length > 0 ? filteredOptions.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                role="option"
+                aria-selected={option.value === value}
+                onClick={() => {
+                  onChange(option.value);
+                  close();
+                }}
+                className={`w-full rounded px-2 py-1.5 text-left text-sm hover:bg-[#DDF3E7] ${
+                  option.value === value ? "bg-[#DDF3E7] font-semibold text-[#145C45]" : "text-slate-700"
+                }`}
+              >
+                {option.label}
+              </button>
+            )) : (
+              <p className="px-2 py-2 text-sm text-slate-500">{t("noOptionsFound")}</p>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 // ─── Helper: Document Upload Row ─────────────────────────────────────────────
 function DocRow({
@@ -1052,16 +1172,15 @@ export default function KycFlow({
             <div className="grid grid-cols-2 gap-3">
               {/* Client Type */}
               <FormRow label={t("clientType")} required half>
-                <select
+                <SearchableSelect
                   value={general.clientType}
-                  onChange={(e) => setGeneral({ ...general, clientType: e.target.value })}
-                  className={selectCls}
-                >
-                  <option value="">{t("clientTypeSelect")}</option>
-                  {CLIENT_TYPES.map((type) => (
-                    <option key={type} value={type}>{translateKycOption(type, lang)}</option>
-                  ))}
-                </select>
+                  onChange={(clientType) => setGeneral({ ...general, clientType })}
+                  placeholder={t("clientTypeSelect")}
+                  options={CLIENT_TYPES.map((type) => ({
+                    value: type,
+                    label: translateKycOption(type, lang),
+                  }))}
+                />
               </FormRow>
 
               {/* Mobile Number (pre-filled, readonly) */}
@@ -1096,16 +1215,15 @@ export default function KycFlow({
 
               {/* Member Branch */}
               <FormRow label={t("memberBranch")} required half>
-                <select
+                <SearchableSelect
                   value={general.memberBranch}
-                  onChange={(e) => setGeneral({ ...general, memberBranch: e.target.value })}
-                  className={selectCls}
-                >
-                  <option value="">{t("memberBranchSelect")}</option>
-                  {MEMBER_BRANCHES.map((b) => (
-                    <option key={b} value={b}>{translateKycOption(b, lang)}</option>
-                  ))}
-                </select>
+                  onChange={(memberBranch) => setGeneral({ ...general, memberBranch })}
+                  placeholder={t("memberBranchSelect")}
+                  options={MEMBER_BRANCHES.map((branch) => ({
+                    value: branch,
+                    label: translateKycOption(branch, lang),
+                  }))}
+                />
               </FormRow>
 
               {/* PAN Number */}
@@ -1199,66 +1317,65 @@ export default function KycFlow({
             <p className="mb-2 text-xs font-bold text-[#145C45] uppercase tracking-wide">{t("permanentAddress")}</p>
             <div className="grid grid-cols-2 gap-3">
               <FormRow label={t("countryOfResidence")} required half>
-                <select
+                <SearchableSelect
                   value={addr.country}
-                  onChange={(e) => setAddr({ ...addr, country: e.target.value })}
-                  className={selectCls}
-                >
-                  {COUNTRIES.map((c) => (
-                    <option key={c} value={c}>{translateKycOption(c, lang)}</option>
-                  ))}
-                </select>
+                  onChange={(country) => setAddr({ ...addr, country })}
+                  placeholder={t("countryOfResidence")}
+                  options={COUNTRIES.map((country) => ({
+                    value: country,
+                    label: translateKycOption(country, lang),
+                  }))}
+                />
               </FormRow>
 
               <FormRow label={t("stateProvince")} required half>
-                <select
+                <SearchableSelect
                   value={addr.state}
-                  onChange={(e) => setAddr({ ...addr, state: e.target.value, district: "", municipality: "" })}
-                  className={selectCls}
-                >
-                  <option value="">{t("selectState")}</option>
-                  {NEPAL_PROVINCES.map((p) => (
-                    <option key={p} value={p}>{translateKycOption(p, lang)}</option>
-                  ))}
-                </select>
+                  onChange={(state) => setAddr({ ...addr, state, district: "", municipality: "" })}
+                  placeholder={t("selectState")}
+                  options={NEPAL_PROVINCES.map((province) => ({
+                    value: province,
+                    label: translateKycOption(province, lang),
+                  }))}
+                />
               </FormRow>
 
               <FormRow label={t("district")} required half>
-                <select
+                <SearchableSelect
                   value={addr.district}
-                  onChange={(e) => setAddr({ ...addr, district: e.target.value, municipality: "" })}
-                  className={selectCls}
+                  onChange={(district) => setAddr({ ...addr, district, municipality: "" })}
+                  placeholder={t("selectDistrict")}
+                  options={districts.map((district) => ({
+                    value: district,
+                    label: translateKycOption(district, lang),
+                  }))}
                   disabled={!addr.state}
-                >
-                  <option value="">{t("selectDistrict")}</option>
-                  {districts.map((d) => (
-                    <option key={d} value={d}>{translateKycOption(d, lang)}</option>
-                  ))}
-                </select>
+                />
               </FormRow>
 
               <FormRow label={t("municipality")} required half>
-                <select
+                <SearchableSelect
                   value={addr.municipality}
-                  onChange={(e) => setAddr({ ...addr, municipality: e.target.value })}
-                  className={selectCls}
+                  onChange={(municipality) => setAddr({ ...addr, municipality })}
+                  placeholder={t("selectMunicipality")}
+                  options={[
+                    ...municipalities.map((municipality) => ({
+                      value: municipality,
+                      label: translateKycOption(municipality, lang),
+                    })),
+                    ...(addr.district ? [
+                      {
+                        value: `${addr.district} Municipality`,
+                        label: translateKycOption(`${addr.district} Municipality`, lang),
+                      },
+                      {
+                        value: `${addr.district} Rural Municipality`,
+                        label: translateKycOption(`${addr.district} Rural Municipality`, lang),
+                      },
+                    ] : []),
+                  ]}
                   disabled={!addr.district}
-                >
-                  <option value="">{t("selectMunicipality")}</option>
-                  {municipalities.map((m) => (
-                    <option key={m} value={m}>{translateKycOption(m, lang)}</option>
-                  ))}
-                  {addr.district && (
-                    <>
-                      <option value={`${addr.district} Municipality`}>
-                        {translateKycOption(`${addr.district} Municipality`, lang)}
-                      </option>
-                      <option value={`${addr.district} Rural Municipality`}>
-                        {translateKycOption(`${addr.district} Rural Municipality`, lang)}
-                      </option>
-                    </>
-                  )}
-                </select>
+                />
               </FormRow>
 
               <FormRow label={t("wardNo")} required half>
@@ -1308,40 +1425,65 @@ export default function KycFlow({
                   <p className="col-span-2 text-xs font-bold text-[#145C45] uppercase tracking-wide">{t("temporaryAddress")}</p>
 
                   <FormRow label={t("tempCountry")} required half>
-                    <select value={addr.tempCountry} onChange={(e) => setAddr({ ...addr, tempCountry: e.target.value })} className={selectCls}>
-                      {COUNTRIES.map((c) => <option key={c} value={c}>{translateKycOption(c, lang)}</option>)}
-                    </select>
+                    <SearchableSelect
+                      value={addr.tempCountry}
+                      onChange={(tempCountry) => setAddr({ ...addr, tempCountry })}
+                      placeholder={t("tempCountry")}
+                      options={COUNTRIES.map((country) => ({
+                        value: country,
+                        label: translateKycOption(country, lang),
+                      }))}
+                    />
                   </FormRow>
 
                   <FormRow label={t("stateProvince")} required half>
-                    <select value={addr.tempState} onChange={(e) => setAddr({ ...addr, tempState: e.target.value, tempDistrict: "", tempMunicipality: "" })} className={selectCls}>
-                      <option value="">{t("selectState")}</option>
-                      {NEPAL_PROVINCES.map((p) => <option key={p} value={p}>{translateKycOption(p, lang)}</option>)}
-                    </select>
+                    <SearchableSelect
+                      value={addr.tempState}
+                      onChange={(tempState) => setAddr({ ...addr, tempState, tempDistrict: "", tempMunicipality: "" })}
+                      placeholder={t("selectState")}
+                      options={NEPAL_PROVINCES.map((province) => ({
+                        value: province,
+                        label: translateKycOption(province, lang),
+                      }))}
+                    />
                   </FormRow>
 
                   <FormRow label={t("district")} required half>
-                    <select value={addr.tempDistrict} onChange={(e) => setAddr({ ...addr, tempDistrict: e.target.value, tempMunicipality: "" })} className={selectCls} disabled={!addr.tempState}>
-                      <option value="">{t("selectDistrict")}</option>
-                      {tempDistricts.map((d) => <option key={d} value={d}>{translateKycOption(d, lang)}</option>)}
-                    </select>
+                    <SearchableSelect
+                      value={addr.tempDistrict}
+                      onChange={(tempDistrict) => setAddr({ ...addr, tempDistrict, tempMunicipality: "" })}
+                      placeholder={t("selectDistrict")}
+                      options={tempDistricts.map((district) => ({
+                        value: district,
+                        label: translateKycOption(district, lang),
+                      }))}
+                      disabled={!addr.tempState}
+                    />
                   </FormRow>
 
                   <FormRow label={t("municipality")} required half>
-                    <select value={addr.tempMunicipality} onChange={(e) => setAddr({ ...addr, tempMunicipality: e.target.value })} className={selectCls} disabled={!addr.tempDistrict}>
-                      <option value="">{t("selectMunicipality")}</option>
-                      {tempMunicipalities.map((m) => <option key={m} value={m}>{translateKycOption(m, lang)}</option>)}
-                      {addr.tempDistrict && (
-                        <>
-                          <option value={`${addr.tempDistrict} Municipality`}>
-                            {translateKycOption(`${addr.tempDistrict} Municipality`, lang)}
-                          </option>
-                          <option value={`${addr.tempDistrict} Rural Municipality`}>
-                            {translateKycOption(`${addr.tempDistrict} Rural Municipality`, lang)}
-                          </option>
-                        </>
-                      )}
-                    </select>
+                    <SearchableSelect
+                      value={addr.tempMunicipality}
+                      onChange={(tempMunicipality) => setAddr({ ...addr, tempMunicipality })}
+                      placeholder={t("selectMunicipality")}
+                      options={[
+                        ...tempMunicipalities.map((municipality) => ({
+                          value: municipality,
+                          label: translateKycOption(municipality, lang),
+                        })),
+                        ...(addr.tempDistrict ? [
+                          {
+                            value: `${addr.tempDistrict} Municipality`,
+                            label: translateKycOption(`${addr.tempDistrict} Municipality`, lang),
+                          },
+                          {
+                            value: `${addr.tempDistrict} Rural Municipality`,
+                            label: translateKycOption(`${addr.tempDistrict} Rural Municipality`, lang),
+                          },
+                        ] : []),
+                      ]}
+                      disabled={!addr.tempDistrict}
+                    />
                   </FormRow>
 
                   <FormRow label={t("wardNo")} required half>
