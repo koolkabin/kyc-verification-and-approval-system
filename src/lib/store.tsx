@@ -8,8 +8,9 @@ import {
 } from "react";
 import type { KycSubmission, Member, MemberInput, OrgSettings } from "./types";
 import { DEFAULT_ORG_SETTINGS } from "./types";
+import { createSampleIdCard, createSampleMemberPhoto } from "./image";
 
-const STORAGE_KEY = "coop-kyc-state-v5";
+const STORAGE_KEY = "coop-kyc-state-v6";
 const DAY = 24 * 60 * 60 * 1000;
 
 const DEMO_MEMBERS: Omit<Member, "otpExpiresAt" | "invitedAt">[] = [
@@ -317,6 +318,16 @@ export function seedState(): AppState {
       streetTole: "Green Park Lane",
       address: "Ward 12, Green Park Lane, Pokhara Metropolitan City, Kaski, Gandaki Province, Nepal",
       idDocType: "Citizenship",
+      photoDataUrl: createSampleMemberPhoto("Mohan Lal"),
+      photoName: "mohan_photo.jpg",
+      idDocDataUrl: createSampleIdCard("Mohan Lal", "MEM003", "Citizenship"),
+      idDocName: "citizenship_front.svg",
+      citizenshipFrontDataUrl: createSampleIdCard("Mohan Lal", "MEM003", "Citizenship Front"),
+      citizenshipFrontName: "citizenship_front.svg",
+      citizenshipBackDataUrl: createSampleIdCard("Mohan Lal", "MEM003", "Citizenship Back"),
+      citizenshipBackName: "citizenship_back.svg",
+      selfieDataUrl: createSampleMemberPhoto("Mohan Lal"),
+      selfieName: "selfie_with_citizenship.jpg",
       status: "pending",
       submittedAt: now - 26 * 60 * 1000,
     },
@@ -337,6 +348,12 @@ export function seedState(): AppState {
       streetTole: "Lake View Road",
       address: "Ward 45, Lake View Road, Kathmandu Metropolitan City, Kathmandu, Bagmati Province, Nepal",
       idDocType: "PAN Card",
+      photoDataUrl: createSampleMemberPhoto("Sita Devi"),
+      photoName: "sita_photo.jpg",
+      idDocDataUrl: createSampleIdCard("Sita Devi", "MEM002", "PAN Card"),
+      idDocName: "pan_card.svg",
+      citizenshipFrontDataUrl: createSampleIdCard("Sita Devi", "MEM002", "Citizenship"),
+      citizenshipFrontName: "citizenship.svg",
       status: "pending",
       submittedAt: now - 2 * DAY - 5 * 60 * 1000,
     },
@@ -357,6 +374,12 @@ export function seedState(): AppState {
       streetTole: "Sunrise Colony",
       address: "Ward 7, Sunrise Colony, Biratnagar Metropolitan City, Morang, Koshi Province, Nepal",
       idDocType: "Citizenship",
+      photoDataUrl: createSampleMemberPhoto("Gita Kumari"),
+      photoName: "gita_photo.jpg",
+      idDocDataUrl: createSampleIdCard("Gita Kumari", "MEM004", "Citizenship"),
+      idDocName: "citizenship.svg",
+      citizenshipFrontDataUrl: createSampleIdCard("Gita Kumari", "MEM004", "Citizenship"),
+      citizenshipFrontName: "citizenship.svg",
       status: "approved",
       submittedAt: now - 6 * DAY,
       reviewedAt: now - 5 * DAY,
@@ -380,6 +403,10 @@ export function seedState(): AppState {
       streetTole: "Hill Top Street",
       address: "Ward 3, Hill Top Street, Birgunj Metropolitan City, Parsa, Madhesh Province, Nepal",
       idDocType: "Citizenship",
+      photoDataUrl: createSampleMemberPhoto("Prakash Nair"),
+      photoName: "prakash_photo.jpg",
+      idDocDataUrl: createSampleIdCard("Prakash Nair", "MEM005", "Citizenship"),
+      idDocName: "citizenship.svg",
       status: "rejected",
       submittedAt: now - 8 * DAY,
       reviewedAt: now - 7 * DAY,
@@ -403,6 +430,12 @@ export function seedState(): AppState {
       streetTole: "Bishnu Temple Road",
       address: "Ward 22, Bishnu Temple Road, Kathmandu Metropolitan City, Kathmandu, Bagmati Province, Nepal",
       idDocType: "Citizenship",
+      photoDataUrl: createSampleMemberPhoto("Kamal Pandey"),
+      photoName: "kamal_photo.jpg",
+      idDocDataUrl: createSampleIdCard("Kamal Pandey", "MEM007", "Citizenship"),
+      idDocName: "citizenship.svg",
+      citizenshipFrontDataUrl: createSampleIdCard("Kamal Pandey", "MEM007", "Citizenship"),
+      citizenshipFrontName: "citizenship.svg",
       status: "pending",
       submittedAt: now - 4 * 60 * 1000,
     },
@@ -423,6 +456,10 @@ export function seedState(): AppState {
       streetTole: "Green View Lane",
       address: "Ward 15, Green View Lane, Biratnagar Metropolitan City, Morang, Koshi Province, Nepal",
       idDocType: "PAN Card",
+      photoDataUrl: createSampleMemberPhoto("Reshma Khatri"),
+      photoName: "reshma_photo.jpg",
+      idDocDataUrl: createSampleIdCard("Reshma Khatri", "MEM008", "PAN Card"),
+      idDocName: "pan_card.svg",
       status: "approved",
       submittedAt: now - 3 * DAY,
       reviewedAt: now - 2 * DAY,

@@ -255,57 +255,6 @@ function LandingPage() {
             </button>
           </form>
 
-          <section className="mt-5 border-t border-slate-200 pt-4">
-            <div className="mb-3">
-              <h3 className="text-xs font-extrabold uppercase tracking-wide text-slate-700">
-                Try a demo member
-              </h3>
-              <p className="mt-1 text-[11px] text-slate-500">
-                Select an available member to fill their code. Use the displayed OTP on the next screen.
-              </p>
-            </div>
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-              {demoMembers.map((member) => {
-                const available = member.status === "invited";
-                const selected = selectedDemoId === member.id;
-                return (
-                  <button
-                    key={member.id}
-                    type="button"
-                    disabled={!available}
-                    onClick={() => {
-                      setCode(member.membershipCode);
-                      setSelectedDemoId(member.id);
-                      setError("");
-                    }}
-                    className={`rounded-xl border p-2.5 text-left transition ${
-                      selected
-                        ? "border-[#145C45] bg-[#DDF3E7]/70 ring-2 ring-[#145C45]/15"
-                        : available
-                        ? "border-slate-200 bg-slate-50 hover:border-[#145C45]/50 hover:bg-[#DDF3E7]/40"
-                        : "cursor-not-allowed border-slate-200 bg-slate-100 opacity-60"
-                    }`}
-                  >
-                    <span className="block truncate text-xs font-bold text-slate-800">
-                      {member.name}
-                    </span>
-                    <span className="mt-1 block font-mono text-[11px] font-bold text-[#145C45]">
-                      Member: {member.membershipCode.toLowerCase()}
-                    </span>
-                    <span className="block font-mono text-[11px] text-slate-600">
-                      OTP: {member.otp}
-                    </span>
-                    {!available && (
-                      <span className="mt-1 block text-[10px] font-semibold capitalize text-slate-500">
-                        {member.status}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </section>
-
           {/* Clean Divider */}
           <div className="relative my-5">
             <div className="absolute inset-0 flex items-center">
@@ -339,6 +288,62 @@ function LandingPage() {
             <ChevronRight className="h-4 w-4 text-slate-400 group-hover:text-[#145C45] group-hover:translate-x-0.5 transition" />
           </button>
         </div>
+
+        {/* ── Separate Demo & Evaluation Sandbox Notice (Outside Main Card) ── */}
+        <section
+          aria-label="Demonstration Sandbox Helper"
+          className="mt-4 rounded-2xl border border-slate-200 bg-slate-50/90 p-4 text-left shadow-xs"
+        >
+          <div className="mb-2.5 flex items-center justify-between gap-2">
+            <span className="text-xs font-bold uppercase tracking-wide text-[#145C45]">
+              नमूना परीक्षण (Evaluation Testing Sandbox)
+            </span>
+            <span className="rounded bg-[#DDF3E7] px-2 py-0.5 text-[10px] font-bold text-[#145C45]">
+              Demo Mode
+            </span>
+          </div>
+          <p className="text-[11px] text-slate-600 leading-relaxed">
+            Select a sample member to auto-fill their invite code. Verification OTP will be delivered via realistic SMS preview on the next step:
+          </p>
+
+          <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {demoMembers.map((member) => {
+              const available = member.status === "invited";
+              const selected = selectedDemoId === member.id || code === member.inviteCode || code === member.membershipCode;
+              return (
+                <button
+                  key={member.id}
+                  type="button"
+                  disabled={!available}
+                  onClick={() => {
+                    setCode(member.inviteCode);
+                    setSelectedDemoId(member.id);
+                    setError("");
+                  }}
+                  className={`rounded-xl border p-2.5 text-left transition cursor-pointer ${
+                    selected
+                      ? "border-[#145C45] bg-[#DDF3E7]/80 ring-2 ring-[#145C45]/20"
+                      : available
+                      ? "border-slate-200 bg-white hover:border-[#145C45]/50 hover:bg-[#DDF3E7]/40"
+                      : "cursor-not-allowed border-slate-200 bg-slate-100 opacity-60"
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="block truncate text-xs font-bold text-slate-900">
+                      {member.name}
+                    </span>
+                    <span className={`text-[10px] font-semibold uppercase ${available ? "text-emerald-700" : "text-slate-400"}`}>
+                      {member.status}
+                    </span>
+                  </div>
+                  <span className="mt-1 block font-mono text-[11px] font-bold text-[#145C45]">
+                    Code: {member.inviteCode}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </section>
 
       </main>
 

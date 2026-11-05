@@ -113,134 +113,239 @@ export default function SubmissionDetail({ id }: { id: string }) {
         </div>
       </div>
 
-      {/* Member Data Details */}
+      {/* ── 1. Submitted General & Membership Details ─────────────────────── */}
       <div className="rounded-3xl bg-white p-5 shadow-sm border border-slate-200/80 space-y-3">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
-          Submitted KYC Information
+        <h3 className="text-xs font-bold uppercase tracking-wider text-[#145C45] flex items-center gap-1.5">
+          <FileText className="h-4 w-4" /> General &amp; Membership Details
         </h3>
-        <dl className="space-y-2.5 text-xs sm:text-sm">
-          <div className="grid grid-cols-1 gap-1 py-1 border-b border-slate-50 sm:flex sm:justify-between sm:gap-4">
-            <dt className="text-slate-500 font-medium">Residential Address</dt>
-            <dd className="break-words font-bold text-slate-900 sm:max-w-[65%] sm:text-right">
-              {sub.address || "—"}
-            </dd>
+        <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm">
+          <div className="rounded-xl bg-slate-50 p-3 border border-slate-100">
+            <dt className="text-slate-400 font-medium text-[11px] uppercase tracking-wide">Client Type</dt>
+            <dd className="font-bold text-slate-900 mt-0.5">{sub.clientType || "Individual"}</dd>
           </div>
-          <div className="grid grid-cols-1 gap-1 py-1 border-b border-slate-50 sm:flex sm:justify-between sm:gap-4">
-            <dt className="text-slate-500 font-medium">Document Proof Type</dt>
-            <dd className="break-words font-bold text-slate-900 sm:text-right">
-              {sub.idDocType ?? "Government ID"}
-            </dd>
+          <div className="rounded-xl bg-slate-50 p-3 border border-slate-100">
+            <dt className="text-slate-400 font-medium text-[11px] uppercase tracking-wide">Member Branch</dt>
+            <dd className="font-bold text-slate-900 mt-0.5">{sub.memberBranch || "Head Office"}</dd>
           </div>
-          <div className="grid grid-cols-1 gap-1 py-1 border-b border-slate-50 sm:flex sm:justify-between sm:gap-4">
-            <dt className="text-slate-500 font-medium">Submitted On</dt>
-            <dd className="break-words font-bold text-slate-800 sm:text-right">
-              {formatDateTime(sub.submittedAt)}
-            </dd>
+          <div className="rounded-xl bg-slate-50 p-3 border border-slate-100">
+            <dt className="text-slate-400 font-medium text-[11px] uppercase tracking-wide">Mobile Number</dt>
+            <dd className="font-mono font-bold text-slate-900 mt-0.5">+977 {sub.phone}</dd>
           </div>
-          {sub.reviewedAt && (
-            <div className="grid grid-cols-1 gap-1 py-1 border-b border-slate-50 sm:flex sm:justify-between sm:gap-4">
-              <dt className="text-slate-500 font-medium">Review Decision</dt>
-              <dd className="break-words font-bold text-slate-800 sm:text-right">
-                {formatDateTime(sub.reviewedAt)} · {sub.reviewedBy}
-              </dd>
-            </div>
-          )}
-          {sub.printedAt && (
-            <div className="grid grid-cols-1 gap-1 py-1 border-b border-slate-50 sm:flex sm:justify-between sm:gap-4">
-              <dt className="text-slate-500 font-medium">Printed At</dt>
-              <dd className="break-words font-bold text-slate-800 sm:text-right">
-                {formatDateTime(sub.printedAt)}
-              </dd>
-            </div>
-          )}
-          {sub.remark && (
-            <div className="rounded-2xl bg-rose-50 p-3.5 border border-rose-200 mt-2">
-              <dt className="text-[11px] font-bold uppercase tracking-wider text-rose-800">
-                Manager Rejection Remark:
-              </dt>
-              <dd className="mt-1 text-xs font-semibold text-rose-900">
-                {sub.remark}
-              </dd>
+          <div className="rounded-xl bg-slate-50 p-3 border border-slate-100">
+            <dt className="text-slate-400 font-medium text-[11px] uppercase tracking-wide">Email Address</dt>
+            <dd className="font-bold text-slate-900 mt-0.5 break-all">{sub.email || "—"}</dd>
+          </div>
+          <div className="rounded-xl bg-slate-50 p-3 border border-slate-100">
+            <dt className="text-slate-400 font-medium text-[11px] uppercase tracking-wide">PAN Number</dt>
+            <dd className="font-mono font-bold text-slate-900 mt-0.5">{sub.panNumber || "—"}</dd>
+          </div>
+          <div className="rounded-xl bg-slate-50 p-3 border border-slate-100">
+            <dt className="text-slate-400 font-medium text-[11px] uppercase tracking-wide">Submission Mode</dt>
+            <dd className="font-bold text-[#145C45] uppercase mt-0.5">{sub.submissionType || "online"}</dd>
+          </div>
+          {sub.referredBy && (
+            <div className="rounded-xl bg-slate-50 p-3 border border-slate-100 sm:col-span-2">
+              <dt className="text-slate-400 font-medium text-[11px] uppercase tracking-wide">Referred By</dt>
+              <dd className="font-bold text-slate-900 mt-0.5">{sub.referredBy}</dd>
             </div>
           )}
         </dl>
       </div>
 
-      {/* Uploaded Documents Review Section */}
-      <div className="rounded-3xl bg-white p-5 shadow-sm border border-slate-200/80 space-y-3">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
-          Uploaded Documents & Proofs (Tap to enlarge)
+      {/* ── 2. Residential & Address Verification ─────────────────────────── */}
+      <div className="rounded-3xl bg-white p-5 shadow-sm border border-slate-200/80 space-y-4">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-[#145C45] flex items-center gap-1.5">
+          <Clock className="h-4 w-4" /> Address &amp; Location Details
         </h3>
-        <div className="grid gap-3 sm:grid-cols-2">
-          {/* Photo */}
-          <div className="rounded-2xl border border-slate-200 p-3 bg-slate-50 flex flex-col justify-between">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-slate-700">Member Photo</span>
-              <span className="text-[10px] font-bold text-[#145C45] bg-[#DDF3E7] px-2 py-0.5 rounded-md">
-                Passport Photo
-              </span>
+        
+        {/* Permanent Address */}
+        <div className="space-y-2">
+          <p className="text-xs font-bold uppercase tracking-wide text-slate-700">Permanent Address (स्थायी ठेगाना)</p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs">
+            <div className="rounded-xl bg-slate-50 p-2.5 border border-slate-100">
+              <span className="text-[10px] text-slate-400 block uppercase">Country</span>
+              <span className="font-bold text-slate-800">{sub.country || "Nepal"}</span>
             </div>
-            {sub.photoDataUrl ? (
-              <div
-                onClick={() =>
-                  setEnlargedImage({
-                    url: sub.photoDataUrl!,
-                    title: `Member Photo - ${sub.memberName}`,
-                  })
-                }
-                className="group relative cursor-pointer overflow-hidden rounded-xl bg-slate-900 border border-slate-200"
-              >
-                <img
-                  src={sub.photoDataUrl}
-                  alt="Member"
-                  className="h-44 w-full object-contain group-hover:scale-105 transition"
-                />
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-bold gap-1">
-                  <Maximize2 className="h-4 w-4" /> Tap to Enlarge
-                </div>
-              </div>
-            ) : (
-              <div className="flex h-44 items-center justify-center rounded-xl bg-slate-100 text-xs text-slate-400">
-                No photo uploaded
-              </div>
-            )}
+            <div className="rounded-xl bg-slate-50 p-2.5 border border-slate-100">
+              <span className="text-[10px] text-slate-400 block uppercase">State / Province</span>
+              <span className="font-bold text-slate-800">{sub.state || "—"}</span>
+            </div>
+            <div className="rounded-xl bg-slate-50 p-2.5 border border-slate-100">
+              <span className="text-[10px] text-slate-400 block uppercase">District</span>
+              <span className="font-bold text-slate-800">{sub.district || "—"}</span>
+            </div>
+            <div className="rounded-xl bg-slate-50 p-2.5 border border-slate-100">
+              <span className="text-[10px] text-slate-400 block uppercase">Municipality</span>
+              <span className="font-bold text-slate-800">{sub.municipality || "—"}</span>
+            </div>
+            <div className="rounded-xl bg-slate-50 p-2.5 border border-slate-100">
+              <span className="text-[10px] text-slate-400 block uppercase">Ward No</span>
+              <span className="font-bold text-slate-800">{sub.wardNo || "—"}</span>
+            </div>
+            <div className="rounded-xl bg-slate-50 p-2.5 border border-slate-100">
+              <span className="text-[10px] text-slate-400 block uppercase">Street / Tole</span>
+              <span className="font-bold text-slate-800">{sub.streetTole || "—"}</span>
+            </div>
           </div>
+          {sub.address && (
+            <p className="text-xs text-slate-500 font-medium pt-1">
+              Full formatted address: <span className="font-semibold text-slate-800">{sub.address}</span>
+            </p>
+          )}
+        </div>
 
-          {/* ID Document */}
-          <div className="rounded-2xl border border-slate-200 p-3 bg-slate-50 flex flex-col justify-between">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-slate-700">
-                {sub.idDocType ?? "ID Document"}
-              </span>
-              <span className="text-[10px] font-bold text-[#145C45] bg-[#DDF3E7] px-2 py-0.5 rounded-md">
-                Front Proof
-              </span>
+        {/* Temporary Address if exists */}
+        {sub.hasTempAddress && !sub.sameAsPermanent && (
+          <div className="border-t border-slate-100 pt-3 space-y-2">
+            <p className="text-xs font-bold uppercase tracking-wide text-amber-800">Temporary Address (अस्थायी ठेगाना)</p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs">
+              <div className="rounded-xl bg-amber-50/50 p-2.5 border border-amber-100">
+                <span className="text-[10px] text-slate-400 block uppercase">Country</span>
+                <span className="font-bold text-slate-800">{sub.tempCountry || "Nepal"}</span>
+              </div>
+              <div className="rounded-xl bg-amber-50/50 p-2.5 border border-amber-100">
+                <span className="text-[10px] text-slate-400 block uppercase">Province</span>
+                <span className="font-bold text-slate-800">{sub.tempState || "—"}</span>
+              </div>
+              <div className="rounded-xl bg-amber-50/50 p-2.5 border border-amber-100">
+                <span className="text-[10px] text-slate-400 block uppercase">District</span>
+                <span className="font-bold text-slate-800">{sub.tempDistrict || "—"}</span>
+              </div>
+              <div className="rounded-xl bg-amber-50/50 p-2.5 border border-amber-100">
+                <span className="text-[10px] text-slate-400 block uppercase">Municipality</span>
+                <span className="font-bold text-slate-800">{sub.tempMunicipality || "—"}</span>
+              </div>
+              <div className="rounded-xl bg-amber-50/50 p-2.5 border border-amber-100">
+                <span className="text-[10px] text-slate-400 block uppercase">Ward No</span>
+                <span className="font-bold text-slate-800">{sub.tempWardNo || "—"}</span>
+              </div>
+              <div className="rounded-xl bg-amber-50/50 p-2.5 border border-amber-100">
+                <span className="text-[10px] text-slate-400 block uppercase">Street / Tole</span>
+                <span className="font-bold text-slate-800">{sub.tempStreetTole || "—"}</span>
+              </div>
             </div>
-            {sub.idDocDataUrl ? (
-              <div
-                onClick={() =>
-                  setEnlargedImage({
-                    url: sub.idDocDataUrl!,
-                    title: `${sub.idDocType ?? "ID"} Proof - ${sub.memberName}`,
-                  })
-                }
-                className="group relative cursor-pointer overflow-hidden rounded-xl bg-slate-900 border border-slate-200"
-              >
-                <img
-                  src={sub.idDocDataUrl}
-                  alt="ID Document"
-                  className="h-44 w-full object-contain group-hover:scale-105 transition"
-                />
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-bold gap-1">
-                  <Maximize2 className="h-4 w-4" /> Tap to Enlarge
-                </div>
-              </div>
-            ) : (
-              <div className="flex h-44 items-center justify-center rounded-xl bg-slate-100 text-xs text-slate-400">
-                No ID document uploaded
-              </div>
-            )}
           </div>
+        )}
+
+        {/* Audit Details */}
+        <div className="border-t border-slate-100 pt-3 space-y-1 text-xs text-slate-500">
+          <div className="flex justify-between">
+            <span>Submitted On:</span>
+            <span className="font-bold text-slate-800">{formatDateTime(sub.submittedAt)}</span>
+          </div>
+          {sub.reviewedAt && (
+            <div className="flex justify-between">
+              <span>Review Decision:</span>
+              <span className="font-bold text-slate-800">{formatDateTime(sub.reviewedAt)} · {sub.reviewedBy}</span>
+            </div>
+          )}
+          {sub.printedAt && (
+            <div className="flex justify-between">
+              <span>Printed At:</span>
+              <span className="font-bold text-slate-800">{formatDateTime(sub.printedAt)}</span>
+            </div>
+          )}
+          {sub.remark && (
+            <div className="rounded-xl bg-rose-50 p-3 border border-rose-200 mt-2">
+              <span className="text-[11px] font-bold uppercase text-rose-800 block">Manager Rejection Remark:</span>
+              <span className="font-semibold text-rose-900 mt-0.5 block">{sub.remark}</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ── 3. Complete Uploaded Documents Review Section ────────────────── */}
+      <div className="rounded-3xl bg-white p-5 shadow-sm border border-slate-200/80 space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-[#145C45] flex items-center gap-1.5">
+            <Eye className="h-4 w-4" /> Uploaded Member Proofs &amp; Documents
+          </h3>
+          <span className="text-[11px] font-semibold text-slate-400">
+            Tap any document to view/enlarge
+          </span>
+        </div>
+
+        <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+          {(
+            [
+              { label: "Passport Photo", docType: "Photo", url: sub.photoDataUrl, name: sub.photoName, required: true },
+              { label: "Citizenship (Front)", docType: sub.idDocType ?? "Citizenship", url: sub.citizenshipFrontDataUrl || sub.idDocDataUrl, name: sub.citizenshipFrontName || sub.idDocName, required: true },
+              { label: "Citizenship (Back)", docType: "Citizenship", url: sub.citizenshipBackDataUrl, name: sub.citizenshipBackName, required: false },
+              { label: "Selfie With ID", docType: "Selfie Verification", url: sub.selfieDataUrl, name: sub.selfieName, required: true },
+              { label: "National ID Card", docType: "National ID", url: sub.nationalIdDataUrl, name: sub.nationalIdName, required: false },
+              { label: "PAN Card / Doc", docType: "PAN", url: sub.panDocDataUrl, name: sub.panDocName, required: false },
+              { label: "Official KYC Form", docType: "KYM Form", url: sub.kycFormDataUrl, name: sub.kycFormName, required: false },
+              { label: "Online Agreement", docType: "Signed Agreement", url: sub.agreementDataUrl, name: sub.agreementName, required: false },
+              { label: "Birth Certificate", docType: "Minor Proof", url: sub.birthCertDataUrl, name: sub.birthCertName, required: false },
+              { label: "Company Registration", docType: "Corporate", url: sub.companyRegDataUrl, name: sub.companyRegName, required: false },
+            ] as const
+          ).map((item) => {
+            const isPdf = item.url?.startsWith("pdf:") || item.name?.toLowerCase().endsWith(".pdf");
+            return (
+              <div
+                key={item.label}
+                className="rounded-2xl border border-slate-200 p-3 bg-slate-50 flex flex-col justify-between space-y-2 hover:border-[#145C45]/40 transition"
+              >
+                <div className="flex items-center justify-between gap-1.5">
+                  <span className="text-xs font-bold text-slate-800 truncate" title={item.label}>
+                    {item.label}
+                  </span>
+                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
+                    item.url
+                      ? "bg-[#DDF3E7] text-[#145C45]"
+                      : item.required
+                      ? "bg-rose-50 text-rose-700 border border-rose-200"
+                      : "bg-slate-200 text-slate-600"
+                  }`}>
+                    {item.url ? "Uploaded" : item.required ? "Required" : "Optional"}
+                  </span>
+                </div>
+
+                {item.url ? (
+                  <div
+                    onClick={() => {
+                      if (item.url) {
+                        setEnlargedImage({
+                          url: item.url,
+                          title: `${item.label} — ${sub.memberName}`,
+                        });
+                      }
+                    }}
+                    className="group relative cursor-pointer overflow-hidden rounded-xl bg-slate-900 border border-slate-200 h-36 flex items-center justify-center"
+                  >
+                    {isPdf ? (
+                      <div className="text-center p-3 text-white">
+                        <FileText className="h-8 w-8 mx-auto text-[#DDF3E7] mb-1" />
+                        <span className="text-[11px] font-mono font-bold block truncate max-w-[140px]">
+                          {item.name || "Document.pdf"}
+                        </span>
+                        <span className="text-[10px] text-[#DDF3E7]/80 uppercase font-semibold">PDF Document</span>
+                      </div>
+                    ) : (
+                      <img
+                        src={item.url}
+                        alt={item.label}
+                        className="h-full w-full object-contain group-hover:scale-105 transition"
+                      />
+                    )}
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-bold gap-1">
+                      <Maximize2 className="h-4 w-4" /> View Full
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex h-36 items-center justify-center rounded-xl bg-slate-100 border border-dashed border-slate-200 text-[11px] text-slate-400 text-center p-2">
+                    Not provided
+                  </div>
+                )}
+
+                {item.name && (
+                  <p className="truncate text-[10px] text-slate-500 font-mono" title={item.name}>
+                    {item.name}
+                  </p>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
 
@@ -522,7 +627,7 @@ export function RejectModal({
             value={remark}
             onChange={(e) => setRemark(e.target.value)}
             rows={3}
-            placeholder="e.g. Address mismatch or blurry Aadhaar copy"
+            placeholder="e.g. Address mismatch or blurry Citizenship copy"
             className="w-full rounded-2xl border border-slate-300 p-3 text-xs text-slate-900 outline-none transition focus:border-rose-500 focus:ring-4 focus:ring-rose-100"
           />
         </div>

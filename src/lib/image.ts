@@ -100,7 +100,7 @@ export function createSampleMemberPhoto(name = "Ram Sharma"): string {
 export function createSampleIdCard(
   name = "Ram Sharma",
   membershipCode = "MEM001",
-  docType = "Aadhaar Card"
+  docType = "Citizenship (नागरिकता)"
 ): string {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="380" viewBox="0 0 600 380">
     <defs>
@@ -109,9 +109,9 @@ export function createSampleIdCard(
         <stop offset="100%" stop-color="#f8fafc"/>
       </linearGradient>
       <linearGradient id="topBar" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" stop-color="#1e3a8a"/>
-        <stop offset="50%" stop-color="#0284c7"/>
-        <stop offset="100%" stop-color="#0f172a"/>
+        <stop offset="0%" stop-color="#145C45"/>
+        <stop offset="50%" stop-color="#115E59"/>
+        <stop offset="100%" stop-color="#0A382A"/>
       </linearGradient>
     </defs>
     <!-- Card Base -->
@@ -119,10 +119,10 @@ export function createSampleIdCard(
     <!-- Top Header Bar -->
     <path d="M 0 20 C 0 8.95 8.95 0 20 0 L 580 0 C 591.05 0 600 8.95 600 20 L 600 70 L 0 70 Z" fill="url(#topBar)"/>
     <text x="30" y="42" font-family="Inter, sans-serif" font-size="18" font-weight="800" fill="#ffffff" letter-spacing="1">
-      GOVERNMENT IDENTIFICATION CARD
+      NEPAL CITIZENSHIP CERTIFICATE (नागरिकता)
     </text>
-    <text x="30" y="60" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#bae6fd">
-      ${docType.toUpperCase()} · SANGAM COOPERATIVE VERIFIED
+    <text x="30" y="60" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#DDF3E7">
+      ${docType.toUpperCase()} · COOPERATIVE KYC VERIFIED
     </text>
     <!-- Photo Box -->
     <rect x="35" y="100" width="130" height="160" rx="12" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.5"/>
@@ -132,20 +132,20 @@ export function createSampleIdCard(
       VALID ID PHOTO
     </text>
     <!-- Details -->
-    <text x="190" y="125" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#64748b">FULL NAME</text>
+    <text x="190" y="125" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#64748b">FULL NAME / नाम</text>
     <text x="190" y="150" font-family="Inter, sans-serif" font-size="19" font-weight="800" fill="#0f172a">${name}</text>
 
-    <text x="190" y="185" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#64748b">DOCUMENT NUMBER</text>
-    <text x="190" y="208" font-family="Courier, monospace" font-size="16" font-weight="bold" fill="#1e3a8a">8294 1029 4810</text>
+    <text x="190" y="185" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#64748b">CITIZENSHIP NO. / प्रमाणपत्र नं.</text>
+    <text x="190" y="208" font-family="Courier, monospace" font-size="16" font-weight="bold" fill="#145C45">27-01-78-01928</text>
 
     <text x="190" y="240" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#64748b">MEMBER ID</text>
     <text x="190" y="260" font-family="Inter, sans-serif" font-size="14" font-weight="bold" fill="#0f172a">${membershipCode}</text>
 
-    <text x="340" y="240" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#64748b">DOB / ISSUE</text>
-    <text x="340" y="260" font-family="Inter, sans-serif" font-size="14" font-weight="bold" fill="#0f172a">15/08/1988</text>
+    <text x="340" y="240" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#64748b">DISTRICT OF ISSUE</text>
+    <text x="340" y="260" font-family="Inter, sans-serif" font-size="14" font-weight="bold" fill="#0f172a">Kathmandu, Nepal</text>
 
-    <text x="190" y="295" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#64748b">PERMANENT ADDRESS</text>
-    <text x="190" y="315" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#334155">Ward 4, Cooperative Nagar, Jaipur, Rajasthan</text>
+    <text x="190" y="295" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#64748b">PERMANENT ADDRESS / स्थायी ठेगाना</text>
+    <text x="190" y="315" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#334155">Ward 10, New Baneshwor, Kathmandu, Bagmati Province, Nepal</text>
 
     <!-- QR Code Mock -->
     <rect x="470" y="100" width="95" height="95" rx="8" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
