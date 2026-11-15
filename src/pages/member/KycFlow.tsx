@@ -94,23 +94,56 @@ const WIZARD_STEPS = [
 
 type WizardStep = typeof WIZARD_STEPS[number]["id"];
 
-// ─── Agreement text ────────────────────────────────────────────────────────--
-const AGREEMENT_ITEMS = [
-  "माथि उल्लेखित सम्पूर्ण विवरणहरू सत्य, यथार्थ र शुद्ध छन् भनी म/हामी प्रमाणित गर्दछु/गर्दछौं।",
-  "प्रस्तुत कागजातहरू सक्कली र नवीनतम छन् भनी मेरो/हाम्रो जानकारी तथा विश्वासमा छ।",
-  "संस्थाले माग गरेको कुनै पनि अतिरिक्त जानकारी वा कागजात उपलब्ध गराउन म/हामी तयार छु/छौं।",
-  "संस्थाको नियमावली, विनियम तथा समय-समयमा जारी हुने निर्देशनहरू पालना गर्न म/हामी सहमत छु/छौं।",
-  "सहकारी ऐन, २०७४ तथा सम्बन्धित नियमहरूको अधीनमा रहेर कारोबार गर्न म/हामी प्रतिबद्ध छु/छौं।",
-  "संस्थामा दिइएको व्यक्तिगत विवरणमा कुनै परिवर्तन भएमा तत्काल संस्थालाई जानकारी गराउन म/हामी बाध्य छु/छौं।",
-  "मनी लाउन्डरिङ निवारण सम्बन्धी कानुनी प्रावधानहरूको पूर्ण पालना गर्न म/हामी प्रतिबद्ध छु/छौं।",
-  "संस्थाले आवश्यक ठानेमा मेरो/हाम्रो खाता वा सदस्यता निलम्बन गर्न वा बन्द गर्न सक्ने कुरामा म/हामी सहमत छु/छौं।",
-  "संस्थाको कुनै पनि निर्णयको विरुद्धमा सम्बन्धित नियामक निकायमा मात्र उजुरी गर्न सक्नेछु/सक्नेछौं।",
-  "यस फारममा प्रस्तुत गरिएका सम्पूर्ण तथ्यहरू झुटा वा गलत भएमा कानुनी जवाफदेही वहन गर्न म/हामी तयार छु/छौं।",
-  "संस्थाले आफ्नो विवेकमा मेरो/हाम्रो सदस्यता स्वीकार वा अस्वीकार गर्ने अधिकार राख्दछ भन्ने कुरामा म/हामी सहमत छु/छौं।",
-  "यो सम्झौताको शर्त उल्लंघन भएमा संस्थाले लिने कानुनी कारवाहीमा म/हामी सहमत छु/छौं।",
-  "मेरो/हाम्रो विवरण तथा कागजातहरू संस्थाको सुरक्षित रेकर्डमा राख्न म/हामी अनुमति दिन्छु/दिन्छौं।",
-  "संस्थाको नीति तथा कार्यविधिको परिवर्तनबारे समय-समयमा जानकारी प्राप्त गर्ने सहमति दिन्छु/दिन्छौं।",
-  "यो केवाईसी फारम भर्दाका सम्पूर्ण जानकारीहरू स्वेच्छाले प्रदान गरेको हुँ/हौं र कुनै दबाब वा भ्रममा परेको छैन/छैनौं।",
+const AGREEMENT_ITEM_KEYS: TranslationKey[] = [
+  "agreementItem1",
+  "agreementItem2",
+  "agreementItem3",
+  "agreementItem4",
+  "agreementItem5",
+  "agreementItem6",
+  "agreementItem7",
+  "agreementItem8",
+  "agreementItem9",
+  "agreementItem10",
+  "agreementItem11",
+  "agreementItem12",
+  "agreementItem13",
+  "agreementItem14",
+  "agreementItem15",
+];
+
+const DOCUMENT_FIELDS: {
+  key: keyof {
+    citizenshipFront: Doc;
+    citizenshipBack: Doc;
+    selfie: Doc;
+    birthCert: Doc;
+    panDoc: Doc;
+    kycForm: Doc;
+    photo: Doc;
+    agreement: Doc;
+    nationalId: Doc;
+    companyReg: Doc;
+    signature: Doc;
+    thumbprint: Doc;
+  };
+  labelKey: TranslationKey;
+  hintKey: TranslationKey;
+  required?: boolean;
+  accept?: string;
+}[] = [
+  { key: "citizenshipFront", labelKey: "citizenshipFront", hintKey: "hintCitizenship", required: true },
+  { key: "citizenshipBack", labelKey: "citizenshipBack", hintKey: "hintCitizenship", required: true },
+  { key: "selfie", labelKey: "selfieWithCitizenship", hintKey: "hintSelfie", required: true },
+  { key: "birthCert", labelKey: "birthCertificate", hintKey: "hintBirthCert" },
+  { key: "panDoc", labelKey: "panCard", hintKey: "hintPan" },
+  { key: "kycForm", labelKey: "kycForm", hintKey: "hintKycForm", required: true },
+  { key: "photo", labelKey: "photoUpload", hintKey: "hintPhoto", required: true },
+  { key: "agreement", labelKey: "onlineAgreement", hintKey: "hintOnlineAgreement", required: true },
+  { key: "nationalId", labelKey: "nationalId", hintKey: "hintNationalId", required: true },
+  { key: "companyReg", labelKey: "companyRegistration", hintKey: "hintCompanyReg" },
+  { key: "signature", labelKey: "signatureImage", hintKey: "imageFileHint", required: true, accept: "image/*" },
+  { key: "thumbprint", labelKey: "thumbprintImage", hintKey: "imageFileHint", required: true, accept: "image/*" },
 ];
 
 // ─── Helper: Progress Stepper ────────────────────────────────────────────────
@@ -807,6 +840,7 @@ export default function KycFlow({
 
   const validateDocs = () => {
     if (!docs.citizenshipFront.dataUrl) return t("errCitizenshipFront");
+    if (!docs.citizenshipBack.dataUrl) return t("errCitizenshipBack");
     if (!docs.selfie.dataUrl) return t("errSelfie");
     if (!docs.photo.dataUrl) return t("errPhoto");
     if (!docs.nationalId.dataUrl) return t("errNationalId");
@@ -1550,8 +1584,8 @@ export default function KycFlow({
     const setDoc = (key: keyof typeof docs) => (d: Doc) =>
       setDocs((prev) => ({ ...prev, [key]: d }));
 
-    const uploadedCount = Object.values(docs).filter((d) => d.dataUrl).length;
-    const totalDocs = Object.keys(docs).length;
+    const uploadedCount = DOCUMENT_FIELDS.filter(({ key }) => docs[key].dataUrl).length;
+    const totalDocs = DOCUMENT_FIELDS.length;
 
     return (
       <WizardShell memberName={memberName} currentStep="documents" onCancel={() => setScreen("address")}>
@@ -1569,17 +1603,18 @@ export default function KycFlow({
             </p>
 
             <div className="divide-y divide-slate-100">
-              <DocRow label={t("citizenshipFrontBack")} hint={t("hintCitizenship")} required value={docs.citizenshipFront} onChange={setDoc("citizenshipFront")} onView={setViewingDoc} />
-              <DocRow label={t("selfieWithCitizenship")} hint={t("hintSelfie")} required value={docs.selfie} onChange={setDoc("selfie")} onView={setViewingDoc} />
-              <DocRow label={t("birthCertificate")} hint={t("hintBirthCert")} value={docs.birthCert} onChange={setDoc("birthCert")} onView={setViewingDoc} />
-              <DocRow label={t("panCard")} hint={t("hintPan")} value={docs.panDoc} onChange={setDoc("panDoc")} onView={setViewingDoc} />
-              <DocRow label={t("kycForm")} hint={t("hintKycForm")} required value={docs.kycForm} onChange={setDoc("kycForm")} onView={setViewingDoc} />
-              <DocRow label={t("photoUpload")} hint={t("hintPhoto")} required value={docs.photo} onChange={setDoc("photo")} onView={setViewingDoc} />
-              <DocRow label={t("onlineAgreement")} hint={t("hintOnlineAgreement")} required value={docs.agreement} onChange={setDoc("agreement")} onView={setViewingDoc} />
-              <DocRow label={t("nationalId")} hint={t("hintNationalId")} required value={docs.nationalId} onChange={setDoc("nationalId")} onView={setViewingDoc} />
-              <DocRow label={t("companyRegistration")} hint={t("hintCompanyReg")} value={docs.companyReg} onChange={setDoc("companyReg")} onView={setViewingDoc} />
-              <DocRow label={t("signatureImage")} hint={t("imageFileHint")} required value={docs.signature} onChange={setDoc("signature")} onView={setViewingDoc} accept="image/*" />
-              <DocRow label={t("thumbprintImage")} hint={t("imageFileHint")} required value={docs.thumbprint} onChange={setDoc("thumbprint")} onView={setViewingDoc} accept="image/*" />
+              {DOCUMENT_FIELDS.map(({ key, labelKey, hintKey, required, accept }) => (
+                <DocRow
+                  key={key}
+                  label={t(labelKey)}
+                  hint={t(hintKey)}
+                  required={required}
+                  value={docs[key]}
+                  onChange={setDoc(key)}
+                  onView={setViewingDoc}
+                  accept={accept}
+                />
+              ))}
             </div>
 
             {docsErr && (
@@ -1621,21 +1656,7 @@ export default function KycFlow({
                 <p className="text-[10px] text-slate-500">{memberName} &middot; +977 {memberPhone}</p>
               </div>
               <div className="px-4 py-2 space-y-1.5">
-                {(
-                  [
-                    { key: "citizenshipFront", label: t("citizenshipFrontBack") },
-                    { key: "selfie", label: t("selfieWithCitizenship") },
-                    { key: "birthCert", label: t("birthCertificate") },
-                    { key: "panDoc", label: t("panCard") },
-                    { key: "kycForm", label: t("kycForm") },
-                    { key: "photo", label: t("photoUpload") },
-                    { key: "agreement", label: t("onlineAgreement") },
-                    { key: "nationalId", label: t("nationalId") },
-                    { key: "companyReg", label: t("companyRegistration") },
-                    { key: "signature", label: t("signatureImage") },
-                    { key: "thumbprint", label: t("thumbprintImage") },
-                  ] as { key: keyof typeof docs; label: string }[]
-                ).map(({ key, label }) => (
+                {DOCUMENT_FIELDS.map(({ key, labelKey }) => (
                   <div key={key} className="flex items-center gap-2 py-0.5">
                     {docs[key].dataUrl ? (
                       <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-emerald-600" />
@@ -1643,7 +1664,7 @@ export default function KycFlow({
                       <div className="h-3.5 w-3.5 shrink-0 rounded-full border-2 border-slate-300" />
                     )}
                     <span className={`text-xs ${docs[key].dataUrl ? "font-semibold text-slate-800" : "text-slate-400"}`}>
-                      {label}
+                      {t(labelKey)}
                     </span>
                   </div>
                 ))}
@@ -1683,26 +1704,26 @@ export default function KycFlow({
             {/* Sub-heading */}
             <div className="mb-3 rounded-lg bg-[#DDF3E7]/50 border border-[#DDF3E7] px-3 py-2 text-center">
               <p className="text-xs font-bold text-[#145C45]">
-                सहकारी संस्था ऐन, २०७४ को नियम ९० तथा सम्बन्धित
+                {t("agreementSubtitle")}
               </p>
               <p className="mt-0.5 text-sm font-bold text-slate-900">
-                सहकारी संस्था सदस्यको सम्झौता
+                {t("agreementTitle")}
               </p>
             </div>
 
             {/* Agreement body */}
             <div className="mb-4 rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs text-slate-700 leading-relaxed max-h-60 overflow-y-auto">
               <p className="mb-2">
-                संस्थामा भर्ना भएका सदस्यहरूले तल उल्लेखित विषय-वस्तुहरूको पूर्ण अनुपालन गर्नुपर्नेछ। (उक्त शर्त पूरा गर्नुभएन भने सदस्यता रद्द गर्ने अधिकार संस्थालाई हुनेछ)।
+                {t("agreementIntro")}
               </p>
               <p className="mb-3 font-semibold text-slate-800">
-                यस सम्झौताका प्रमुख शर्तहरू निम्नानुसार छन्:
+                {t("agreementTermsIntro")}
               </p>
               <ol className="space-y-1.5 list-none">
-                {AGREEMENT_ITEMS.map((item, i) => (
+                {AGREEMENT_ITEM_KEYS.map((itemKey, i) => (
                   <li key={i} className="flex gap-2">
                     <span className="shrink-0 font-bold text-[#145C45]">{i + 1}.</span>
-                    <span>{item}</span>
+                    <span>{t(itemKey)}</span>
                   </li>
                 ))}
               </ol>

@@ -104,6 +104,7 @@ const en = {
   errTempWard: "Please enter the ward number for the temporary address.",
   errTempStreet: "Please enter the street / tole for the temporary address.",
   errCitizenshipFront: "Please upload the Citizenship Certificate (Front).",
+  errCitizenshipBack: "Please upload the Citizenship Certificate (Back).",
   errSelfie: "Please upload the Selfie with Citizenship.",
   errPhoto: "Please upload your Photo.",
   errNationalId: "Please upload your National ID.",
@@ -114,6 +115,8 @@ const en = {
   documents: "Documents Upload",
   documentsDisclaimer: "Please upload documents up to 5 MB each.",
   citizenshipFrontBack: "Citizenship Certificates Front and Back",
+  citizenshipFront: "Citizenship Certificate (Front)",
+  citizenshipBack: "Citizenship Certificate (Back)",
   selfieWithCitizenship: "Selfie With Citizenship",
   birthCertificate: "Birth Certificate (Incase of Minor)",
   panCard: "PAN Card",
@@ -136,6 +139,26 @@ const en = {
   hintCompanyReg: "(.pdf, .jpg format)",
 
   // ── Member KYC – agreement ─────────────────────────────────────────────────
+  agreementSubtitle: "Rule 90 of the Cooperative Act, 2074 and related provisions",
+  agreementTitle: "Cooperative Member Agreement",
+  agreementIntro:
+    "Members enrolled in the cooperative must fully comply with the matters listed below. (If these conditions are not met, the cooperative reserves the right to cancel membership.)",
+  agreementTermsIntro: "The main terms of this agreement are as follows:",
+  agreementItem1: "I/we certify that all details provided above are true, accurate, and correct.",
+  agreementItem2: "To the best of my/our knowledge, the submitted documents are genuine and up to date.",
+  agreementItem3: "I/we are prepared to provide any additional information or documents requested by the cooperative.",
+  agreementItem4: "I/we agree to comply with the cooperative's bylaws, regulations, and directives issued from time to time.",
+  agreementItem5: "I/we commit to conducting transactions in accordance with the Cooperative Act, 2074 and related regulations.",
+  agreementItem6: "I/we will promptly notify the cooperative of any changes to the personal information provided.",
+  agreementItem7: "I/we commit to fully complying with legal provisions relating to anti-money laundering.",
+  agreementItem8: "I/we agree that the cooperative may suspend or close my/our account or membership if it considers this necessary.",
+  agreementItem9: "I/we will file complaints against decisions of the cooperative only with the relevant regulatory body.",
+  agreementItem10: "I/we are prepared to accept legal responsibility if any information provided in this form is false or incorrect.",
+  agreementItem11: "I/we agree that the cooperative reserves the right to accept or reject my/our membership at its discretion.",
+  agreementItem12: "I/we agree to any legal action taken by the cooperative if the terms of this agreement are violated.",
+  agreementItem13: "I/we permit the cooperative to keep my/our information and documents in its secure records.",
+  agreementItem14: "I/we agree to receive periodic information about changes to the cooperative's policies and procedures.",
+  agreementItem15: "I/we have voluntarily provided all information in this KYC form and have not been pressured or misled.",
   agreeCheckbox:
     "I have read and understood all the terms and conditions above. I agree to comply with all cooperative regulations and provide accurate information.",
 
@@ -332,6 +355,7 @@ const ne: Record<TranslationKey, string> = {
   errTempWard: "अस्थायी ठेगानाको लागि कृपया वडा नं प्रविष्ट गर्नुहोस्।",
   errTempStreet: "अस्थायी ठेगानाको लागि कृपया सडक / टोल प्रविष्ट गर्नुहोस्।",
   errCitizenshipFront: "कृपया नागरिकता प्रमाणपत्र (अगाडि) अपलोड गर्नुहोस्।",
+  errCitizenshipBack: "कृपया नागरिकता प्रमाणपत्र (पछाडि) अपलोड गर्नुहोस्।",
   errSelfie: "कृपया नागरिकता सँग आफ्नो सेल्फी अपलोड गर्नुहोस्।",
   errPhoto: "कृपया आफ्नो फोटो अपलोड गर्नुहोस्।",
   errNationalId: "कृपया आफ्नो राष्ट्रिय परिचय पत्र अपलोड गर्नुहोस्।",
@@ -342,6 +366,8 @@ const ne: Record<TranslationKey, string> = {
   documents: "कागजात अपलोड",
   documentsDisclaimer: "कृपया प्रत्येक कागजात ५ MB सम्म अपलोड गर्नुहोस्।",
   citizenshipFrontBack: "नागरिकता प्रमाणपत्र अगाडि र पछाडि",
+  citizenshipFront: "नागरिकता प्रमाणपत्र (अगाडिको भाग)",
+  citizenshipBack: "नागरिकता प्रमाणपत्र (पछाडिको भाग)",
   selfieWithCitizenship: "नागरिकता सँगको सेल्फी",
   birthCertificate: "जन्म प्रमाणपत्र (अन्तिम समयमा सन्तानको लागि)",
   panCard: "प्यान कार्ड",
@@ -364,6 +390,26 @@ const ne: Record<TranslationKey, string> = {
   hintCompanyReg: "(.pdf, .jpg बाटो)",
 
   // ── Member KYC – agreement ─────────────────────────────────────────────────
+  agreementSubtitle: "सहकारी ऐन, २०७४ को नियम ९० तथा सम्बन्धित प्रावधानहरू",
+  agreementTitle: "सहकारी सदस्य सम्झौता",
+  agreementIntro:
+    "सहकारीमा भर्ना भएका सदस्यहरूले तल उल्लेखित विषयहरूको पूर्ण पालना गर्नुपर्नेछ। (यी शर्तहरू पूरा नभएमा सहकारीले सदस्यता रद्द गर्न सक्नेछ।)",
+  agreementTermsIntro: "यस सम्झौताका प्रमुख शर्तहरू निम्नानुसार छन्:",
+  agreementItem1: "म/हामी माथि उल्लेखित सम्पूर्ण विवरणहरू सत्य, यथार्थ र शुद्ध छन् भनी प्रमाणित गर्दछु/गर्दछौं।",
+  agreementItem2: "प्रस्तुत कागजातहरू सक्कली र नवीनतम छन् भनी मेरो/हाम्रो जानकारी तथा विश्वासमा छ।",
+  agreementItem3: "संस्थाले माग गरेको कुनै पनि अतिरिक्त जानकारी वा कागजात उपलब्ध गराउन म/हामी तयार छु/छौं।",
+  agreementItem4: "संस्थाको नियमावली, विनियम तथा समय-समयमा जारी हुने निर्देशनहरू पालना गर्न म/हामी सहमत छु/छौं।",
+  agreementItem5: "सहकारी ऐन, २०७४ तथा सम्बन्धित नियमहरूको अधीनमा रहेर कारोबार गर्न म/हामी प्रतिबद्ध छु/छौं।",
+  agreementItem6: "संस्थामा दिइएको व्यक्तिगत विवरणमा कुनै परिवर्तन भएमा तत्काल संस्थालाई जानकारी गराउन म/हामी बाध्य छु/छौं।",
+  agreementItem7: "मनी लाउन्डरिङ निवारण सम्बन्धी कानुनी प्रावधानहरूको पूर्ण पालना गर्न म/हामी प्रतिबद्ध छु/छौं।",
+  agreementItem8: "संस्थाले आवश्यक ठानेमा मेरो/हाम्रो खाता वा सदस्यता निलम्बन गर्न वा बन्द गर्न सक्ने कुरामा म/हामी सहमत छु/छौं।",
+  agreementItem9: "संस्थाको कुनै पनि निर्णयको विरुद्धमा सम्बन्धित नियामक निकायमा मात्र उजुरी गर्न सक्नेछु/सक्नेछौं।",
+  agreementItem10: "यस फारममा प्रस्तुत गरिएका सम्पूर्ण तथ्यहरू झुटा वा गलत भएमा कानुनी जवाफदेही वहन गर्न म/हामी तयार छु/छौं।",
+  agreementItem11: "संस्थाले आफ्नो विवेकमा मेरो/हाम्रो सदस्यता स्वीकार वा अस्वीकार गर्ने अधिकार राख्दछ भन्ने कुरामा म/हामी सहमत छु/छौं।",
+  agreementItem12: "यो सम्झौताको शर्त उल्लंघन भएमा संस्थाले लिने कानुनी कारवाहीमा म/हामी सहमत छु/छौं।",
+  agreementItem13: "मेरो/हाम्रो विवरण तथा कागजातहरू संस्थाको सुरक्षित रेकर्डमा राख्न म/हामी अनुमति दिन्छु/दिन्छौं।",
+  agreementItem14: "संस्थाको नीति तथा कार्यविधिको परिवर्तनबारे समय-समयमा जानकारी प्राप्त गर्ने सहमति दिन्छु/दिन्छौं।",
+  agreementItem15: "यो केवाईसी फारम भर्दाका सम्पूर्ण जानकारीहरू स्वेच्छाले प्रदान गरेको हुँ/हौं र कुनै दबाब वा भ्रममा परेको छैन/छैनौं।",
   agreeCheckbox:
     "म माथि उल्लेख गरिएका सबै सर्त र नियम बुझेको छु। कृपया सबै सहकारी नियम पालना गर्न र सही जानकारी दिन म सहमत छु।",
 
@@ -472,9 +518,6 @@ function detectInitialLanguage(): Language {
     if (saved === "en" || saved === "ne") return saved;
   } catch {
     // ignore
-  }
-  if (typeof navigator !== "undefined" && (navigator.language ?? "").toLowerCase().startsWith("ne")) {
-    return "ne";
   }
   return "en";
 }
