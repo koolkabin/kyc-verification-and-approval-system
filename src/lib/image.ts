@@ -1,8 +1,8 @@
 /**
  * Reads an image file and downscales it via canvas so it fits nicely
- * in localStorage-backed demo storage and preview thumbnails.
+ * in localStorage-backed demo storage and preview thumbnails without exceeding quota.
  */
-export function fileToDataUrl(file: File, maxDim = 1024): Promise<string> {
+export function fileToDataUrl(file: File, maxDim = 850): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => {
@@ -20,7 +20,8 @@ export function fileToDataUrl(file: File, maxDim = 1024): Promise<string> {
           return;
         }
         ctx.drawImage(img, 0, 0, w, h);
-        resolve(canvas.toDataURL("image/jpeg", 0.82));
+        // Compress to efficient JPEG (~50-80KB per document image)
+        resolve(canvas.toDataURL("image/jpeg", 0.72));
       };
       img.onerror = () => reject(new Error("Could not read image"));
       img.src = String(reader.result);

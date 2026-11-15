@@ -4,10 +4,13 @@ import {
   CheckCircle2,
   Clock,
   Eye,
+  FileSpreadsheet,
   FileText,
   Printer,
+  Search,
   Sparkles,
   Users as UsersIcon,
+  X,
   XCircle,
 } from "lucide-react";
 import { useStore } from "../../lib/store";
@@ -30,6 +33,7 @@ export default function Dashboard() {
   const { state } = useStore();
   const { t } = useI18n();
   const [filter, setFilter] = useState("all");
+  const [search, setSearch] = useState("");
 
   const stats = useMemo(() => {
     const subs = state.submissions;
@@ -46,13 +50,63 @@ export default function Dashboard() {
 
   const filtered = useMemo(() => {
     const list = [...state.submissions].sort((a, b) => b.submittedAt - a.submittedAt);
-    if (filter === "all") return list;
-    if (filter === "pending") return list.filter((x) => x.status === "pending");
-    if (filter === "approved") return list.filter((x) => x.status === "approved");
-    if (filter === "rejected") return list.filter((x) => x.status === "rejected");
-    if (filter === "printed") return list.filter((x) => x.status === "printed");
-    return list;
-  }, [state.submissions, filter]);
+    return list.filter((x) => {
+      // Status filter
+      if (filter === "pending" && x.status !== "pending") return false;
+      if (filter === "approved" && x.status !== "approved") return false;
+      if (filter === "rejected" && x.status !== "rejected") return false;
+      if (filter === "printed" && x.status !== "printed") return false;
+
+      // Search filter
+      const q = search.trim().toLowerCase();
+      if (!q) return true;
+      return (
+        x.memberName.toLowerCase().includes(q) ||
+        x.phone.includes(q) ||
+        x.membershipCode.toLowerCase().includes(q) ||
+        (x.address && x.address.toLowerCase().includes(q))
+      );
+    });
+  }, [state.submissions, filter, search]);
+
+  const exportSubmissionsCsv = () => {
+    const headers = [
+      "Member Name",
+      "Phone Number",
+      "Membership Code",
+      "KYC Status",
+      "Client Type",
+      "Branch",
+      "PAN Number",
+      "Email",
+      "Permanent Address",
+      "Submitted At",
+      "Review Remark",
+    ];
+    const rows = filtered.map((s) => [
+      `"${s.memberName.replace(/"/g, '""')}"`,
+      `"+977 ${s.phone}"`,
+      `"${s.membershipCode}"`,
+      `"${s.status}"`,
+      `"${s.clientType || "Individual"}"`,
+      `"${s.memberBranch || "Central / Main"}"`,
+      `"${s.panNumber || ""}"`,
+      `"${s.email || ""}"`,
+      `"${(s.address || "").replace(/"/g, '""')}"`,
+      `"${new Date(s.submittedAt).toLocaleString()}"`,
+      `"${(s.remark || "").replace(/"/g, '""')}"`,
+    ]);
+    const csvContent = "\uFEFF" + [headers.join(","), ...rows.map((r) => r.join(","))].join("\r\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `kyc-submissions-${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
 
   const cards: { labelKey: TranslationKey; value: number; icon: typeof Clock; cls: string }[] = [
     {
@@ -147,8 +201,40 @@ export default function Dashboard() {
         })}
       </div>
 
-      {/* Filter Tabs & Submissions List */}
+      {/* Filter Tabs, Search & Submissions List */}
       <div className="space-y-3">
+        {/* Search & Export Toolbar */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search submissions by member name, phone, code..."
+              className="w-full rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-8 text-xs font-medium text-slate-800 outline-none transition focus:border-[#145C45] focus:ring-2 focus:ring-[#DDF3E7] shadow-xs"
+            />
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+
+          <button
+            type="button"
+            onClick={exportSubmissionsCsv}
+            disabled={filtered.length === 0}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-[#145C45]/30 bg-[#DDF3E7]/60 hover:bg-[#DDF3E7] text-[#145C45] px-3.5 py-2 text-xs font-bold transition shadow-xs cursor-pointer self-start sm:self-auto disabled:opacity-50"
+          >
+            <FileSpreadsheet className="h-3.5 w-3.5" /> Export Submissions CSV
+          </button>
+        </div>
+
         <div className="grid grid-cols-2 gap-2 pb-1 sm:grid-cols-3 lg:grid-cols-5">
           {FILTERS.map((f) => (
             <button

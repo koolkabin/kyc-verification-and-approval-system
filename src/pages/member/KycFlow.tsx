@@ -780,6 +780,8 @@ export default function KycFlow({
     if (!general.memberBranch) return t("errBranch");
     if (!general.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(general.email))
       return t("errEmail");
+    if (general.panNumber.trim() && !/^\d{9}$/.test(general.panNumber.trim()))
+      return "स्थायी लेखा नम्बर (PAN) ९ अंकको हुनुपर्छ / PAN must be exactly 9 digits";
     return "";
   };
 
@@ -788,6 +790,10 @@ export default function KycFlow({
     if (!addr.district) return t("errDistrict");
     if (!addr.municipality) return t("errMunicipality");
     if (!addr.wardNo.trim()) return t("errWard");
+    const wardNum = parseInt(addr.wardNo, 10);
+    if (isNaN(wardNum) || wardNum < 1 || wardNum > 35) {
+      return "वडा नं १ देखि ३५ सम्म मान्य हुन्छ / Ward Number must be between 1 and 35";
+    }
     if (!addr.streetTole.trim()) return t("errStreet");
     if (addr.hasTempAddress && !addr.sameAsPermanent) {
       if (!addr.tempState) return t("errTempProvince");
