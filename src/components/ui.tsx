@@ -248,12 +248,14 @@ export function Modal({
   title,
   children,
   footer,
+  wide = false,
 }: {
   open: boolean;
   onClose: () => void;
   title: string;
   children: ReactNode;
   footer?: ReactNode;
+  wide?: boolean;
 }) {
   if (!open) return null;
   return (
@@ -262,7 +264,7 @@ export function Modal({
         className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm animate-fade-in transition-opacity"
         onClick={onClose}
       />
-      <div className="animate-slide-up relative z-10 w-full max-w-lg rounded-t-3xl sm:rounded-3xl bg-white p-5 sm:p-6 shadow-2xl border border-slate-100 max-h-[92vh] overflow-y-auto">
+      <div className={`animate-slide-up relative z-10 w-full ${wide ? "max-w-4xl" : "max-w-lg"} rounded-t-3xl sm:rounded-3xl bg-white p-5 sm:p-6 shadow-2xl border border-slate-100 max-h-[92vh] overflow-y-auto`}>
         <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-slate-200 sm:hidden" />
         <div className="mb-4 flex items-center justify-between">
           <h3 className="text-lg font-extrabold text-slate-900">{title}</h3>

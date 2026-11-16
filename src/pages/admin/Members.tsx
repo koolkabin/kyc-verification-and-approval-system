@@ -4,7 +4,6 @@ import {
   Copy,
   Download,
   Eye,
-  ExternalLink,
   FileSpreadsheet,
   Filter,
   Link2,
@@ -20,8 +19,9 @@ import { useStore, type SmsInviteData } from "../../lib/store";
 import { Avatar, Field, Modal, SmsModal } from "../../components/ui";
 import { BulkSmsPicker } from "../../components/BulkSmsPicker";
 import { parseCsv } from "../../lib/csv";
-import { navigate } from "../../lib/router";
 import { SAMPLE_MEMBERS_CSV } from "../../config/demoData";
+import type { KycSubmission } from "../../lib/types";
+import { formatDateTime } from "../../lib/utils";
 
 type MemberFilterKey =
   | "all"
@@ -30,6 +30,256 @@ type MemberFilterKey =
   | "approved"
   | "pendingReview"
   | "rejected";
+
+function DetailField({
+  label,
+  value,
+}: {
+  label: string;
+  value?: string | number;
+}) {
+  return (
+    <div className="min-w-0 rounded-xl border border-slate-100 bg-slate-50 p-3">
+      <dt className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+        {label}
+      </dt>
+      <dd className="mt-0.5 break-words font-semibold text-slate-800">
+        {value === undefined || value === "" ? "—" : value}
+      </dd>
+    </div>
+  );
+}
+
+function KycSubmissionDetails({ submission }: { submission: KycSubmission }) {
+  const documents = [
+    {
+      label: "Passport Photo",
+      url: submission.photoDataUrl,
+      name: submission.photoName,
+    },
+    {
+      label: "Citizenship Front",
+      url: submission.citizenshipFrontDataUrl || submission.idDocDataUrl,
+      name: submission.citizenshipFrontName || submission.idDocName,
+    },
+    {
+      label: "Citizenship Back",
+      url: submission.citizenshipBackDataUrl,
+      name: submission.citizenshipBackName,
+    },
+    {
+      label: "Selfie With ID",
+      url: submission.selfieDataUrl,
+      name: submission.selfieName,
+    },
+    {
+      label: "National ID Card",
+      url: submission.nationalIdDataUrl,
+      name: submission.nationalIdName,
+    },
+    {
+      label: "PAN Document",
+      url: submission.panDocDataUrl,
+      name: submission.panDocName,
+    },
+    {
+      label: "Official KYC Form",
+      url: submission.kycFormDataUrl,
+      name: submission.kycFormName,
+    },
+    {
+      label: "Online Agreement",
+      url: submission.agreementDataUrl,
+      name: submission.agreementName,
+    },
+    {
+      label: "Birth Certificate",
+      url: submission.birthCertDataUrl,
+      name: submission.birthCertName,
+    },
+    {
+      label: "Company Registration",
+      url: submission.companyRegDataUrl,
+      name: submission.companyRegName,
+    },
+    {
+      label: "Member Signature",
+      url: submission.signatureDataUrl,
+      name: submission.signatureName,
+    },
+    {
+      label: "Member Thumbprint",
+      url: submission.thumbprintDataUrl,
+      name: submission.thumbprintName,
+    },
+  ];
+
+  return (
+    <div className="space-y-4">
+      <section className="space-y-2">
+        <h4 className="text-xs font-bold uppercase tracking-wide text-[#145C45]">
+          General &amp; Membership Details
+        </h4>
+        <dl className="grid gap-2 sm:grid-cols-2">
+          <DetailField label="Submitted Full Name" value={submission.memberName} />
+          <DetailField label="Submitted Membership Code" value={submission.membershipCode} />
+          <DetailField label="Submitted Phone" value={submission.phone} />
+          <DetailField label="Client Type" value={submission.clientType} />
+          <DetailField label="Member Branch" value={submission.memberBranch} />
+          <DetailField label="Email" value={submission.email} />
+          <DetailField label="PAN Number" value={submission.panNumber} />
+          <DetailField label="ID Document Type" value={submission.idDocType} />
+          <DetailField label="Submission Mode" value={submission.submissionType} />
+          <DetailField label="Referred By" value={submission.referredBy} />
+        </dl>
+      </section>
+
+      <section className="space-y-2">
+        <h4 className="text-xs font-bold uppercase tracking-wide text-[#145C45]">
+          Permanent Address
+        </h4>
+        <dl className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          <DetailField label="Country" value={submission.country} />
+          <DetailField label="State / Province" value={submission.state} />
+          <DetailField label="District" value={submission.district} />
+          <DetailField label="Municipality" value={submission.municipality} />
+          <DetailField label="Ward Number" value={submission.wardNo} />
+          <DetailField label="Street / Tole" value={submission.streetTole} />
+          <DetailField label="Full Address" value={submission.address} />
+        </dl>
+      </section>
+
+      <section className="space-y-2">
+        <h4 className="text-xs font-bold uppercase tracking-wide text-[#145C45]">
+          Temporary Address
+        </h4>
+        {submission.hasTempAddress && !submission.sameAsPermanent ? (
+          <dl className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            <DetailField label="Country" value={submission.tempCountry} />
+            <DetailField label="State / Province" value={submission.tempState} />
+            <DetailField label="District" value={submission.tempDistrict} />
+            <DetailField label="Municipality" value={submission.tempMunicipality} />
+            <DetailField label="Ward Number" value={submission.tempWardNo} />
+            <DetailField label="Street / Tole" value={submission.tempStreetTole} />
+          </dl>
+        ) : (
+          <p className="rounded-xl border border-slate-100 bg-slate-50 p-3 text-sm font-semibold text-slate-700">
+            {submission.sameAsPermanent
+              ? "Same as permanent address"
+              : "No temporary address provided"}
+          </p>
+        )}
+      </section>
+
+      <section className="space-y-2">
+        <h4 className="text-xs font-bold uppercase tracking-wide text-[#145C45]">
+          Uploaded Documents
+        </h4>
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          {documents.map((document) => {
+            const isPdf =
+              document.url?.startsWith("data:application/pdf") ||
+              document.name?.toLowerCase().endsWith(".pdf");
+            return (
+              <div
+                key={document.label}
+                className="space-y-2 rounded-xl border border-slate-200 p-3"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <p className="text-xs font-bold text-slate-800">{document.label}</p>
+                  <span className="shrink-0 text-[10px] font-semibold text-slate-500">
+                    {document.url ? "Uploaded" : "Not provided"}
+                  </span>
+                </div>
+                {document.url ? (
+                  isPdf ? (
+                    <a
+                      href={document.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex h-32 items-center justify-center rounded-lg bg-slate-100 text-xs font-bold text-[#145C45] underline"
+                    >
+                      Open PDF
+                    </a>
+                  ) : (
+                    <a
+                      href={document.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label={`Open ${document.label}`}
+                    >
+                      <img
+                        src={document.url}
+                        alt={document.label}
+                        loading="lazy"
+                        className="h-32 w-full rounded-lg bg-slate-100 object-contain"
+                      />
+                    </a>
+                  )
+                ) : (
+                  <div className="flex h-32 items-center justify-center rounded-lg bg-slate-50 text-xs text-slate-400">
+                    Not uploaded
+                  </div>
+                )}
+                {document.name && (
+                  <p className="truncate text-[10px] text-slate-500" title={document.name}>
+                    {document.name}
+                  </p>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="space-y-2">
+        <h4 className="text-xs font-bold uppercase tracking-wide text-[#145C45]">
+          Review &amp; Verification
+        </h4>
+        <dl className="grid gap-2 sm:grid-cols-2">
+          <DetailField label="KYC Status" value={submission.status} />
+          <DetailField label="Submitted On" value={formatDateTime(submission.submittedAt)} />
+          <DetailField
+            label="Reviewed On"
+            value={submission.reviewedAt ? formatDateTime(submission.reviewedAt) : undefined}
+          />
+          <DetailField label="Reviewed By" value={submission.reviewedBy} />
+          <DetailField label="Rejection Remark" value={submission.remark} />
+          <DetailField
+            label="Printed On"
+            value={submission.printedAt ? formatDateTime(submission.printedAt) : undefined}
+          />
+          <DetailField
+            label="Signature Verification"
+            value={submission.signatureVerified ? "Verified" : "Not verified"}
+          />
+          <DetailField label="Signature Verified By" value={submission.signatureVerifiedBy} />
+          <DetailField
+            label="Signature Verified On"
+            value={
+              submission.signatureVerifiedAt
+                ? formatDateTime(submission.signatureVerifiedAt)
+                : undefined
+            }
+          />
+          <DetailField
+            label="Thumbprint Verification"
+            value={submission.thumbprintVerified ? "Verified" : "Not verified"}
+          />
+          <DetailField label="Thumbprint Verified By" value={submission.thumbprintVerifiedBy} />
+          <DetailField
+            label="Thumbprint Verified On"
+            value={
+              submission.thumbprintVerifiedAt
+                ? formatDateTime(submission.thumbprintVerifiedAt)
+                : undefined
+            }
+          />
+        </dl>
+      </section>
+    </div>
+  );
+}
 
 export default function Members() {
   const {
@@ -491,7 +741,7 @@ export default function Members() {
                       <span className="font-mono text-slate-700">+977 {m.phone}</span>
                     </p>
 
-                    <div className="mt-1 text-[11px] font-semibold">
+                    <div className="mt-1 text-[11px] font-extrabold">
                       <span className={hasSmsSent ? "text-sky-800" : "text-slate-600"}>
                         {hasSmsSent ? "SMS Sent" : "SMS Not Sent"}
                       </span>
@@ -525,17 +775,7 @@ export default function Members() {
                     <Link2 className="h-3.5 w-3.5" />
                   </button>
 
-                  {/* Open Direct */}
-                  <button
-                    onClick={() => navigate(`/manager-kyc/${m.inviteCode.toLowerCase()}`)}
-                    className="flex items-center gap-1 rounded-xl border border-[#145C45]/30 bg-[#145C45]/5 hover:bg-[#DDF3E7] px-2.5 py-2 text-xs font-bold text-[#145C45] transition cursor-pointer"
-                    title="Open KYC form directly"
-                    aria-label="Open Form"
-                  >
-                    <ExternalLink className="h-3.5 w-3.5" />
-                  </button>
-
-                  {/* View KYC Details */}
+                  {/* View Member and KYC Details */}
                   <button
                     type="button"
                     onClick={() => setDetailsMemberId(m.id)}
@@ -569,56 +809,42 @@ export default function Members() {
       <Modal
         open={Boolean(detailsMember)}
         onClose={() => setDetailsMemberId(null)}
-        title="Member Details"
+        title="Member & KYC Details"
+        wide
         footer={
-          <>
-            {detailsSubmission && (
-              <button
-                type="button"
-                onClick={() => {
-                  setDetailsMemberId(null);
-                  navigate(`/admin/submissions/${detailsSubmission.id}`);
-                }}
-                className="flex-1 rounded-xl bg-[#145C45] px-4 py-2.5 text-xs font-bold text-white transition hover:bg-[#0f4534]"
-              >
-                View KYC Submission
-              </button>
-            )}
-            <button
-              type="button"
-              onClick={() => setDetailsMemberId(null)}
-              className="rounded-xl border border-slate-200 bg-slate-100 px-4 py-2.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-200"
-            >
-              Close
-            </button>
-          </>
+          <button
+            type="button"
+            onClick={() => setDetailsMemberId(null)}
+            className="w-full rounded-xl border border-slate-200 bg-slate-100 px-4 py-2.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-200"
+          >
+            Close
+          </button>
         }
       >
         {detailsMember && (
-          <dl className="space-y-3">
-            <div>
-              <dt className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Full Name</dt>
-              <dd className="font-bold text-slate-900">{detailsMember.name}</dd>
-            </div>
-            <div>
-              <dt className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Membership Code</dt>
-              <dd className="font-mono font-bold text-slate-800">{detailsMember.membershipCode}</dd>
-            </div>
-            <div>
-              <dt className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Phone</dt>
-              <dd className="font-mono font-bold text-slate-800">+977 {detailsMember.phone}</dd>
-            </div>
-            <div>
-              <dt className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">SMS Status</dt>
-              <dd className="font-semibold text-slate-800">{detailsMember.smsSentAt ? "SMS Sent" : "SMS Not Sent"}</dd>
-            </div>
-            {detailsSubmission && (
-              <div>
-                <dt className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">KYC Status</dt>
-                <dd className="font-semibold capitalize text-slate-800">{detailsSubmission.status}</dd>
-              </div>
+          <div className="space-y-5">
+            <section className="space-y-2">
+              <h4 className="text-xs font-bold uppercase tracking-wide text-[#145C45]">
+                Member Details
+              </h4>
+              <dl className="grid gap-2 sm:grid-cols-2">
+                <DetailField label="Full Name" value={detailsMember.name} />
+                <DetailField label="Membership Code" value={detailsMember.membershipCode} />
+                <DetailField label="Phone" value={`+977 ${detailsMember.phone}`} />
+                <DetailField
+                  label="SMS Status"
+                  value={detailsMember.smsSentAt ? "SMS Sent" : "SMS Not Sent"}
+                />
+              </dl>
+            </section>
+            {detailsSubmission ? (
+              <KycSubmissionDetails submission={detailsSubmission} />
+            ) : (
+              <p className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm font-medium text-amber-900">
+                This member has not submitted a KYC form yet.
+              </p>
             )}
-          </dl>
+          </div>
         )}
       </Modal>
     </div>
