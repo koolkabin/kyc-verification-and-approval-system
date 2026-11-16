@@ -9,7 +9,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useStore } from "../../lib/store";
-import { DEFAULT_ORG_SETTINGS } from "../../lib/types";
+import { DEFAULT_ORG_SETTINGS } from "../../config/appDefaults";
 
 const COOPERATIVE_TYPES = [
   "बचत तथा ऋण सहकारी संस्था (Savings & Credit Cooperative)",

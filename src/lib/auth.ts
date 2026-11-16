@@ -7,15 +7,12 @@
 // used in production. A real backend authentication flow can replace these
 // checks later without touching the rest of the UI.
 
-const MANAGER_DEMO_EMAIL = "manager@demo.com";
-const MANAGER_DEMO_PASSWORD = "Manager@123";
+import { DEMO_MANAGER_CREDENTIALS } from "../config/appDefaults";
+
 const MANAGER_AUTH_SESSION_KEY = "coop-kyc-manager-demo-auth";
 
 /** Demo credentials — local demonstration only. Never display the password. */
-export const DEVELOPMENT_ONLY_MANAGER_CREDENTIALS = {
-  email: MANAGER_DEMO_EMAIL,
-  password: MANAGER_DEMO_PASSWORD,
-} as const;
+export const DEVELOPMENT_ONLY_MANAGER_CREDENTIALS = DEMO_MANAGER_CREDENTIALS;
 
 /** Validate manager credentials against the predefined demo credentials. */
 export function isValidManagerCredentials(

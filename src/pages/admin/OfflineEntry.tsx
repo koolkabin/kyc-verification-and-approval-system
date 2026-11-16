@@ -4,6 +4,7 @@ import { useStore } from "../../lib/store";
 import { navigate } from "../../lib/router";
 import { Field } from "../../components/ui";
 import { createSampleIdCard, fileToDataUrl } from "../../lib/image";
+import { OFFLINE_ENTRY_SAMPLE } from "../../config/demoData";
 
 export default function OfflineEntry() {
   const { offlineAdd } = useStore();
@@ -21,15 +22,19 @@ export default function OfflineEntry() {
 
   const handleFillDemo = () => {
     setForm({
-      memberName: "Bikram Thapa",
-      phone: "9801234567",
-      membershipCode: "MEM008",
-      address: "Ward 5, Shanti Tole, Pokhara, Nepal",
-      idDocType: "Citizenship",
+      memberName: OFFLINE_ENTRY_SAMPLE.memberName,
+      phone: OFFLINE_ENTRY_SAMPLE.phone,
+      membershipCode: OFFLINE_ENTRY_SAMPLE.membershipCode,
+      address: OFFLINE_ENTRY_SAMPLE.address,
+      idDocType: OFFLINE_ENTRY_SAMPLE.idDocType,
     });
     setIdDoc({
-      dataUrl: createSampleIdCard("Bikram Thapa", "MEM008", "Citizenship"),
-      name: "citizenship_offline.svg",
+      dataUrl: createSampleIdCard(
+        OFFLINE_ENTRY_SAMPLE.memberName,
+        OFFLINE_ENTRY_SAMPLE.membershipCode,
+        OFFLINE_ENTRY_SAMPLE.idDocType
+      ),
+      name: OFFLINE_ENTRY_SAMPLE.idDocName,
     });
   };
 

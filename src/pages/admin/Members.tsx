@@ -21,6 +21,7 @@ import { useStore } from "../../lib/store";
 import { Avatar, Field, SmsModal, StatusPill } from "../../components/ui";
 import { parseCsv } from "../../lib/csv";
 import { navigate } from "../../lib/router";
+import { SAMPLE_MEMBERS_CSV } from "../../config/demoData";
 
 export default function Members() {
   const { state, addMembers, queueMemberSms } = useStore();
@@ -209,7 +210,7 @@ export default function Members() {
 
         <div className="flex gap-2">
           <a
-            href={`${import.meta.env.BASE_URL}sample-members.csv`}
+            href={`data:text/csv;charset=utf-8,${encodeURIComponent(SAMPLE_MEMBERS_CSV)}`}
             download="sample-members.csv"
             className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 px-3.5 py-2 text-xs font-semibold text-slate-700 transition"
           >
