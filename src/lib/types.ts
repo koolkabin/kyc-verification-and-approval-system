@@ -35,6 +35,7 @@ export type KycStatus =
   | "printed";
 
 export type SubmissionStatus = Exclude<KycStatus, "invited">;
+export type MemberSource = "csv" | "manual";
 
 export interface Member {
   id: string;
@@ -47,7 +48,9 @@ export interface Member {
   invitedAt: number;
   status: KycStatus;
   smsQueuedAt?: number;
+  smsSentAt?: number;
   isDemo?: boolean;
+  source?: MemberSource;
 }
 
 export interface KycSubmission {

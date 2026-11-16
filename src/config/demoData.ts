@@ -53,6 +53,7 @@ export const DEMO_MEMBERS: Omit<Member, "otpExpiresAt" | "invitedAt">[] = [
     otp: "804126",
     status: "invited",
     smsQueuedAt: Date.now() - 2 * DAY,
+    smsSentAt: Date.now() - 2 * DAY,
     isDemo: true,
   },
   {
@@ -155,7 +156,8 @@ export function createDemoSeedState() {
       otpExpiresAt: now + 45 * 60 * 1000,
       invitedAt: now - 1 * DAY,
       status: "invited",
-      smsQueuedAt: now - 1 * DAY, // SMS already sent previously
+      smsQueuedAt: now - 1 * DAY,
+      smsSentAt: now - 1 * DAY,
     },
     {
       id: "mem_kamal",

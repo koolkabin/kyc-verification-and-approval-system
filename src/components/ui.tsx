@@ -282,16 +282,18 @@ export function Modal({
 }
 
 /**
- * Mobile SMS preview showing the message text queued for manual sending
+ * Mobile SMS preview showing the invitation message for manual sending
  * (the member-specific invitation link and OTP)
  */
 export function SmsModal({
   open,
   onClose,
   data,
+  onMarkSent,
 }: {
   open: boolean;
   onClose: () => void;
+  onMarkSent?: () => void;
   data: {
     name: string;
     phone: string;
@@ -356,7 +358,7 @@ export function SmsModal({
             <span className="flex items-center gap-1 font-semibold text-[#DDF3E7]">
               <MessageSquare className="h-3 w-3" /> SMS &middot; {orgTag.toUpperCase()}
             </span>
-            <span>Queued locally · not sent</span>
+            <span>SMS Not Sent</span>
           </div>
           <div className="rounded-xl bg-slate-800 p-3.5 text-sm leading-relaxed text-slate-100 border border-slate-700">
             <p>
@@ -378,6 +380,15 @@ export function SmsModal({
           >
             <MessageSquare className="h-4 w-4" /> {t("openSmsApp")}
           </a>
+          {onMarkSent && (
+            <button
+              type="button"
+              onClick={onMarkSent}
+              className="w-full rounded-2xl bg-[#145C45] py-3 text-sm font-bold text-white transition hover:bg-[#0f4534]"
+            >
+              {t("markSmsSent")}
+            </button>
+          )}
           <div className="flex gap-2">
             <button
               onClick={copyText}

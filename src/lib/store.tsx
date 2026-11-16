@@ -6,7 +6,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { KycSubmission, Member, MemberInput, OrgSettings } from "./types";
+import type { KycSubmission, Member, MemberInput, MemberSource, OrgSettings } from "./types";
 import { createDemoSeedState, DEMO_MEMBERS } from "../config/demoData";
 import { DEFAULT_ORG_SETTINGS } from "../config/appDefaults";
 
@@ -106,9 +106,10 @@ interface StoreValue {
   getMember: (id: string) => Member | undefined;
   getSubmission: (id: string) => KycSubmission | undefined;
   findByInviteCode: (code: string) => Member | undefined;
-  addMembers: (rows: MemberInput[]) => Member[];
+  addMembers: (rows: MemberInput[], source: MemberSource) => Member[];
   resendInvite: (memberId: string) => void;
   queueMemberSms: (memberId: string) => SmsInviteData | null;
+  markMemberSmsSent: (memberId: string) => boolean;
   submitKyc: (input: SubmitKycInput) => { ok: boolean; error?: string };
   startReview: (submissionId: string) => void;
   approveSubmission: (submissionId: string) => void;
@@ -197,7 +198,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       );
     };
 
-    const addMembers = (rows: MemberInput[]): Member[] => {
+    const addMembers = (rows: MemberInput[], source: MemberSource): Member[] => {
       const now = Date.now();
       const created: Member[] = rows
         .filter((r) => r.name.trim().length > 0 && r.phone.trim().length > 0)
@@ -213,6 +214,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           otpExpiresAt: now + 30 * 60 * 1000,
           invitedAt: now,
           status: "invited",
+          source,
         }));
       if (created.length > 0) {
         setState((s) => ({ ...s, members: [...created, ...s.members] }));
@@ -246,7 +248,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         ...s,
         members: s.members.map((m) =>
           m.id === memberId
-            ? { ...m, otp, otpExpiresAt: queuedAt + 30 * 60 * 1000, smsQueuedAt: queuedAt }
+            ? {
+                ...m,
+                otp,
+                otpExpiresAt: queuedAt + 30 * 60 * 1000,
+                smsQueuedAt: queuedAt,
+                smsSentAt: undefined,
+              }
             : m
         ),
       }));
@@ -260,6 +268,17 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         queuedAt,
         link: `${window.location.origin}${window.location.pathname}#/kyc/${inviteCode.toLowerCase()}`,
       };
+    };
+
+    const markMemberSmsSent = (memberId: string): boolean => {
+      if (!state.members.some((member) => member.id === memberId)) return false;
+      setState((s) => ({
+        ...s,
+        members: s.members.map((member) =>
+          member.id === memberId ? { ...member, smsSentAt: Date.now() } : member
+        ),
+      }));
+      return true;
     };
 
     const submitKyc: StoreValue["submitKyc"] = (input) => {
@@ -489,6 +508,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       addMembers,
       resendInvite,
       queueMemberSms,
+      markMemberSmsSent,
       submitKyc,
       startReview,
       approveSubmission,

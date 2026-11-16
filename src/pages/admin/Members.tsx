@@ -1,7 +1,6 @@
 import { useMemo, useRef, useState, type FormEvent } from "react";
 import {
   Building2,
-  Clock,
   Copy,
   Download,
   Eye,
@@ -11,13 +10,15 @@ import {
   Link2,
   Plus,
   Search,
+  Send,
   Upload,
   UserPlus,
   Users as UsersIcon,
   X,
 } from "lucide-react";
-import { useStore } from "../../lib/store";
+import { useStore, type SmsInviteData } from "../../lib/store";
 import { Avatar, Field, Modal, SmsModal } from "../../components/ui";
+import { BulkSmsPicker } from "../../components/BulkSmsPicker";
 import { parseCsv } from "../../lib/csv";
 import { navigate } from "../../lib/router";
 import { SAMPLE_MEMBERS_CSV } from "../../config/demoData";
@@ -35,6 +36,7 @@ export default function Members() {
     state,
     addMembers,
     queueMemberSms,
+    markMemberSmsSent,
   } = useStore();
   const fileRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
@@ -47,18 +49,16 @@ export default function Members() {
   const [manual, setManual] = useState({ name: "", phone: "", membershipCode: "" });
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<MemberFilterKey>("all");
+  const [bulkSmsOpen, setBulkSmsOpen] = useState(false);
   const [detailsMemberId, setDetailsMemberId] = useState<string | null>(null);
-  const [activeSms, setActiveSms] = useState<{
-    name: string;
-    phone: string;
-    inviteCode: string;
-    otp: string;
-    link: string;
-  } | null>(null);
+  const [activeSms, setActiveSms] = useState<SmsInviteData | null>(null);
 
   const members = useMemo(
     () => [...state.members].sort((a, b) => a.invitedAt - b.invitedAt),
     [state.members]
+  );
+  const smsEligibleMembers = members.filter(
+    (member) => member.status === "invited" || member.status === "rejected"
   );
   const detailsMember = detailsMemberId
     ? state.members.find((member) => member.id === detailsMemberId)
@@ -69,8 +69,8 @@ export default function Members() {
 
   // Stats calculation
   const totalCount = members.length;
-  const unsentCount = members.filter((m) => !m.smsQueuedAt).length;
-  const sentCount = members.filter((m) => Boolean(m.smsQueuedAt)).length;
+  const unsentCount = members.filter((m) => !m.smsSentAt).length;
+  const sentCount = members.filter((m) => Boolean(m.smsSentAt)).length;
   const pendingReviewCount = members.filter(
     (m) => m.status === "submitted" || m.status === "pending"
   ).length;
@@ -87,9 +87,9 @@ export default function Members() {
       if (!matchSearch) return false;
       if (statusFilter === "all") return true;
       if (statusFilter === "unsent")
-        return !m.smsQueuedAt;
+        return !m.smsSentAt;
       if (statusFilter === "sent")
-        return Boolean(m.smsQueuedAt);
+        return Boolean(m.smsSentAt);
       if (statusFilter === "approved")
         return m.status === "approved" || m.status === "printed";
       if (statusFilter === "pendingReview")
@@ -110,13 +110,25 @@ export default function Members() {
   const handleQueueSms = (memberId: string) => {
     const member = state.members.find((m) => m.id === memberId);
     if (!member) {
-      setNotice("Could not prepare this invitation. The member record was not found.");
+      setNotice("Could not open SMS because the member record was not found.");
       return;
     }
     const sms = queueMemberSms(memberId);
     if (sms) {
       setActiveSms(sms);
     }
+  };
+
+  const handleMarkSmsSent = () => {
+    if (!activeSms) return;
+    if (!markMemberSmsSent(activeSms.memberId)) {
+      setNotice("Could not update SMS status because the member record was not found.");
+      return;
+    }
+    const memberName = activeSms.name;
+    setActiveSms(null);
+    setNotice(`✓ SMS marked as sent for ${memberName}.`);
+    setTimeout(() => setNotice(""), 3000);
   };
 
   const copyInvite = async (code: string) => {
@@ -143,7 +155,7 @@ export default function Members() {
       `"${m.name.replace(/"/g, '""')}"`,
       `"${m.phone}"`,
       `"${m.membershipCode}"`,
-      `"${m.smsQueuedAt ? "SMS Sent" : "SMS Not Sent"}"`,
+      `"${m.smsSentAt ? "SMS Sent" : "SMS Not Sent"}"`,
       `"${m.status}"`,
       `"${new Date(m.invitedAt).toLocaleDateString()}"`,
     ]);
@@ -177,7 +189,7 @@ export default function Members() {
         phone: cleanPhone,
         membershipCode: manual.membershipCode.trim(),
       },
-    ]);
+    ], "manual");
     setManual({ name: "", phone: "", membershipCode: "" });
     setNotice("✓ Member added! Invite details generated; no SMS was sent.");
     setTimeout(() => setNotice(""), 3000);
@@ -191,7 +203,7 @@ export default function Members() {
           Member Directory & Local SMS Queue
         </h2>
         <p className="text-xs sm:text-sm text-slate-500">
-        View membership codes and phone numbers. Prepare invitations in the SMS action; messages are not sent automatically.
+        Send invitations individually or choose multiple members with Bulk SMS.
         </p>
       </div>
 
@@ -266,7 +278,7 @@ export default function Members() {
               </p>
               <button
                 onClick={() => {
-                  addMembers(parsed.rows);
+                  addMembers(parsed.rows, "csv");
                   setParsed(null);
                   setFileName("");
                   setNotice(`✓ Added ${parsed.rows.length} members successfully!`);
@@ -361,14 +373,24 @@ export default function Members() {
               Manage members and prepare SMS invitations
             </p>
           </div>
-          <button
-            type="button"
-            onClick={exportMembersCsv}
-            disabled={members.length === 0}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-[#145C45]/30 bg-[#DDF3E7]/60 hover:bg-[#DDF3E7] text-[#145C45] px-3.5 py-2 text-xs font-bold transition shadow-xs cursor-pointer self-start sm:self-auto disabled:opacity-50"
-          >
-            <FileSpreadsheet className="h-3.5 w-3.5" /> Export Members CSV
-          </button>
+          <div className="flex flex-wrap gap-2 self-start sm:self-auto">
+            <button
+              type="button"
+              onClick={() => setBulkSmsOpen(true)}
+              disabled={smsEligibleMembers.length === 0}
+              className="inline-flex items-center gap-1.5 rounded-xl bg-[#145C45] hover:bg-[#0f4534] text-white px-3.5 py-2 text-xs font-bold transition shadow-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Send className="h-3.5 w-3.5" /> Bulk SMS
+            </button>
+            <button
+              type="button"
+              onClick={exportMembersCsv}
+              disabled={members.length === 0}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-[#145C45]/30 bg-[#DDF3E7]/60 hover:bg-[#DDF3E7] text-[#145C45] px-3.5 py-2 text-xs font-bold transition shadow-xs cursor-pointer disabled:opacity-50"
+            >
+              <FileSpreadsheet className="h-3.5 w-3.5" /> Export Members CSV
+            </button>
+          </div>
         </div>
 
         {/* ── Key Member & SMS Distribution Metrics ──────────────────────── */}
@@ -382,7 +404,7 @@ export default function Members() {
             <p className="text-lg font-black text-[#145C45]">{unsentCount}</p>
           </div>
           <div className="col-span-2 sm:col-span-1 rounded-2xl bg-sky-50 border border-sky-200 p-2.5 text-center">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-sky-800">SMS Sent / Done</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-sky-800">SMS Sent</span>
             <p className="text-lg font-black text-sky-900">{sentCount}</p>
           </div>
         </div>
@@ -448,7 +470,7 @@ export default function Members() {
           )}
 
           {filteredMembers.map((m) => {
-            const hasReceivedSms = Boolean(m.smsQueuedAt);
+            const hasSmsSent = Boolean(m.smsSentAt);
 
             return (
               <div
@@ -470,8 +492,8 @@ export default function Members() {
                     </p>
 
                     <div className="mt-1 text-[11px] font-semibold">
-                      <span className={hasReceivedSms ? "text-sky-800" : "text-slate-600"}>
-                        SMS: {hasReceivedSms ? "Sent" : "Not sent"}
+                      <span className={hasSmsSent ? "text-sky-800" : "text-slate-600"}>
+                        {hasSmsSent ? "SMS Sent" : "SMS Not Sent"}
                       </span>
                     </div>
                   </div>
@@ -479,18 +501,18 @@ export default function Members() {
 
                 {/* Action Buttons for this member */}
                 <div className="flex flex-wrap items-center justify-end gap-1.5 self-stretch sm:self-auto shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
-                  {/* Send / Queue SMS Button */}
+                  {/* Send SMS Button */}
                   <button
                     onClick={() => handleQueueSms(m.id)}
                     className={`flex items-center gap-1 rounded-xl px-3 py-2 text-xs font-bold shadow-xs transition cursor-pointer ${
-                      hasReceivedSms
+                      hasSmsSent
                         ? "border border-[#145C45]/30 bg-[#DDF3E7] hover:bg-[#cbebd9] text-[#145C45]"
                         : "bg-[#145C45] hover:bg-[#0f4534] active:scale-95 text-white"
                     }`}
-                    title={hasReceivedSms ? "Resend or inspect SMS invitation" : "Queue SMS invitation"}
+                    title="Send SMS"
                   >
-                    <Clock className="h-3.5 w-3.5" />
-                    <span>{hasReceivedSms ? "Resend SMS" : "Queue SMS"}</span>
+                    <Send className="h-3.5 w-3.5" />
+                    <span>Send SMS</span>
                   </button>
 
                   {/* Copy Link */}
@@ -536,7 +558,14 @@ export default function Members() {
         open={Boolean(activeSms)}
         onClose={() => setActiveSms(null)}
         data={activeSms}
+        onMarkSent={handleMarkSmsSent}
       />
+      {bulkSmsOpen && (
+        <BulkSmsPicker
+          members={smsEligibleMembers}
+          onClose={() => setBulkSmsOpen(false)}
+        />
+      )}
       <Modal
         open={Boolean(detailsMember)}
         onClose={() => setDetailsMemberId(null)}
@@ -581,7 +610,7 @@ export default function Members() {
             </div>
             <div>
               <dt className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">SMS Status</dt>
-              <dd className="font-semibold text-slate-800">{detailsMember.smsQueuedAt ? "Sent" : "Not sent"}</dd>
+              <dd className="font-semibold text-slate-800">{detailsMember.smsSentAt ? "SMS Sent" : "SMS Not Sent"}</dd>
             </div>
             {detailsSubmission && (
               <div>

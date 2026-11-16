@@ -242,12 +242,13 @@ const en = {
   logout: "Logout",
 
   // ── SMS modal ─────────────────────────────────────────────────────────────
-  smsQueuedTitle: "SMS Queued — Not Delivered",
-  smsQueuedNotice: "The message is prepared for this member's phone. No SMS is sent automatically; open your SMS app and send it, or copy the text.",
+  smsQueuedTitle: "Send SMS",
+  smsQueuedNotice: "Open your SMS app and tap Send. Then return here and mark the SMS as sent to update its status.",
   smsRecipient: "Recipient",
   smsFrom: "SMS preview from {org}",
   openMemberForm: "Open Member KYC Form (Step 3)",
-  openSmsApp: "Open SMS App",
+  openSmsApp: "Send SMS",
+  markSmsSent: "Mark as sent",
   copySms: "Copy SMS Text",
   copied: "Copied to clipboard!",
   close: "Close",
@@ -493,12 +494,13 @@ const ne: Record<TranslationKey, string> = {
   logout: "लगआउट",
 
   // ── SMS modal ─────────────────────────────────────────────────────────────
-  smsQueuedTitle: "SMS कतारमा राखियो — पठाइएको छैन",
-  smsQueuedNotice: "यो सदस्यको फोन नम्बरका लागि सन्देश तयार छ। SMS आफैँ पठिँदैन; SMS एप खोलेर पठाउनुहोस् वा पाठ प्रतिलिपि गर्नुहोस्।",
+  smsQueuedTitle: "SMS पठाउनुहोस्",
+  smsQueuedNotice: "SMS एप खोलेर पठाउनुहोस्। त्यसपछि यहाँ फर्केर स्थिति अद्यावधिक गर्न SMS पठाइएको भनेर चिन्ह लगाउनुहोस्।",
   smsRecipient: "प्राप्तकर्ता",
   smsFrom: "{org} बाट SMS पूर्वावलोकन",
   openMemberForm: "सदस्य KYC फारम खोल्नुहोस् (चरण ३)",
-  openSmsApp: "SMS एप खोल्नुहोस्",
+  openSmsApp: "SMS पठाउनुहोस्",
+  markSmsSent: "पठाइएको चिन्ह लगाउनुहोस्",
   copySms: "SMS पाठ प्रतिलिपि गर्नुहोस्",
   copied: "कपी भयो!",
   close: "बन्द गर्नुहोस्",
