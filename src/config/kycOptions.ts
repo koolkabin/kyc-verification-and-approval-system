@@ -1,4 +1,4 @@
-// Nepal geographic and cooperative data for KYC form
+// Local geographic and option data for the KYC form
 
 export const NEPAL_PROVINCES = [
   "Koshi Province",

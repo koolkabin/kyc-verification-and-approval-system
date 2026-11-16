@@ -56,7 +56,7 @@ import {
   NEPAL_MUNICIPALITIES,
   NEPAL_PROVINCES,
   translateKycOption,
-} from "../../lib/nepalData";
+} from "../../config/kycOptions";
 import type { Member } from "../../lib/types";
 
 // ─── Brand colours ────────────────────────────────────────────────────────────
