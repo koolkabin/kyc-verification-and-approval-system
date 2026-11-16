@@ -4,6 +4,7 @@ import {
   Clock,
   Copy,
   Download,
+  Eye,
   ExternalLink,
   FileSpreadsheet,
   Filter,
@@ -16,7 +17,7 @@ import {
   X,
 } from "lucide-react";
 import { useStore } from "../../lib/store";
-import { Avatar, Field, SmsModal, StatusPill } from "../../components/ui";
+import { Avatar, Field, Modal, SmsModal } from "../../components/ui";
 import { parseCsv } from "../../lib/csv";
 import { navigate } from "../../lib/router";
 import { SAMPLE_MEMBERS_CSV } from "../../config/demoData";
@@ -26,6 +27,7 @@ type MemberFilterKey =
   | "unsent"
   | "sent"
   | "approved"
+  | "pendingReview"
   | "rejected";
 
 export default function Members() {
@@ -45,6 +47,7 @@ export default function Members() {
   const [manual, setManual] = useState({ name: "", phone: "", membershipCode: "" });
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<MemberFilterKey>("all");
+  const [detailsMemberId, setDetailsMemberId] = useState<string | null>(null);
   const [activeSms, setActiveSms] = useState<{
     name: string;
     phone: string;
@@ -57,13 +60,20 @@ export default function Members() {
     () => [...state.members].sort((a, b) => a.invitedAt - b.invitedAt),
     [state.members]
   );
+  const detailsMember = detailsMemberId
+    ? state.members.find((member) => member.id === detailsMemberId)
+    : undefined;
+  const detailsSubmission = detailsMember
+    ? state.submissions.find((submission) => submission.memberId === detailsMember.id)
+    : undefined;
 
   // Stats calculation
   const totalCount = members.length;
-  const unsentCount = members.filter(
-    (m) => !m.smsQueuedAt && m.status === "invited"
-  ).length;
+  const unsentCount = members.filter((m) => !m.smsQueuedAt).length;
   const sentCount = members.filter((m) => Boolean(m.smsQueuedAt)).length;
+  const pendingReviewCount = members.filter(
+    (m) => m.status === "submitted" || m.status === "pending"
+  ).length;
 
   const filteredMembers = useMemo(() => {
     return members.filter((m) => {
@@ -77,11 +87,13 @@ export default function Members() {
       if (!matchSearch) return false;
       if (statusFilter === "all") return true;
       if (statusFilter === "unsent")
-        return !m.smsQueuedAt && m.status === "invited";
+        return !m.smsQueuedAt;
       if (statusFilter === "sent")
         return Boolean(m.smsQueuedAt);
       if (statusFilter === "approved")
         return m.status === "approved" || m.status === "printed";
+      if (statusFilter === "pendingReview")
+        return m.status === "submitted" || m.status === "pending";
       if (statusFilter === "rejected") return m.status === "rejected";
       return true;
     });
@@ -402,9 +414,10 @@ export default function Members() {
             {(
               [
                 { key: "all", label: `All (${totalCount})` },
-                { key: "unsent", label: `SMS Unsent (${unsentCount})` },
+                { key: "unsent", label: `SMS Not Sent (${unsentCount})` },
                 { key: "sent", label: `SMS Sent (${sentCount})` },
                 { key: "approved", label: "Approved" },
+                { key: "pendingReview", label: `Pending Review (${pendingReviewCount})` },
                 { key: "rejected", label: "Rejected" },
               ] as const
             ).map((f) => (
@@ -435,7 +448,7 @@ export default function Members() {
           )}
 
           {filteredMembers.map((m) => {
-            const hasReceivedSms = Boolean(m.smsQueuedAt) || m.status !== "invited";
+            const hasReceivedSms = Boolean(m.smsQueuedAt);
 
             return (
               <div
@@ -456,12 +469,9 @@ export default function Members() {
                       <span className="font-mono text-slate-700">+977 {m.phone}</span>
                     </p>
 
-                    <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] font-semibold">
+                    <div className="mt-1 text-[11px] font-semibold">
                       <span className={hasReceivedSms ? "text-sky-800" : "text-slate-600"}>
                         SMS: {hasReceivedSms ? "Sent" : "Not sent"}
-                      </span>
-                      <span className="text-slate-500">
-                        Review: <StatusPill status={m.status} showDot={false} />
                       </span>
                     </div>
                   </div>
@@ -502,6 +512,18 @@ export default function Members() {
                   >
                     <ExternalLink className="h-3.5 w-3.5" />
                   </button>
+
+                  {/* View KYC Details */}
+                  <button
+                    type="button"
+                    onClick={() => setDetailsMemberId(m.id)}
+                    className="flex items-center gap-1 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 px-2.5 py-2 text-xs font-medium text-slate-700 transition cursor-pointer"
+                    title="View member details"
+                    aria-label={`View details for ${m.name}`}
+                  >
+                    <Eye className="h-3.5 w-3.5" />
+                    <span>View Details</span>
+                  </button>
                 </div>
               </div>
             );
@@ -515,6 +537,61 @@ export default function Members() {
         onClose={() => setActiveSms(null)}
         data={activeSms}
       />
+      <Modal
+        open={Boolean(detailsMember)}
+        onClose={() => setDetailsMemberId(null)}
+        title="Member Details"
+        footer={
+          <>
+            {detailsSubmission && (
+              <button
+                type="button"
+                onClick={() => {
+                  setDetailsMemberId(null);
+                  navigate(`/admin/submissions/${detailsSubmission.id}`);
+                }}
+                className="flex-1 rounded-xl bg-[#145C45] px-4 py-2.5 text-xs font-bold text-white transition hover:bg-[#0f4534]"
+              >
+                View KYC Submission
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => setDetailsMemberId(null)}
+              className="rounded-xl border border-slate-200 bg-slate-100 px-4 py-2.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-200"
+            >
+              Close
+            </button>
+          </>
+        }
+      >
+        {detailsMember && (
+          <dl className="space-y-3">
+            <div>
+              <dt className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Full Name</dt>
+              <dd className="font-bold text-slate-900">{detailsMember.name}</dd>
+            </div>
+            <div>
+              <dt className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Membership Code</dt>
+              <dd className="font-mono font-bold text-slate-800">{detailsMember.membershipCode}</dd>
+            </div>
+            <div>
+              <dt className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Phone</dt>
+              <dd className="font-mono font-bold text-slate-800">+977 {detailsMember.phone}</dd>
+            </div>
+            <div>
+              <dt className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">SMS Status</dt>
+              <dd className="font-semibold text-slate-800">{detailsMember.smsQueuedAt ? "Sent" : "Not sent"}</dd>
+            </div>
+            {detailsSubmission && (
+              <div>
+                <dt className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">KYC Status</dt>
+                <dd className="font-semibold capitalize text-slate-800">{detailsSubmission.status}</dd>
+              </div>
+            )}
+          </dl>
+        )}
+      </Modal>
     </div>
   );
 }

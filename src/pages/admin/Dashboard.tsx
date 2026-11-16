@@ -16,8 +16,7 @@ import {
 import { useStore } from "../../lib/store";
 import { useI18n, type TranslationKey } from "../../lib/i18n";
 import { navigate } from "../../lib/router";
-import { formatDateTime, timeAgo } from "../../lib/utils";
-import { Avatar, StatusPill } from "../../components/ui";
+import { Avatar } from "../../components/ui";
 import { RejectModal } from "./SubmissionDetail";
 import type { KycSubmission, KycStatus } from "../../lib/types";
 
@@ -63,8 +62,7 @@ export default function Dashboard() {
       return (
         x.memberName.toLowerCase().includes(q) ||
         x.phone.includes(q) ||
-        x.membershipCode.toLowerCase().includes(q) ||
-        (x.address && x.address.toLowerCase().includes(q))
+        x.membershipCode.toLowerCase().includes(q)
       );
     });
   }, [state.submissions, filter, search]);
@@ -305,17 +303,11 @@ function SubmissionCard({ sub }: { sub: KycSubmission }) {
             <h3 className="truncate text-base font-extrabold text-slate-900">
               {sub.memberName}
             </h3>
-            <StatusPill status={sub.status} />
           </div>
           <p className="mt-0.5 text-xs text-slate-500 font-medium">
             Code: <span className="font-bold text-slate-700">{sub.membershipCode}</span> · Phone:{" "}
-            <span className="font-bold text-slate-700 font-mono">+977 {sub.phone}</span> · {timeAgo(sub.submittedAt)}
+            <span className="font-bold text-slate-700 font-mono">+977 {sub.phone}</span>
           </p>
-          {sub.address && (
-            <p className="mt-1 text-xs text-slate-600 truncate">
-              📍 {sub.address}
-            </p>
-          )}
           {sub.remark && (
             <p className="mt-1 text-xs text-rose-700 bg-rose-50/80 rounded-lg p-1.5 border border-rose-200 inline-block font-semibold">
               Remark: {sub.remark}
