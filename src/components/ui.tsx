@@ -66,7 +66,13 @@ const STATUS_STYLES: Record<
   },
 };
 
-export function StatusPill({ status }: { status: KycStatus }) {
+export function StatusPill({
+  status,
+  showDot = true,
+}: {
+  status: KycStatus;
+  showDot?: boolean;
+}) {
   const { t } = useI18n();
   const s = STATUS_STYLES[status] ?? STATUS_STYLES.invited;
   const labelKey = STATUS_I18N_KEYS[status] ?? "statusInvited";
@@ -74,7 +80,7 @@ export function StatusPill({ status }: { status: KycStatus }) {
     <span
       className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${s.pill}`}
     >
-      <span className={`h-1.5 w-1.5 rounded-full ${s.dot}`} />
+      {showDot && <span className={`h-1.5 w-1.5 rounded-full ${s.dot}`} />}
       {t(labelKey)}
     </span>
   );

@@ -6,7 +6,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { BulkSmsResult, KycSubmission, Member, MemberInput, OrgSettings } from "./types";
+import type { KycSubmission, Member, MemberInput, OrgSettings } from "./types";
 import { createDemoSeedState, DEMO_MEMBERS } from "../config/demoData";
 import { DEFAULT_ORG_SETTINGS } from "../config/appDefaults";
 
@@ -109,8 +109,6 @@ interface StoreValue {
   addMembers: (rows: MemberInput[]) => Member[];
   resendInvite: (memberId: string) => void;
   queueMemberSms: (memberId: string) => SmsInviteData | null;
-  queueBulkSms: (targetIds?: string[]) => BulkSmsResult;
-  toggleMemberActive: (memberId: string) => void;
   submitKyc: (input: SubmitKycInput) => { ok: boolean; error?: string };
   startReview: (submissionId: string) => void;
   approveSubmission: (submissionId: string) => void;
@@ -261,92 +259,6 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         otp,
         queuedAt,
         link: `${window.location.origin}${window.location.pathname}#/kyc/${inviteCode.toLowerCase()}`,
-      };
-    };
-
-    const toggleMemberActive = (memberId: string) => {
-      setState((s) => ({
-        ...s,
-        members: s.members.map((m) =>
-          m.id === memberId
-            ? { ...m, isActive: m.isActive === false ? true : false }
-            : m
-        ),
-      }));
-    };
-
-    const queueBulkSms = (targetIds?: string[]): BulkSmsResult => {
-      const now = Date.now();
-      const targets =
-        targetIds && targetIds.length > 0
-          ? state.members.filter((m) => targetIds.includes(m.id))
-          : state.members;
-
-      const queued: BulkSmsResult["queued"] = [];
-      const skippedAlreadySent: BulkSmsResult["skippedAlreadySent"] = [];
-      const skippedInactive: BulkSmsResult["skippedInactive"] = [];
-      const queuedIdMap = new Map<string, string>();
-
-      for (const m of targets) {
-        // 1. Skip Inactive members (निष्क्रिय सदस्य)
-        if (m.isActive === false) {
-          skippedInactive.push({
-            id: m.id,
-            name: m.name,
-            reason: "Member is marked Inactive (निष्क्रिय सदस्य)",
-          });
-          continue;
-        }
-
-        // 2. Skip members who have ALREADY received the SMS or already submitted KYC
-        if (m.smsQueuedAt || m.status !== "invited") {
-          const reason =
-            m.status !== "invited"
-              ? `KYC already submitted or processed (${m.status})`
-              : "SMS invitation already sent / queued previously";
-          skippedAlreadySent.push({
-            id: m.id,
-            name: m.name,
-            reason,
-          });
-          continue;
-        }
-
-        // 3. Eligible active member who has NOT received SMS yet
-        const otp = m.otp || generateOtp();
-        queued.push({
-          id: m.id,
-          name: m.name,
-          phone: m.phone,
-          inviteCode: m.inviteCode,
-          otp,
-        });
-        queuedIdMap.set(m.id, otp);
-      }
-
-      // Batch update all queued members
-      if (queued.length > 0) {
-        setState((s) => ({
-          ...s,
-          members: s.members.map((m) => {
-            const otp = queuedIdMap.get(m.id);
-            if (otp) {
-              return {
-                ...m,
-                otp,
-                otpExpiresAt: now + 30 * 60 * 1000,
-                smsQueuedAt: now,
-              };
-            }
-            return m;
-          }),
-        }));
-      }
-
-      return {
-        queued,
-        skippedAlreadySent,
-        skippedInactive,
       };
     };
 
@@ -577,8 +489,6 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       addMembers,
       resendInvite,
       queueMemberSms,
-      queueBulkSms,
-      toggleMemberActive,
       submitKyc,
       startReview,
       approveSubmission,

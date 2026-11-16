@@ -48,13 +48,6 @@ export interface Member {
   status: KycStatus;
   smsQueuedAt?: number;
   isDemo?: boolean;
-  isActive?: boolean; // true = active member, false = inactive member
-}
-
-export interface BulkSmsResult {
-  queued: { id: string; name: string; phone: string; inviteCode: string; otp: string }[];
-  skippedAlreadySent: { id: string; name: string; reason: string }[];
-  skippedInactive: { id: string; name: string; reason: string }[];
 }
 
 export interface KycSubmission {
