@@ -32,6 +32,7 @@ export const DEMO_MEMBERS: Omit<Member, "otpExpiresAt" | "invitedAt">[] = [
     inviteCode: "DEMOA1",
     otp: "236814",
     status: "invited",
+    isActive: true,
     isDemo: true,
   },
   {
@@ -42,6 +43,7 @@ export const DEMO_MEMBERS: Omit<Member, "otpExpiresAt" | "invitedAt">[] = [
     inviteCode: "DEMOB2",
     otp: "517203",
     status: "invited",
+    isActive: true,
     isDemo: true,
   },
   {
@@ -52,6 +54,8 @@ export const DEMO_MEMBERS: Omit<Member, "otpExpiresAt" | "invitedAt">[] = [
     inviteCode: "DEMOC3",
     otp: "804126",
     status: "invited",
+    smsQueuedAt: Date.now() - 2 * DAY,
+    isActive: true,
     isDemo: true,
   },
   {
@@ -62,6 +66,7 @@ export const DEMO_MEMBERS: Omit<Member, "otpExpiresAt" | "invitedAt">[] = [
     inviteCode: "DEMOD4",
     otp: "392615",
     status: "invited",
+    isActive: true,
     isDemo: true,
   },
   {
@@ -72,16 +77,18 @@ export const DEMO_MEMBERS: Omit<Member, "otpExpiresAt" | "invitedAt">[] = [
     inviteCode: "DEMOE5",
     otp: "648317",
     status: "invited",
+    isActive: true,
     isDemo: true,
   },
   {
     id: "demo_farida",
-    name: "Farida Ansari",
+    name: "Farida Ansari (Inactive)",
     phone: "9800000106",
     membershipCode: "FA731",
     inviteCode: "DEMOF6",
     otp: "731952",
     status: "invited",
+    isActive: false, // Marked as Inactive
     isDemo: true,
   },
 ];
@@ -143,6 +150,7 @@ export function createDemoSeedState() {
       otpExpiresAt: now - 3 * DAY,
       invitedAt: now - 15 * DAY,
       status: "rejected",
+      isActive: false, // Inactive Member
     },
     {
       id: "mem_arjun",
@@ -154,6 +162,8 @@ export function createDemoSeedState() {
       otpExpiresAt: now + 45 * 60 * 1000,
       invitedAt: now - 1 * DAY,
       status: "invited",
+      smsQueuedAt: now - 1 * DAY, // SMS already sent previously
+      isActive: true,
     },
     {
       id: "mem_kamal",
