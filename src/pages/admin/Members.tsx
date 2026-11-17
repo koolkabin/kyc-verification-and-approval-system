@@ -292,7 +292,6 @@ export default function Members() {
     state,
     addMembers,
     queueMemberSms,
-    markMemberSmsSent,
   } = useStore();
   const { t } = useI18n();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -412,18 +411,6 @@ export default function Members() {
     if (sms) {
       setActiveSms(sms);
     }
-  };
-
-  const handleMarkSmsSent = () => {
-    if (!activeSms) return;
-    if (!markMemberSmsSent(activeSms.memberId)) {
-      setNotice("Could not update SMS status because the member record was not found.");
-      return;
-    }
-    const memberName = activeSms.name;
-    setActiveSms(null);
-    setNotice(`✓ SMS marked as sent for ${memberName}.`);
-    setTimeout(() => setNotice(""), 3000);
   };
 
   const copyInvite = async (code: string) => {
@@ -904,7 +891,6 @@ export default function Members() {
         open={Boolean(activeSms)}
         onClose={() => setActiveSms(null)}
         data={activeSms}
-        onMarkSent={handleMarkSmsSent}
       />
       {bulkSmsOpen && (
         <BulkSmsPicker

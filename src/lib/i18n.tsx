@@ -251,7 +251,6 @@ const en = {
 
   // ── SMS modal ─────────────────────────────────────────────────────────────
   smsQueuedTitle: "Send SMS",
-  smsQueuedNotice: "Open your SMS app and tap Send. Then return here and mark the SMS as sent to update its status.",
   smsRecipient: "Recipient",
   smsFrom: "SMS preview from {org}",
   openMemberForm: "Open Member KYC Form (Step 3)",
@@ -511,7 +510,6 @@ const ne: Record<TranslationKey, string> = {
 
   // ── SMS modal ─────────────────────────────────────────────────────────────
   smsQueuedTitle: "SMS पठाउनुहोस्",
-  smsQueuedNotice: "SMS एप खोलेर पठाउनुहोस्। त्यसपछि यहाँ फर्केर स्थिति अद्यावधिक गर्न SMS पठाइएको भनेर चिन्ह लगाउनुहोस्।",
   smsRecipient: "प्राप्तकर्ता",
   smsFrom: "{org} बाट SMS पूर्वावलोकन",
   openMemberForm: "सदस्य KYC फारम खोल्नुहोस् (चरण ३)",

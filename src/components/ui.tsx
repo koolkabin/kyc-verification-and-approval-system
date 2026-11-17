@@ -1,8 +1,7 @@
-import { useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import {
   CheckCircle2,
   Clock,
-  ExternalLink,
   FileText,
   MessageSquare,
   Smartphone,
@@ -12,7 +11,6 @@ import {
 import type { KycStatus } from "../lib/types";
 import { KYC_FLOW, STATUS_LABEL } from "../lib/types";
 import { useI18n, type TranslationKey } from "../lib/i18n";
-import { navigate } from "../lib/router";
 import { useStore } from "../lib/store";
 
 const STATUS_I18N_KEYS: Record<string, TranslationKey> = {
@@ -291,11 +289,9 @@ export function SmsModal({
   open,
   onClose,
   data,
-  onMarkSent,
 }: {
   open: boolean;
   onClose: () => void;
-  onMarkSent?: () => void;
   data: {
     name: string;
     phone: string;
@@ -307,7 +303,6 @@ export function SmsModal({
   const { state } = useStore();
   const { t } = useI18n();
   const org = state.orgSettings;
-  const [copied, setCopied] = useState(false);
   if (!open || !data) return null;
 
   const orgTag = org.shortName || org.nameEnglish || "Coop KYC";
@@ -321,27 +316,9 @@ export function SmsModal({
   });
   const smsAppLink = `sms:${data.phone}?body=${encodeURIComponent(smsText)}`;
 
-  const copyText = async () => {
-    try {
-      await navigator.clipboard.writeText(smsText);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // ignore
-    }
-  };
-
-  const handleOpenLink = () => {
-    onClose();
-    navigate(`/manager-kyc/${data.inviteCode.toLowerCase()}`);
-  };
-
   return (
     <Modal open={open} onClose={onClose} title={t("smsQueuedTitle")}>
       <div className="space-y-4">
-        <p className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs font-semibold text-amber-900">
-          {t("smsQueuedNotice")}
-        </p>
         <div className="flex items-center gap-3 rounded-2xl bg-[#DDF3E7]/80 p-3.5 border border-[#145C45]/20">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#145C45] text-white shadow-sm">
             <Smartphone className="h-5 w-5" />
@@ -370,41 +347,18 @@ export function SmsModal({
         </div>
 
         <div className="space-y-2 pt-1">
-          <button
-            onClick={handleOpenLink}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#145C45] hover:bg-[#0f4534] active:scale-[0.99] py-3.5 text-sm font-bold text-white shadow-md transition cursor-pointer"
-          >
-            <ExternalLink className="h-4 w-4" /> {t("openMemberForm")}
-          </button>
           <a
             href={smsAppLink}
             className="flex w-full items-center justify-center gap-2 rounded-2xl border border-[#145C45]/30 bg-[#DDF3E7]/40 py-3 text-sm font-bold text-[#145C45] transition hover:bg-[#DDF3E7]"
           >
             <MessageSquare className="h-4 w-4" /> {t("openSmsApp")}
           </a>
-          {onMarkSent && (
-            <button
-              type="button"
-              onClick={onMarkSent}
-              className="w-full rounded-2xl bg-[#145C45] py-3 text-sm font-bold text-white transition hover:bg-[#0f4534]"
-            >
-              {t("markSmsSent")}
-            </button>
-          )}
-          <div className="flex gap-2">
-            <button
-              onClick={copyText}
-              className="flex-1 rounded-xl border border-[#145C45]/30 bg-[#DDF3E7]/40 py-2.5 text-xs font-semibold text-[#145C45] hover:bg-[#DDF3E7] transition cursor-pointer"
-            >
-              {copied ? t("copied") : t("copySms")}
-            </button>
-            <button
-              onClick={onClose}
-              className="rounded-xl border border-slate-200 bg-slate-100 px-4 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-200 transition cursor-pointer"
-            >
-              {t("close")}
-            </button>
-          </div>
+          <button
+            onClick={onClose}
+            className="w-full rounded-xl border border-slate-200 bg-slate-100 px-4 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-200 transition cursor-pointer"
+          >
+            {t("close")}
+          </button>
         </div>
       </div>
     </Modal>
