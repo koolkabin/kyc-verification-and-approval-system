@@ -1,12 +1,16 @@
 import { useMemo, useState } from "react";
 import {
   AlertTriangle,
+  ArrowDownRight,
+  ArrowUpRight,
+  CalendarDays,
   CheckCircle2,
   Clock,
   Eye,
   FileSpreadsheet,
   FileText,
   Printer,
+  RotateCcw,
   Search,
   Sparkles,
   Users as UsersIcon,
@@ -28,14 +32,62 @@ const FILTERS: { key: string; labelKey: TranslationKey }[] = [
   { key: "printed", labelKey: "statusPrinted" },
 ];
 
+function fiscalYearStartYear(timestamp: number): number {
+  const date = new Date(timestamp);
+  const isAfterFiscalYearStart =
+    date.getMonth() > 6 || (date.getMonth() === 6 && date.getDate() >= 16);
+  return date.getFullYear() - (isAfterFiscalYearStart ? 0 : 1);
+}
+
+function fiscalYearLabel(startYear: number): string {
+  const year = startYear + 57;
+  return `${year}/${String((year + 1) % 100).padStart(2, "0")}`;
+}
+
 export default function Dashboard() {
   const { state } = useStore();
   const { t } = useI18n();
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
+  const currentFiscalYear = fiscalYearStartYear(Date.now());
+  const [fiscalYear, setFiscalYear] = useState<number | "all">(currentFiscalYear);
+
+  const fiscalYears = useMemo(() => {
+    const years = new Set<number>([
+      currentFiscalYear,
+      currentFiscalYear - 1,
+      currentFiscalYear - 2,
+    ]);
+    state.members.forEach((member) => years.add(fiscalYearStartYear(member.invitedAt)));
+    state.submissions.forEach((submission) =>
+      years.add(fiscalYearStartYear(submission.submittedAt))
+    );
+    return [...years]
+      .sort((a, b) => b - a)
+      .map((year) => ({
+        year,
+        registrations: state.members.filter(
+          (member) => fiscalYearStartYear(member.invitedAt) === year
+        ).length,
+      }));
+  }, [currentFiscalYear, state.members, state.submissions]);
+
+  const selectedYearRegistrations =
+    fiscalYear === "all"
+      ? state.members.length
+      : fiscalYears.find((year) => year.year === fiscalYear)?.registrations ?? 0;
+  const previousYearRegistrations =
+    fiscalYear === "all"
+      ? undefined
+      : fiscalYears.find((year) => year.year === fiscalYear - 1)?.registrations ?? 0;
 
   const stats = useMemo(() => {
-    const subs = state.submissions;
+    const subs =
+      fiscalYear === "all"
+        ? state.submissions
+        : state.submissions.filter(
+            (submission) => fiscalYearStartYear(submission.submittedAt) === fiscalYear
+          );
     const count = (s: KycStatus) => subs.filter((x) => x.status === s).length;
     return {
       pending: subs.filter((x) => x.status === "pending").length,
@@ -43,12 +95,18 @@ export default function Dashboard() {
       approved: count("approved"),
       rejected: count("rejected"),
       printed: count("printed"),
-      members: state.members.length,
+      members: selectedYearRegistrations,
     };
-  }, [state]);
+  }, [fiscalYear, selectedYearRegistrations, state.submissions]);
 
   const filtered = useMemo(() => {
-    const list = [...state.submissions].sort((a, b) => b.submittedAt - a.submittedAt);
+    const list = state.submissions
+      .filter(
+        (submission) =>
+          fiscalYear === "all" ||
+          fiscalYearStartYear(submission.submittedAt) === fiscalYear
+      )
+      .sort((a, b) => b.submittedAt - a.submittedAt);
     return list.filter((x) => {
       // Status filter
       if (filter === "pending" && x.status !== "pending") return false;
@@ -65,7 +123,13 @@ export default function Dashboard() {
         x.membershipCode.toLowerCase().includes(q)
       );
     });
-  }, [state.submissions, filter, search]);
+  }, [state.submissions, filter, search, fiscalYear]);
+
+  const clearFilters = () => {
+    setFilter("all");
+    setSearch("");
+    setFiscalYear("all");
+  };
 
   const exportSubmissionsCsv = () => {
     const headers = [
@@ -201,6 +265,67 @@ export default function Dashboard() {
 
       {/* Filter Tabs, Search & Submissions List */}
       <div className="space-y-3">
+        <div className="grid gap-3 rounded-2xl border border-slate-200/80 bg-white p-3.5 shadow-sm sm:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)_auto] sm:items-end sm:p-4">
+          <label className="block min-w-0">
+            <span className="mb-1.5 flex items-center gap-1.5 text-xs font-bold text-slate-600">
+              <CalendarDays className="h-4 w-4 text-[#145C45]" />
+              {t("fiscalYear")}
+            </span>
+            <select
+              value={fiscalYear}
+              onChange={(event) =>
+                setFiscalYear(event.target.value === "all" ? "all" : Number(event.target.value))
+              }
+              className="min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-[#145C45] focus:ring-2 focus:ring-[#DDF3E7]"
+            >
+              <option value="all">
+                {t("allFiscalYears")} · {t("memberCount", { count: state.members.length })}
+              </option>
+              {fiscalYears.map(({ year, registrations }) => (
+                <option key={year} value={year}>
+                  {fiscalYearLabel(year)}
+                  {year === currentFiscalYear ? ` (${t("currentFiscalYear")})` : ""} ·{" "}
+                  {t("memberCount", { count: registrations })}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <div className="min-w-0 rounded-xl bg-[#F3F8F5] px-3.5 py-2.5">
+            <p className="text-[11px] font-bold text-slate-500">
+              {fiscalYear === "all"
+                ? t("registeredMembersAllYears")
+                : t("registeredMembersInYear", { year: fiscalYearLabel(fiscalYear) })}
+            </p>
+            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+              <p className="text-lg font-black leading-tight text-[#145C45]">
+                {t("memberCount", { count: selectedYearRegistrations })}
+              </p>
+              {fiscalYear !== "all" && previousYearRegistrations !== undefined && (
+                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-600">
+                  {selectedYearRegistrations >= previousYearRegistrations ? (
+                    <ArrowUpRight className="h-3.5 w-3.5 text-emerald-600" />
+                  ) : (
+                    <ArrowDownRight className="h-3.5 w-3.5 text-rose-600" />
+                  )}
+                  {`${selectedYearRegistrations - previousYearRegistrations >= 0 ? "+" : ""}${selectedYearRegistrations - previousYearRegistrations}`}
+                  {" "}{t("vsPreviousFiscalYear", { year: fiscalYearLabel(fiscalYear - 1) })}
+                </span>
+              )}
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={clearFilters}
+            disabled={filter === "all" && !search && fiscalYear === "all"}
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-600 transition hover:border-[#145C45]/30 hover:bg-[#F3F8F5] hover:text-[#145C45] disabled:cursor-not-allowed disabled:opacity-45 sm:self-end"
+          >
+            <RotateCcw className="h-3.5 w-3.5" />
+            {t("clearFilters")}
+          </button>
+        </div>
+
         {/* Search & Export Toolbar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
           <div className="relative flex-1 max-w-md">
