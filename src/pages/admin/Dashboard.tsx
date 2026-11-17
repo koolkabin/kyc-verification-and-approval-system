@@ -20,6 +20,7 @@ import {
 import { useStore } from "../../lib/store";
 import { useI18n, type TranslationKey } from "../../lib/i18n";
 import { navigate } from "../../lib/router";
+import { fiscalYearLabel, fiscalYearStartYear } from "../../lib/fiscalYear";
 import { Avatar } from "../../components/ui";
 import { RejectModal } from "./SubmissionDetail";
 import type { KycSubmission, KycStatus } from "../../lib/types";
@@ -31,18 +32,6 @@ const FILTERS: { key: string; labelKey: TranslationKey }[] = [
   { key: "rejected", labelKey: "statusRejected" },
   { key: "printed", labelKey: "statusPrinted" },
 ];
-
-function fiscalYearStartYear(timestamp: number): number {
-  const date = new Date(timestamp);
-  const isAfterFiscalYearStart =
-    date.getMonth() > 6 || (date.getMonth() === 6 && date.getDate() >= 16);
-  return date.getFullYear() - (isAfterFiscalYearStart ? 0 : 1);
-}
-
-function fiscalYearLabel(startYear: number): string {
-  const year = startYear + 57;
-  return `${year}/${String((year + 1) % 100).padStart(2, "0")}`;
-}
 
 export default function Dashboard() {
   const { state } = useStore();

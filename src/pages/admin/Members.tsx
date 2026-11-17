@@ -3,11 +3,15 @@ import {
   Building2,
   Copy,
   Download,
+  ArrowDownRight,
+  ArrowUpRight,
+  CalendarDays,
   Eye,
   FileSpreadsheet,
   Filter,
   Link2,
   Plus,
+  RotateCcw,
   Search,
   Send,
   Upload,
@@ -20,6 +24,8 @@ import { Avatar, Field, Modal, SmsModal } from "../../components/ui";
 import { BulkSmsPicker } from "../../components/BulkSmsPicker";
 import { parseCsv } from "../../lib/csv";
 import { SAMPLE_MEMBERS_CSV } from "../../config/demoData";
+import { useI18n } from "../../lib/i18n";
+import { fiscalYearLabel, fiscalYearStartYear } from "../../lib/fiscalYear";
 import type { KycSubmission } from "../../lib/types";
 import { formatDateTime } from "../../lib/utils";
 
@@ -288,6 +294,7 @@ export default function Members() {
     queueMemberSms,
     markMemberSmsSent,
   } = useStore();
+  const { t } = useI18n();
   const fileRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
   const [parsed, setParsed] = useState<{
@@ -299,6 +306,8 @@ export default function Members() {
   const [manual, setManual] = useState({ name: "", phone: "", membershipCode: "" });
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<MemberFilterKey>("all");
+  const currentFiscalYear = fiscalYearStartYear(Date.now());
+  const [fiscalYear, setFiscalYear] = useState<number | "all">(currentFiscalYear);
   const [bulkSmsOpen, setBulkSmsOpen] = useState(false);
   const [detailsMemberId, setDetailsMemberId] = useState<string | null>(null);
   const [activeSms, setActiveSms] = useState<SmsInviteData | null>(null);
@@ -307,6 +316,36 @@ export default function Members() {
     () => [...state.members].sort((a, b) => a.invitedAt - b.invitedAt),
     [state.members]
   );
+  const fiscalYears = useMemo(() => {
+    const years = new Set<number>([
+      currentFiscalYear,
+      currentFiscalYear - 1,
+      currentFiscalYear - 2,
+    ]);
+    members.forEach((member) => years.add(fiscalYearStartYear(member.invitedAt)));
+    return [...years]
+      .sort((a, b) => b - a)
+      .map((year) => ({
+        year,
+        registrations: members.filter(
+          (member) => fiscalYearStartYear(member.invitedAt) === year
+        ).length,
+      }));
+  }, [currentFiscalYear, members]);
+  const fiscalMembers = useMemo(
+    () =>
+      fiscalYear === "all"
+        ? members
+        : members.filter(
+            (member) => fiscalYearStartYear(member.invitedAt) === fiscalYear
+          ),
+    [members, fiscalYear]
+  );
+  const selectedYearRegistrations = fiscalMembers.length;
+  const previousYearRegistrations =
+    fiscalYear === "all"
+      ? undefined
+      : fiscalYears.find((year) => year.year === fiscalYear - 1)?.registrations ?? 0;
   const smsEligibleMembers = members.filter(
     (member) => member.status === "invited" || member.status === "rejected"
   );
@@ -318,15 +357,15 @@ export default function Members() {
     : undefined;
 
   // Stats calculation
-  const totalCount = members.length;
-  const unsentCount = members.filter((m) => !m.smsSentAt).length;
-  const sentCount = members.filter((m) => Boolean(m.smsSentAt)).length;
-  const pendingReviewCount = members.filter(
+  const totalCount = fiscalMembers.length;
+  const unsentCount = fiscalMembers.filter((m) => !m.smsSentAt).length;
+  const sentCount = fiscalMembers.filter((m) => Boolean(m.smsSentAt)).length;
+  const pendingReviewCount = fiscalMembers.filter(
     (m) => m.status === "submitted" || m.status === "pending"
   ).length;
 
   const filteredMembers = useMemo(() => {
-    return members.filter((m) => {
+    return fiscalMembers.filter((m) => {
       const q = search.trim().toLowerCase();
       const matchSearch =
         !q ||
@@ -347,7 +386,13 @@ export default function Members() {
       if (statusFilter === "rejected") return m.status === "rejected";
       return true;
     });
-  }, [members, search, statusFilter]);
+  }, [fiscalMembers, search, statusFilter]);
+
+  const clearFilters = () => {
+    setSearch("");
+    setStatusFilter("all");
+    setFiscalYear("all");
+  };
 
   const onFile = async (file: File) => {
     const text = await file.text();
@@ -635,7 +680,7 @@ export default function Members() {
             <button
               type="button"
               onClick={exportMembersCsv}
-              disabled={members.length === 0}
+              disabled={filteredMembers.length === 0}
               className="inline-flex items-center gap-1.5 rounded-xl border border-[#145C45]/30 bg-[#DDF3E7]/60 hover:bg-[#DDF3E7] text-[#145C45] px-3.5 py-2 text-xs font-bold transition shadow-xs cursor-pointer disabled:opacity-50"
             >
               <FileSpreadsheet className="h-3.5 w-3.5" /> Export Members CSV
@@ -657,6 +702,67 @@ export default function Members() {
             <span className="text-[10px] font-bold uppercase tracking-wider text-sky-800">SMS Sent</span>
             <p className="text-lg font-black text-sky-900">{sentCount}</p>
           </div>
+        </div>
+
+        <div className="grid gap-3 rounded-2xl border border-slate-200/80 bg-white p-3.5 shadow-sm sm:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)_auto] sm:items-end sm:p-4">
+          <label className="block min-w-0">
+            <span className="mb-1.5 flex items-center gap-1.5 text-xs font-bold text-slate-600">
+              <CalendarDays className="h-4 w-4 text-[#145C45]" />
+              {t("fiscalYear")}
+            </span>
+            <select
+              value={fiscalYear}
+              onChange={(event) =>
+                setFiscalYear(event.target.value === "all" ? "all" : Number(event.target.value))
+              }
+              className="min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-[#145C45] focus:ring-2 focus:ring-[#DDF3E7]"
+            >
+              <option value="all">
+                {t("allFiscalYears")} · {t("memberCount", { count: members.length })}
+              </option>
+              {fiscalYears.map(({ year, registrations }) => (
+                <option key={year} value={year}>
+                  {fiscalYearLabel(year)}
+                  {year === currentFiscalYear ? ` (${t("currentFiscalYear")})` : ""} ·{" "}
+                  {t("memberCount", { count: registrations })}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <div className="min-w-0 rounded-xl bg-[#F3F8F5] px-3.5 py-2.5">
+            <p className="text-[11px] font-bold text-slate-500">
+              {fiscalYear === "all"
+                ? t("registeredMembersAllYears")
+                : t("registeredMembersInYear", { year: fiscalYearLabel(fiscalYear) })}
+            </p>
+            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+              <p className="text-lg font-black leading-tight text-[#145C45]">
+                {t("memberCount", { count: selectedYearRegistrations })}
+              </p>
+              {fiscalYear !== "all" && previousYearRegistrations !== undefined && (
+                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-600">
+                  {selectedYearRegistrations >= previousYearRegistrations ? (
+                    <ArrowUpRight className="h-3.5 w-3.5 text-emerald-600" />
+                  ) : (
+                    <ArrowDownRight className="h-3.5 w-3.5 text-rose-600" />
+                  )}
+                  {`${selectedYearRegistrations - previousYearRegistrations >= 0 ? "+" : ""}${selectedYearRegistrations - previousYearRegistrations}`}
+                  {" "}{t("vsPreviousFiscalYear", { year: fiscalYearLabel(fiscalYear - 1) })}
+                </span>
+              )}
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={clearFilters}
+            disabled={statusFilter === "all" && !search && fiscalYear === "all"}
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-600 transition hover:border-[#145C45]/30 hover:bg-[#F3F8F5] hover:text-[#145C45] disabled:cursor-not-allowed disabled:opacity-45 sm:self-end"
+          >
+            <RotateCcw className="h-3.5 w-3.5" />
+            {t("clearFilters")}
+          </button>
         </div>
 
         {/* ── Search & Filter Toolbar ────────────────────────────────────── */}
@@ -713,7 +819,7 @@ export default function Members() {
         <div className="space-y-2.5">
           {filteredMembers.length === 0 && (
             <div className="py-8 text-center text-xs text-slate-400 rounded-2xl border border-dashed border-slate-200">
-              {search || statusFilter !== "all"
+              {search || statusFilter !== "all" || fiscalYear !== "all"
                 ? "No members match the current search or filter criteria."
                 : "No members found. Upload a CSV or add manually above."}
             </div>
