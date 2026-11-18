@@ -390,6 +390,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     const approveSubmission = (submissionId: string) => {
       const sub = state.submissions.find((s) => s.id === submissionId);
       if (!sub) return;
+      if (sub.signatureVerified === undefined || sub.thumbprintVerified === undefined) return;
       setState((s) => ({
         ...s,
         submissions: s.submissions.map((x) =>
@@ -424,6 +425,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       evidence,
       verified
     ) => {
+      const existing = state.submissions.find((submission) => submission.id === submissionId);
+      if (!existing || existing.status === "approved" || existing.status === "printed") return;
       const verifiedAt = verified ? Date.now() : undefined;
       const verifiedBy = verified ? "Manager · Suresh" : undefined;
       setState((s) => ({

@@ -61,7 +61,14 @@ export default function SubmissionDetail({ id }: { id: string }) {
     );
   }
 
+  const canEditEvidenceVerification =
+    sub.status !== "approved" && sub.status !== "printed";
+
   const handleApprove = () => {
+    if (sub.signatureVerified === undefined || sub.thumbprintVerified === undefined) {
+      showToast("Please select Yes or No for both member signature and thumbprint");
+      return;
+    }
     approveSubmission(sub.id);
     showToast(`✓ Approved KYC for ${sub.memberName}`);
   };
@@ -385,12 +392,18 @@ export default function SubmissionDetail({ id }: { id: string }) {
                 <span className="text-xs font-bold text-slate-700">{item.label}</span>
                 <span
                   className={`rounded-md px-2 py-0.5 text-[10px] font-bold ${
-                    item.verified
+                    item.verified === true
                       ? "bg-emerald-100 text-emerald-800"
-                      : "bg-amber-100 text-amber-800"
+                      : item.verified === false
+                        ? "bg-rose-100 text-rose-800"
+                        : "bg-slate-200 text-slate-600"
                   }`}
                 >
-                  {item.verified ? "Verified by reviewer" : "Not verified"}
+                  {item.verified === true
+                    ? "Yes - Verified"
+                    : item.verified === false
+                      ? "No - Not verified"
+                      : "Not selected"}
                 </span>
               </div>
               {item.image ? (
@@ -424,26 +437,54 @@ export default function SubmissionDetail({ id }: { id: string }) {
                   {item.verifiedBy ? ` · ${item.verifiedBy}` : ""}
                 </p>
               )}
-              <button
-                type="button"
-                disabled={!item.image}
-                onClick={() =>
-                  setEvidenceVerification(
-                    sub.id,
-                    item.evidence,
-                    !item.verified
-                  )
-                }
-                className="w-full rounded-xl border border-[#145C45] px-3 py-2 text-xs font-bold text-[#145C45] transition hover:bg-[#DDF3E7] disabled:cursor-not-allowed disabled:border-slate-200 disabled:text-slate-400 disabled:hover:bg-transparent"
+              <fieldset
+                disabled={!item.image || !canEditEvidenceVerification}
+                className="flex items-center gap-8 py-1"
               >
-                {item.verified ? "Undo verification" : "Mark as verified"}
-              </button>
+                <legend className="sr-only">
+                  Verify {item.label}
+                </legend>
+                <label
+                  className={`flex min-h-11 cursor-pointer items-center gap-2.5 text-sm font-bold ${
+                    item.verified === true ? "text-emerald-800" : "text-slate-700"
+                  } ${!item.image || !canEditEvidenceVerification ? "cursor-not-allowed opacity-50" : ""}`}
+                >
+                  <input
+                    type="radio"
+                    name={`${item.evidence}-verification`}
+                    checked={item.verified === true}
+                    onChange={() =>
+                      setEvidenceVerification(sub.id, item.evidence, true)
+                    }
+                    className="h-6 w-6 shrink-0 cursor-pointer accent-emerald-600"
+                  />
+                  Yes
+                </label>
+                <label
+                  className={`flex min-h-11 cursor-pointer items-center gap-2.5 text-sm font-bold ${
+                    item.verified === false ? "text-rose-800" : "text-slate-700"
+                  } ${!item.image || !canEditEvidenceVerification ? "cursor-not-allowed opacity-50" : ""}`}
+                >
+                  <input
+                    type="radio"
+                    name={`${item.evidence}-verification`}
+                    checked={item.verified === false}
+                    onChange={() =>
+                      setEvidenceVerification(sub.id, item.evidence, false)
+                    }
+                    className="h-6 w-6 shrink-0 cursor-pointer accent-rose-600"
+                  />
+                  No
+                </label>
+              </fieldset>
             </div>
           ))}
         </div>
-        <p className="text-[11px] text-slate-500">
-          Verification is a manual reviewer confirmation of the uploaded image, not biometric or identity authentication.
-        </p>
+        {!canEditEvidenceVerification && (
+          <p className="rounded-xl border border-slate-200 bg-slate-100 px-3 py-2 text-[11px] font-semibold text-slate-600">
+            Signature and thumbprint selections are locked after final approval.
+          </p>
+        )}
       </div>
 
       {/* User-Friendly Mobile-Focused Action Card */}
