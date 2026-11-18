@@ -113,249 +113,247 @@ function LandingPage() {
       <div className="relative z-10 my-auto w-full max-w-md rounded-3xl border border-slate-200/70 bg-white p-4 shadow-2xl animate-fade-up sm:p-8">
         {/* ── Header: Cooperative Identity & Branding ─────────────────── */}
         <header className="relative z-10 w-full text-center mb-6 sm:mb-8 animate-fade-down">
-        {/* Logo Container */}
-        <div className="mx-auto mb-3 flex items-center justify-center">
-          <div className="rounded-2xl p-1 bg-[#DDF3E7]/60 ring-2 ring-[#145C45]/20 shadow-2xl">
-            <CoopLogo
-              settings={org}
-              showStatusDot={false}
-              className="h-16 w-16 sm:h-20 sm:w-20 shadow-inner"
-              iconClassName="h-9 w-9 sm:h-11 sm:w-11"
-            />
+          {/* Logo Container */}
+          <div className="mx-auto mb-3 flex items-center justify-center">
+            <div className="rounded-2xl p-1 bg-[#DDF3E7]/60 ring-2 ring-[#145C45]/20 shadow-2xl">
+              <CoopLogo
+                settings={org}
+                showStatusDot={false}
+                className="h-16 w-16 sm:h-20 sm:w-20 shadow-inner"
+                iconClassName="h-9 w-9 sm:h-11 sm:w-11"
+              />
+            </div>
           </div>
-        </div>
 
-        {/* Nepali Name */}
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-tight text-balance">
-          {org.nameNepali}
-        </h1>
+          {/* Nepali Name */}
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-tight text-balance">
+            {org.nameNepali}
+          </h1>
 
-        {/* English Name */}
-        <p className="mt-1 text-xs sm:text-sm font-semibold uppercase tracking-wider text-[#145C45]">
-          {org.nameEnglish}
-        </p>
+          {/* English Name */}
+          <p className="mt-1 text-xs sm:text-sm font-semibold uppercase tracking-wider text-[#145C45]">
+            {org.nameEnglish}
+          </p>
 
-        {/* Address and Registration Badges */}
-        <div className="mt-2 flex flex-wrap items-center justify-center gap-2 text-xs text-slate-600 font-medium">
-          <span className="inline-flex items-center gap-1">
-            <MapPin className="h-3.5 w-3.5 text-[#145C45]/80" />
-            {org.addressNepali || org.addressEnglish}
-          </span>
-          {org.regNo && (
-            <span className="hidden sm:inline-block text-slate-400">
-              &middot; {org.regNo}
+          {/* Address and Registration Badges */}
+          <div className="mt-2 flex flex-wrap items-center justify-center gap-2 text-xs text-slate-600 font-medium">
+            <span className="inline-flex items-center gap-1">
+              <MapPin className="h-3.5 w-3.5 text-[#145C45]/80" />
+              {org.addressNepali || org.addressEnglish}
             </span>
-          )}
-        </div>
-
-      </header>
-
-      {/* ── Center: Member Login Card ───────────────────────────────── */}
-      <main className="relative z-10 w-full animate-fade-up">
-        <div>
-          {/* Card Header */}
-          <div className="mb-6 flex items-start gap-3.5">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#145C45] text-white shadow-md shadow-[#145C45]/20">
-              <Smartphone className="h-6 w-6" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2">
-                <h2 className="text-lg font-extrabold text-slate-900 leading-tight">
-                  {t("memberPortalTitle")}
-                </h2>
-              </div>
-              <p className="text-xs font-semibold text-[#145C45] uppercase tracking-wide mt-0.5">
-                {org.nameEnglish}
-              </p>
-              <p className="mt-1 text-xs text-slate-500 leading-relaxed">
-                {t("memberPortalHint")}
-              </p>
-            </div>
+            {org.regNo && (
+              <span className="hidden sm:inline-block text-slate-400">
+                &middot; {org.regNo}
+              </span>
+            )}
           </div>
 
-          {/* Form */}
-          <form onSubmit={handleOpen} className="space-y-4">
-            <div>
-              <label
-                htmlFor="invite-code-input"
-                className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-700"
-              >
-                {t("inviteCode")}
-              </label>
+        </header>
 
-              <div
-                className={`relative flex items-center rounded-xl border bg-slate-50/70 transition-all focus-within:bg-white ${
-                  error
-                    ? "border-rose-400 bg-rose-50/20 focus-within:border-rose-500 focus-within:ring-4 focus-within:ring-rose-100"
-                    : "border-slate-300 hover:border-slate-400 focus-within:border-[#145C45] focus-within:ring-4 focus-within:ring-[#DDF3E7]"
-                }`}
-              >
-                <div className="pointer-events-none pl-3.5 text-slate-400 flex items-center">
-                  <KeyRound className="h-5 w-5 text-[#145C45]/80" />
+        {/* ── Center: Member Login Card ───────────────────────────────── */}
+        <main className="relative z-10 w-full animate-fade-up">
+          <div>
+            {/* Card Header */}
+            <div className="mb-6 flex items-start gap-3.5">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#145C45] text-white shadow-md shadow-[#145C45]/20">
+                <Smartphone className="h-6 w-6" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <h2 className="text-lg font-extrabold text-slate-900 leading-tight">
+                    {t("memberPortalTitle")}
+                  </h2>
                 </div>
-                <input
-                  id="invite-code-input"
-                  type="text"
-                  value={code}
-                  disabled={isValidating}
-                  onChange={(e) => {
-                    setCode(e.target.value.toUpperCase());
-                    setSelectedDemoId("");
-                    if (error) setError("");
-                  }}
-                  placeholder="e.g. ABC123"
-                  className="h-12 w-full bg-transparent px-3 text-sm sm:text-base font-bold font-mono tracking-wider text-slate-900 outline-none placeholder:font-normal placeholder:font-sans placeholder:tracking-normal placeholder:text-slate-400 disabled:opacity-50"
-                  autoCapitalize="characters"
-                  autoCorrect="off"
-                  spellCheck={false}
-                  maxLength={12}
-                  autoComplete="one-time-code"
-                />
-                {code && !isValidating && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setCode("");
-                      setError("");
+                <p className="text-xs font-semibold text-[#145C45] uppercase tracking-wide mt-0.5">
+                  {org.nameEnglish}
+                </p>
+                <p className="mt-1 text-xs text-slate-500 leading-relaxed">
+                  {t("memberPortalHint")}
+                </p>
+              </div>
+            </div>
+
+            {/* Form */}
+            <form onSubmit={handleOpen} className="space-y-4">
+              <div>
+                <label
+                  htmlFor="invite-code-input"
+                  className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-700"
+                >
+                  {t("inviteCode")}
+                </label>
+
+                <div
+                  className={`relative flex items-center rounded-xl border bg-slate-50/70 transition-all focus-within:bg-white ${error
+                      ? "border-rose-400 bg-rose-50/20 focus-within:border-rose-500 focus-within:ring-4 focus-within:ring-rose-100"
+                      : "border-slate-300 hover:border-slate-400 focus-within:border-[#145C45] focus-within:ring-4 focus-within:ring-[#DDF3E7]"
+                    }`}
+                >
+                  <div className="pointer-events-none pl-3.5 text-slate-400 flex items-center">
+                    <KeyRound className="h-5 w-5 text-[#145C45]/80" />
+                  </div>
+                  <input
+                    id="invite-code-input"
+                    type="text"
+                    value={code}
+                    disabled={isValidating}
+                    onChange={(e) => {
+                      setCode(e.target.value.toUpperCase());
+                      setSelectedDemoId("");
+                      if (error) setError("");
                     }}
-                    className="p-2 text-slate-400 hover:text-slate-600 transition"
-                    aria-label="Clear code"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
+                    placeholder="e.g. ABC123"
+                    className="h-12 w-full bg-transparent px-3 text-sm sm:text-base font-bold font-mono tracking-wider text-slate-900 outline-none placeholder:font-normal placeholder:font-sans placeholder:tracking-normal placeholder:text-slate-400 disabled:opacity-50"
+                    autoCapitalize="characters"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    maxLength={12}
+                    autoComplete="one-time-code"
+                  />
+                  {code && !isValidating && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCode("");
+                        setError("");
+                      }}
+                      className="p-2 text-slate-400 hover:text-slate-600 transition"
+                      aria-label="Clear code"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Validation Error Message */}
+                {error && (
+                  <div className="mt-2 flex items-start gap-1.5 text-xs font-semibold text-rose-700 bg-rose-50 rounded-lg p-2.5 border border-rose-200 animate-fade-in">
+                    <AlertCircle className="h-4 w-4 shrink-0 text-rose-600 mt-0.5" />
+                    <p className="leading-tight">{error}</p>
+                  </div>
                 )}
               </div>
 
-              {/* Validation Error Message */}
-              {error && (
-                <div className="mt-2 flex items-start gap-1.5 text-xs font-semibold text-rose-700 bg-rose-50 rounded-lg p-2.5 border border-rose-200 animate-fade-in">
-                  <AlertCircle className="h-4 w-4 shrink-0 text-rose-600 mt-0.5" />
-                  <p className="leading-tight">{error}</p>
-                </div>
-              )}
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={isValidating}
+                className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#15803D] hover:bg-[#145C45] active:scale-[0.99] text-white font-extrabold text-sm sm:text-base shadow-md shadow-[#15803D]/25 transition cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed"
+              >
+                {isValidating ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>{t("verifyingCode")}</span>
+                  </>
+                ) : (
+                  <>
+                    <span>{t("openKycForm")}</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </>
+                )}
+              </button>
+            </form>
+
+            {/* Clean Divider */}
+            <div className="relative my-5">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-slate-200" />
+              </div>
+              <div className="relative flex justify-center text-xs">
+                <span className="bg-white px-3 text-slate-400 font-medium">
+                  {t("staffAccess")}
+                </span>
+              </div>
             </div>
 
-            {/* Submit Button */}
+            {/* Manager / Staff Portal Navigation */}
             <button
-              type="submit"
-              disabled={isValidating}
-              className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#15803D] hover:bg-[#145C45] active:scale-[0.99] text-white font-extrabold text-sm sm:text-base shadow-md shadow-[#15803D]/25 transition cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed"
+              onClick={() => navigate("/manager-login")}
+              className="group flex w-full items-center justify-between rounded-xl border border-slate-200 bg-slate-50/80 hover:bg-[#DDF3E7]/60 hover:border-[#145C45]/30 p-3 text-left transition focus:outline-none focus:ring-2 focus:ring-[#145C45]/20 cursor-pointer"
             >
-              {isValidating ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>{t("verifyingCode")}</span>
-                </>
-              ) : (
-                <>
-                  <span>{t("openKycForm")}</span>
-                  <ArrowRight className="h-4 w-4" />
-                </>
-              )}
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white border border-slate-200 text-[#145C45] group-hover:border-[#145C45]/40 transition shadow-xs">
+                  <ShieldCheck className="h-4 w-4" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-bold text-slate-800 group-hover:text-[#145C45] transition truncate">
+                    {t("managerPortal")}
+                  </p>
+                  <p className="text-[11px] text-slate-500">
+                    {t("managerPortalHint")}
+                  </p>
+                </div>
+              </div>
+              <ChevronRight className="h-4 w-4 text-slate-400 group-hover:text-[#145C45] group-hover:translate-x-0.5 transition" />
             </button>
-          </form>
+          </div>
 
-          {/* Clean Divider */}
-          <div className="relative my-5">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-200" />
-            </div>
-            <div className="relative flex justify-center text-xs">
-              <span className="bg-white px-3 text-slate-400 font-medium">
-                {t("staffAccess")}
+          {/* ── Separate Demo & Evaluation Sandbox Notice (Outside Main Card) ── */}
+          <section
+            aria-label="Demonstration Sandbox Helper"
+            className="mt-4 rounded-2xl border border-slate-200 bg-slate-50/90 p-4 text-left shadow-xs"
+          >
+            <div className="mb-2.5 flex items-center justify-between gap-2">
+              <span className="text-xs font-bold uppercase tracking-wide text-[#145C45]">
+                नमूना परीक्षण (Evaluation Testing Sandbox)
+              </span>
+              <span className="rounded bg-[#DDF3E7] px-2 py-0.5 text-[10px] font-bold text-[#145C45]">
+                Demo Mode
               </span>
             </div>
-          </div>
+            <p className="text-[11px] text-slate-600 leading-relaxed">
+              Select a sample member to auto-fill their invite code. Verification OTP will be delivered via realistic SMS preview on the next step:
+            </p>
 
-          {/* Manager / Staff Portal Navigation */}
-          <button
-            onClick={() => navigate("/manager-login")}
-            className="group flex w-full items-center justify-between rounded-xl border border-slate-200 bg-slate-50/80 hover:bg-[#DDF3E7]/60 hover:border-[#145C45]/30 p-3 text-left transition focus:outline-none focus:ring-2 focus:ring-[#145C45]/20 cursor-pointer"
-          >
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white border border-slate-200 text-[#145C45] group-hover:border-[#145C45]/40 transition shadow-xs">
-                <ShieldCheck className="h-4 w-4" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs font-bold text-slate-800 group-hover:text-[#145C45] transition truncate">
-                  {t("managerPortal")}
-                </p>
-                <p className="text-[11px] text-slate-500">
-                  {t("managerPortalHint")}
-                </p>
-              </div>
+            <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+              {demoMembers.map((member) => {
+                const available = member.status === "invited";
+                const selected = selectedDemoId === member.id || code === member.inviteCode || code === member.membershipCode;
+                return (
+                  <button
+                    key={member.id}
+                    type="button"
+                    disabled={!available}
+                    onClick={() => {
+                      setCode(member.inviteCode);
+                      setSelectedDemoId(member.id);
+                      setError("");
+                    }}
+                    className={`rounded-xl border p-2.5 text-left transition cursor-pointer ${selected
+                        ? "border-[#145C45] bg-[#DDF3E7]/80 ring-2 ring-[#145C45]/20"
+                        : available
+                          ? "border-slate-200 bg-white hover:border-[#145C45]/50 hover:bg-[#DDF3E7]/40"
+                          : "cursor-not-allowed border-slate-200 bg-slate-100 opacity-60"
+                      }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="block truncate text-xs font-bold text-slate-900">
+                        {member.name}
+                      </span>
+                      <span className={`text-[10px] font-semibold uppercase ${available ? "text-emerald-700" : "text-slate-400"}`}>
+                        {member.status}
+                      </span>
+                    </div>
+                    <span className="mt-1 block font-mono text-[11px] font-bold text-[#145C45]">
+                      Code: {member.inviteCode}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
-            <ChevronRight className="h-4 w-4 text-slate-400 group-hover:text-[#145C45] group-hover:translate-x-0.5 transition" />
-          </button>
-        </div>
+          </section>
 
-        {/* ── Separate Demo & Evaluation Sandbox Notice (Outside Main Card) ── */}
-        <section
-          aria-label="Demonstration Sandbox Helper"
-          className="mt-4 rounded-2xl border border-slate-200 bg-slate-50/90 p-4 text-left shadow-xs"
-        >
-          <div className="mb-2.5 flex items-center justify-between gap-2">
-            <span className="text-xs font-bold uppercase tracking-wide text-[#145C45]">
-              नमूना परीक्षण (Evaluation Testing Sandbox)
-            </span>
-            <span className="rounded bg-[#DDF3E7] px-2 py-0.5 text-[10px] font-bold text-[#145C45]">
-              Demo Mode
-            </span>
-          </div>
-          <p className="text-[11px] text-slate-600 leading-relaxed">
-            Select a sample member to auto-fill their invite code. Verification OTP will be delivered via realistic SMS preview on the next step:
+        </main>
+
+        {/* ── Footer: Copyright & System Note ──────────────────────────── */}
+        <footer className="relative z-10 mt-6 w-full break-words border-t border-slate-200 pt-4 text-center text-[11px] text-slate-500 space-y-1">
+          <p>
+            &copy; {new Date().getFullYear()} {org.nameNepali} &middot; {org.nameEnglish}
           </p>
-
-          <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
-            {demoMembers.map((member) => {
-              const available = member.status === "invited";
-              const selected = selectedDemoId === member.id || code === member.inviteCode || code === member.membershipCode;
-              return (
-                <button
-                  key={member.id}
-                  type="button"
-                  disabled={!available}
-                  onClick={() => {
-                    setCode(member.inviteCode);
-                    setSelectedDemoId(member.id);
-                    setError("");
-                  }}
-                  className={`rounded-xl border p-2.5 text-left transition cursor-pointer ${
-                    selected
-                      ? "border-[#145C45] bg-[#DDF3E7]/80 ring-2 ring-[#145C45]/20"
-                      : available
-                      ? "border-slate-200 bg-white hover:border-[#145C45]/50 hover:bg-[#DDF3E7]/40"
-                      : "cursor-not-allowed border-slate-200 bg-slate-100 opacity-60"
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="block truncate text-xs font-bold text-slate-900">
-                      {member.name}
-                    </span>
-                    <span className={`text-[10px] font-semibold uppercase ${available ? "text-emerald-700" : "text-slate-400"}`}>
-                      {member.status}
-                    </span>
-                  </div>
-                  <span className="mt-1 block font-mono text-[11px] font-bold text-[#145C45]">
-                    Code: {member.inviteCode}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </section>
-
-      </main>
-
-      {/* ── Footer: Copyright & System Note ──────────────────────────── */}
-      <footer className="relative z-10 mt-6 w-full break-words border-t border-slate-200 pt-4 text-center text-[11px] text-slate-500 space-y-1">
-        <p>
-          &copy; {new Date().getFullYear()} {org.nameNepali} &middot; {org.nameEnglish}
-        </p>
-        <p className="text-[10px] text-slate-400">
-          Cooperative KYC Verification &amp; KYM Approval Management System (Nepal)
-        </p>
-      </footer>
+          <p className="text-[10px] text-slate-400">
+            Cooperative KYC Verification &amp; Approval Management System (Nepal)
+          </p>
+        </footer>
       </div>
     </div>
   );

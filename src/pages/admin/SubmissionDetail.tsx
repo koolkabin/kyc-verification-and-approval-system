@@ -3,6 +3,7 @@ import {
   ArrowLeft,
   CheckCircle2,
   Clock,
+  Download,
   Eye,
   FileText,
   Maximize2,
@@ -24,6 +25,25 @@ const QUICK_REJECTION_REASONS = [
   "Name mismatch between ID proof and cooperative record",
 ];
 
+const isPdfFile = (url?: string, name?: string) => {
+  if (!url) return false;
+  return (
+    url.startsWith("data:application/pdf") ||
+    url.startsWith("pdf:") ||
+    name?.toLowerCase().endsWith(".pdf") ||
+    url.toLowerCase().endsWith(".pdf")
+  );
+};
+
+const handleDownloadFile = (dataUrl: string, fileName: string) => {
+  const link = document.createElement("a");
+  link.href = dataUrl;
+  link.download = fileName || "kyc-document";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
 export default function SubmissionDetail({ id }: { id: string }) {
   const {
     state,
@@ -35,9 +55,11 @@ export default function SubmissionDetail({ id }: { id: string }) {
   } = useStore();
   const sub = getSubmission(id);
   const [rejectOpen, setRejectOpen] = useState(false);
-  const [enlargedImage, setEnlargedImage] = useState<{
+  const [enlargedDoc, setEnlargedDoc] = useState<{
     url: string;
     title: string;
+    fileName?: string;
+    isPdf: boolean;
   } | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -70,7 +92,10 @@ export default function SubmissionDetail({ id }: { id: string }) {
       return;
     }
     approveSubmission(sub.id);
-    showToast(`✓ Approved KYC for ${sub.memberName}`);
+    showToast(`✓ Approved KYC for ${sub.memberName}. Redirecting to dashboard...`);
+    setTimeout(() => {
+      navigate("/admin");
+    }, 600);
   };
 
   const handlePrint = () => {
@@ -281,13 +306,13 @@ export default function SubmissionDetail({ id }: { id: string }) {
               { label: "Selfie With ID", docType: "Selfie Verification", url: sub.selfieDataUrl, name: sub.selfieName, required: true },
               { label: "National ID Card", docType: "National ID", url: sub.nationalIdDataUrl, name: sub.nationalIdName, required: false },
               { label: "PAN Card / Doc", docType: "PAN", url: sub.panDocDataUrl, name: sub.panDocName, required: false },
-              { label: "Official KYC Form", docType: "KYM Form", url: sub.kycFormDataUrl, name: sub.kycFormName, required: false },
+              { label: "Official KYC Form", docType: "KYC Form", url: sub.kycFormDataUrl, name: sub.kycFormName, required: false },
               { label: "Online Agreement", docType: "Signed Agreement", url: sub.agreementDataUrl, name: sub.agreementName, required: false },
               { label: "Birth Certificate", docType: "Minor Proof", url: sub.birthCertDataUrl, name: sub.birthCertName, required: false },
               { label: "Company Registration", docType: "Corporate", url: sub.companyRegDataUrl, name: sub.companyRegName, required: false },
             ] as const
           ).map((item) => {
-            const isPdf = item.url?.startsWith("pdf:") || item.name?.toLowerCase().endsWith(".pdf");
+            const isPdf = isPdfFile(item.url, item.name);
             return (
               <div
                 key={item.label}
@@ -312,9 +337,11 @@ export default function SubmissionDetail({ id }: { id: string }) {
                   <div
                     onClick={() => {
                       if (item.url) {
-                        setEnlargedImage({
+                        setEnlargedDoc({
                           url: item.url,
                           title: `${item.label} — ${sub.memberName}`,
+                          fileName: item.name,
+                          isPdf,
                         });
                       }
                     }}
@@ -345,11 +372,25 @@ export default function SubmissionDetail({ id }: { id: string }) {
                   </div>
                 )}
 
-                {item.name && (
+                <div className="flex items-center justify-between gap-1 pt-0.5">
                   <p className="truncate text-[10px] text-slate-500 font-mono" title={item.name}>
-                    {item.name}
+                    {item.name || "Document"}
                   </p>
-                )}
+                  {item.url && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDownloadFile(item.url!, item.name || `${item.label}.${isPdf ? "pdf" : "png"}`);
+                      }}
+                      className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-bold text-[#145C45] bg-[#DDF3E7] hover:bg-[#cbebd9] transition cursor-pointer shrink-0"
+                      title="Download file"
+                    >
+                      <Download className="h-3 w-3" />
+                      <span>Download</span>
+                    </button>
+                  )}
+                </div>
               </div>
             );
           })}
@@ -407,22 +448,36 @@ export default function SubmissionDetail({ id }: { id: string }) {
                 </span>
               </div>
               {item.image ? (
-                <button
-                  type="button"
-                  onClick={() =>
-                    setEnlargedImage({
-                      url: item.image!,
-                      title: `${item.label} - ${sub.memberName}`,
-                    })
-                  }
-                  className="block w-full overflow-hidden rounded-xl border border-slate-200 bg-white"
-                >
-                  <img
-                    src={item.image}
-                    alt={item.label}
-                    className="h-40 w-full object-contain"
-                  />
-                </button>
+                <div className="space-y-1.5">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setEnlargedDoc({
+                        url: item.image!,
+                        title: `${item.label} - ${sub.memberName}`,
+                        fileName: item.fileName,
+                        isPdf: isPdfFile(item.image, item.fileName),
+                      })
+                    }
+                    className="block w-full overflow-hidden rounded-xl border border-slate-200 bg-white hover:border-[#145C45]/40 transition cursor-pointer"
+                  >
+                    <img
+                      src={item.image}
+                      alt={item.label}
+                      className="h-40 w-full object-contain"
+                    />
+                  </button>
+                  <div className="flex items-center justify-between pt-1">
+                    <span className="text-[10px] text-slate-500 font-mono truncate">{item.fileName || item.label}</span>
+                    <button
+                      type="button"
+                      onClick={() => handleDownloadFile(item.image!, item.fileName || `${item.label}.png`)}
+                      className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-bold text-[#145C45] bg-[#DDF3E7] hover:bg-[#cbebd9] transition cursor-pointer"
+                    >
+                      <Download className="h-3 w-3" /> Download
+                    </button>
+                  </div>
+                </div>
               ) : (
                 <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-slate-300 bg-white text-xs text-slate-400">
                   No {item.label.toLowerCase()} uploaded
@@ -559,29 +614,87 @@ export default function SubmissionDetail({ id }: { id: string }) {
         onClose={() => setRejectOpen(false)}
         onConfirm={(remark) => {
           rejectSubmission(sub.id, remark);
-          showToast(`Marked as Rejected: ${remark}`);
+          setRejectOpen(false);
+          showToast(`Marked as Rejected: ${remark}. Redirecting to dashboard...`);
+          setTimeout(() => {
+            navigate("/admin");
+          }, 600);
         }}
       />
 
-      {/* Image Lightbox Modal */}
-      {enlargedImage && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
-          <div className="relative max-w-2xl w-full bg-slate-950 rounded-3xl p-4 text-white border border-slate-800">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-              <h4 className="text-sm font-bold truncate">{enlargedImage.title}</h4>
-              <button
-                onClick={() => setEnlargedImage(null)}
-                className="rounded-full bg-slate-800 p-1.5 text-slate-300 hover:text-white"
-              >
-                <X className="h-5 w-5" />
-              </button>
+      {/* Document Lightbox / PDF Viewer Modal */}
+      {enlargedDoc && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm p-3 sm:p-4 animate-fade-in"
+          onClick={() => setEnlargedDoc(null)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative max-w-4xl w-full bg-slate-950 rounded-3xl p-4 sm:p-5 text-white border border-slate-800 shadow-2xl flex flex-col max-h-[92vh]"
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800 gap-3">
+              <div className="min-w-0">
+                <h4 className="text-sm sm:text-base font-bold truncate">
+                  {enlargedDoc.title}
+                </h4>
+                {enlargedDoc.fileName && (
+                  <p className="text-[11px] text-slate-400 font-mono truncate">
+                    {enlargedDoc.fileName}
+                  </p>
+                )}
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                {/* Download Button */}
+                <button
+                  type="button"
+                  onClick={() =>
+                    handleDownloadFile(
+                      enlargedDoc.url,
+                      enlargedDoc.fileName || `${enlargedDoc.title}.${enlargedDoc.isPdf ? "pdf" : "png"}`
+                    )
+                  }
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-[#145C45] hover:bg-[#0f4534] px-3.5 py-2 text-xs font-bold text-white shadow-sm transition active:scale-95 cursor-pointer"
+                  title="Download Document"
+                >
+                  <Download className="h-4 w-4" />
+                  <span>Download</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEnlargedDoc(null)}
+                  className="rounded-full bg-slate-800 p-2 text-slate-300 hover:text-white transition cursor-pointer"
+                  aria-label="Close"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
             </div>
-            <div className="mt-3 flex items-center justify-center max-h-[75vh] overflow-hidden">
-              <img
-                src={enlargedImage.url}
-                alt="Enlarged"
-                className="max-h-[70vh] w-auto max-w-full object-contain rounded-xl"
-              />
+
+            {/* Modal Body: PDF vs Image */}
+            <div className="mt-3 flex-1 flex flex-col items-center justify-center min-h-[300px] overflow-hidden">
+              {enlargedDoc.isPdf ? (
+                <div className="w-full h-[72vh] flex flex-col">
+                  <iframe
+                    src={enlargedDoc.url}
+                    className="w-full flex-1 rounded-2xl bg-white border border-slate-700 shadow-inner"
+                    title={enlargedDoc.title}
+                  />
+                  <p className="mt-2 text-center text-[11px] text-slate-400">
+                    PDF Document preview. You can also click <strong className="text-white">Download</strong> above to save or print locally.
+                  </p>
+                </div>
+              ) : (
+                <div className="flex items-center justify-center max-h-[72vh] w-full overflow-hidden">
+                  <img
+                    src={enlargedDoc.url}
+                    alt={enlargedDoc.title}
+                    className="max-h-[70vh] w-auto max-w-full object-contain rounded-xl shadow-lg"
+                  />
+                </div>
+              )}
             </div>
           </div>
         </div>

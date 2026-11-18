@@ -21,8 +21,7 @@ import { useStore } from "../../lib/store";
 import { useI18n, type TranslationKey } from "../../lib/i18n";
 import { navigate } from "../../lib/router";
 import { fiscalYearLabel, fiscalYearStartYear } from "../../lib/fiscalYear";
-import { Avatar } from "../../components/ui";
-import { RejectModal } from "./SubmissionDetail";
+import { Avatar, StatusPill } from "../../components/ui";
 import type { KycSubmission, KycStatus } from "../../lib/types";
 
 const FILTERS: { key: string; labelKey: TranslationKey }[] = [
@@ -385,30 +384,10 @@ export default function Dashboard() {
 }
 
 function SubmissionCard({ sub }: { sub: KycSubmission }) {
-  const { approveSubmission, rejectSubmission } = useStore();
   const { t } = useI18n();
-  const [rejectOpen, setRejectOpen] = useState(false);
-  const [toast, setToast] = useState<string | null>(null);
-
-  const showToast = (msg: string) => {
-    setToast(msg);
-    setTimeout(() => setToast(null), 2500);
-  };
-
-  const handleApprove = () => {
-    approveSubmission(sub.id);
-    showToast(`✓ Approved KYC for ${sub.memberName}`);
-  };
 
   return (
     <div className="rounded-3xl bg-white p-4 sm:p-5 shadow-sm border border-slate-200/80 transition hover:shadow-md space-y-3">
-      {/* Toast */}
-      {toast && (
-        <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-2.5 text-center text-xs font-bold text-emerald-800 animate-fade-in">
-          {toast}
-        </div>
-      )}
-
       {/* Member Header Info */}
       <div className="flex items-start gap-3">
         <Avatar name={sub.memberName} />
@@ -417,6 +396,7 @@ function SubmissionCard({ sub }: { sub: KycSubmission }) {
             <h3 className="truncate text-base font-extrabold text-slate-900">
               {sub.memberName}
             </h3>
+            <StatusPill status={sub.status} />
           </div>
           <p className="mt-0.5 text-xs text-slate-500 font-medium">
             Code: <span className="font-bold text-slate-700">{sub.membershipCode}</span> · Phone:{" "}
@@ -430,71 +410,62 @@ function SubmissionCard({ sub }: { sub: KycSubmission }) {
         </div>
       </div>
 
-      {/* Action Buttons */}
+      {/* Action Buttons: Verification Required in Detail View */}
       <div className="pt-2 border-t border-slate-100">
-        <div className="grid grid-cols-2 sm:flex sm:flex-row gap-2">
-          {/* View Details */}
-          <button
-            onClick={() => navigate(`/admin/submissions/${sub.id}`)}
-            className="flex items-center justify-center gap-1.5 rounded-xl border border-[#145C45]/30 bg-[#DDF3E7]/60 hover:bg-[#DDF3E7] text-[#145C45] font-bold py-2.5 px-3 text-xs sm:text-sm active:scale-[0.98] transition focus:outline-none focus:ring-2 focus:ring-[#145C45]/30 cursor-pointer"
-          >
-            <Eye className="h-4 w-4" />
-            <span>{t("viewDetails")}</span>
-          </button>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          <div className="flex flex-wrap items-center gap-2">
+            {/* For Pending/Submitted: Must review & verify in details */}
+            {(sub.status === "pending" || sub.status === "submitted") && (
+              <button
+                onClick={() => navigate(`/admin/submissions/${sub.id}`)}
+                className="flex items-center justify-center gap-1.5 rounded-xl bg-[#145C45] hover:bg-[#0f4534] text-white font-bold py-2.5 px-4 text-xs sm:text-sm shadow-sm active:scale-[0.98] transition cursor-pointer"
+              >
+                <Eye className="h-4 w-4" />
+                <span>Review &amp; Verify Details</span>
+              </button>
+            )}
 
-          {/* Approve and Reject */}
+            {/* View Details for other statuses */}
+            {sub.status !== "pending" && sub.status !== "submitted" && (
+              <button
+                onClick={() => navigate(`/admin/submissions/${sub.id}`)}
+                className="flex items-center justify-center gap-1.5 rounded-xl border border-[#145C45]/30 bg-[#DDF3E7]/60 hover:bg-[#DDF3E7] text-[#145C45] font-bold py-2 px-3 text-xs sm:text-sm active:scale-[0.98] transition cursor-pointer"
+              >
+                <Eye className="h-4 w-4" />
+                <span>{t("viewDetails")}</span>
+              </button>
+            )}
+
+            {/* Print Button for Approved */}
+            {sub.status === "approved" && (
+              <button
+                onClick={() => navigate(`/print/${sub.id}`)}
+                className="flex items-center justify-center gap-1.5 rounded-xl bg-[#145C45] hover:bg-[#0f4534] text-white font-bold py-2 px-4 text-xs sm:text-sm shadow-sm active:scale-[0.98] transition cursor-pointer"
+              >
+                <Printer className="h-4 w-4" />
+                <span>{t("printKycForm")}</span>
+              </button>
+            )}
+
+            {/* Reprint for Printed */}
+            {sub.status === "printed" && (
+              <button
+                onClick={() => navigate(`/print/${sub.id}`)}
+                className="flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold py-2 px-3 text-xs sm:text-sm active:scale-[0.98] transition"
+              >
+                <Printer className="h-4 w-4 text-slate-500" />
+                <span>Reprint</span>
+              </button>
+            )}
+          </div>
+
           {(sub.status === "pending" || sub.status === "submitted") && (
-            <>
-              <button
-                onClick={handleApprove}
-                className="flex items-center justify-center gap-1.5 rounded-xl bg-[#059669] hover:bg-emerald-700 text-white font-bold py-2.5 px-3.5 text-xs sm:text-sm shadow-sm shadow-emerald-600/20 active:scale-[0.98] transition focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
-              >
-                <CheckCircle2 className="h-4 w-4" />
-                <span>{t("approve")}</span>
-              </button>
-
-              <button
-                onClick={() => setRejectOpen(true)}
-                className="col-span-2 sm:col-span-1 flex items-center justify-center gap-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold py-2.5 px-3 text-xs sm:text-sm active:scale-[0.98] transition focus:outline-none focus:ring-2 focus:ring-rose-500 cursor-pointer"
-              >
-                <XCircle className="h-4 w-4 text-rose-600" />
-                <span>{t("reject")}</span>
-              </button>
-            </>
-          )}
-
-          {/* Print Button */}
-          {sub.status === "approved" && (
-            <button
-              onClick={() => navigate(`/print/${sub.id}`)}
-              className="flex items-center justify-center gap-1.5 rounded-xl bg-[#145C45] hover:bg-[#0f4534] text-white font-bold py-2.5 px-4 text-xs sm:text-sm shadow-sm active:scale-[0.98] transition focus:outline-none focus:ring-2 focus:ring-[#145C45] cursor-pointer"
-            >
-              <Printer className="h-4 w-4" />
-              <span>{t("printKycForm")}</span>
-            </button>
-          )}
-
-          {/* Reprint */}
-          {sub.status === "printed" && (
-            <button
-              onClick={() => navigate(`/print/${sub.id}`)}
-              className="flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold py-2.5 px-3 text-xs sm:text-sm active:scale-[0.98] transition"
-            >
-              <Printer className="h-4 w-4 text-slate-500" />
-              <span>Reprint</span>
-            </button>
+            <span className="text-[11px] text-slate-400 font-medium">
+              ℹ Verification required in details view before approval
+            </span>
           )}
         </div>
       </div>
-
-      <RejectModal
-        open={rejectOpen}
-        onClose={() => setRejectOpen(false)}
-        onConfirm={(remark) => {
-          rejectSubmission(sub.id, remark);
-          showToast(`Marked as Rejected: ${remark}`);
-        }}
-      />
     </div>
   );
 }

@@ -88,6 +88,60 @@ export interface KycSubmission {
   // Legacy / computed address string for display cards
   address?: string;
 
+  // ── Extended Official Nepal KYM Fields (Optional) ───────────────────────────
+  dob?: string;
+  citizenshipNo?: string;
+  citizenshipIssuedDistrict?: string;
+  citizenshipIssuedDate?: string;
+  gender?: "male" | "female" | "other" | string;
+  motherName?: string;
+  fatherName?: string;
+  grandfatherName?: string;
+  maritalStatus?: "married" | "unmarried" | "single" | string;
+  spouseName?: string;
+  familyType?: "joint_same_kitchen" | "joint_diff_kitchen" | "nuclear" | string;
+  mainOccupation?: "farming" | "business" | "service" | "foreign" | "other" | string;
+  occupationDetail?: string;
+  spouseOccupation?: "farming" | "business" | "service" | "foreign" | "other" | string;
+  spouseOccupationDetail?: string;
+  otherIncomeEarner?: { name?: string; relation?: string; occupation?: string };
+  isPepOrPublicFigure?: boolean;
+  pepDetails?: { name?: string; relation?: string; role?: string };
+  houseNo?: string;
+  tempHouseNo?: string;
+  residenceType?: "permanent" | "temporary" | string;
+  voterIdNo?: string;
+  votingPlace?: string;
+  timeSpentInServiceArea?: string;
+  passportNo?: string;
+  membershipObjective?: string;
+  isMemberOfOtherCoop?: boolean;
+  otherCoops?: Array<{ nameAndAddress: string; memberNo: string }>;
+  familyOtherCoops?: Array<{ memberName?: string; nameAndAddress: string; memberNo: string }>;
+  coopMembershipPurpose?: string;
+  familyCoopMembershipPurpose?: string;
+  familyMemberInThisCoop?: boolean;
+  familyMembersInThisCoop?: Array<{ nameAndAddress: string; memberNo: string }>;
+  annualFamilyIncomeRange?: "up_to_4_lakh" | "4_to_10_lakh" | "10_to_25_lakh" | "25_to_50_lakh" | "above_50_lakh" | string;
+  incomeBreakdown?: {
+    farming?: string;
+    business?: string;
+    domesticJob?: string;
+    foreignJob?: string;
+    other?: string;
+  };
+  initialTransactions?: {
+    share?: string;
+    savings?: string;
+    other?: string;
+  };
+  annualTransactionsCount?: string;
+  annualEstimatedDeposit?: string;
+  estimatedLoanAmount?: string;
+  remarksAdditional?: string;
+  recommender1?: { name?: string; memberNo?: string };
+  recommender2?: { name?: string; memberNo?: string };
+
   // ── Step 3: Documents Upload ──────────────────────────────────────────────
   citizenshipFrontDataUrl?: string;
   citizenshipFrontName?: string;

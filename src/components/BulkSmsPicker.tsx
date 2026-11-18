@@ -204,7 +204,7 @@ export function BulkSmsPicker({ members, onClose }: BulkSmsPickerProps) {
                 className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#145C45] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#0f4534] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Send className="h-4 w-4" />
-                Continue to send ({selectedIds.length})
+                Send SMS ({selectedIds.length})
               </button>
             </div>
           </>

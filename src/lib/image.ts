@@ -163,3 +163,37 @@ export function createSampleIdCard(
 
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
 }
+
+/**
+ * Generates an SVG Data URL of a realistic member signature for demo/print display.
+ */
+export function createSampleSignature(name = "Member"): string {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="220" height="70" viewBox="0 0 220 70">
+    <path d="M 15 48 Q 30 18, 55 42 T 95 35 T 135 25 Q 165 12, 185 40 T 205 45" fill="none" stroke="#0f172a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 30 52 Q 65 65, 105 48 Q 145 35, 175 52" fill="none" stroke="#0f172a" stroke-width="1.6" stroke-linecap="round"/>
+    <text x="110" y="65" font-family="'Brush Script MT', 'Segoe Script', cursive, sans-serif" font-size="14" fill="#1e293b" text-anchor="middle" font-style="italic">
+      ${name}
+    </text>
+  </svg>`;
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+
+/**
+ * Generates an SVG Data URL of a realistic thumbprint impression for demo/print display.
+ */
+export function createSampleThumbprint(): string {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="130" viewBox="0 0 100 130">
+    <g fill="none" stroke="#1e3a8a" stroke-width="1.4" stroke-linecap="round" opacity="0.8">
+      <ellipse cx="50" cy="65" rx="36" ry="50" stroke-dasharray="9 3 7 2"/>
+      <ellipse cx="50" cy="65" rx="30" ry="42"/>
+      <ellipse cx="50" cy="65" rx="24" ry="34" stroke-dasharray="10 3"/>
+      <ellipse cx="50" cy="65" rx="18" ry="26"/>
+      <ellipse cx="50" cy="65" rx="12" ry="18" stroke-dasharray="7 2"/>
+      <ellipse cx="50" cy="65" rx="6" ry="10"/>
+      <path d="M 50 50 Q 52 65 50 80"/>
+      <path d="M 43 55 Q 45 65 44 76"/>
+      <path d="M 57 54 Q 56 64 57 75"/>
+    </g>
+  </svg>`;
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}

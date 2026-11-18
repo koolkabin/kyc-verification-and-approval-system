@@ -122,12 +122,14 @@ canvas {
 @media print {
   @page {
     size: A4 portrait;
-    margin: 8mm;
+    margin: 6mm 8mm;
   }
-  body {
+  html, body {
     background: #ffffff !important;
-    color: #0f172a !important;
+    color: #000000 !important;
     margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
@@ -139,30 +141,48 @@ canvas {
     visibility: visible;
   }
   .print-area {
-    position: relative;
+    position: absolute;
     left: 0;
     top: 0;
-    width: 194mm;
-    min-height: 281mm;
-    margin: 0;
-    padding: 8mm !important;
-    box-sizing: border-box;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
     border: none !important;
     box-shadow: none !important;
     border-radius: 0 !important;
+    background: #ffffff !important;
     overflow: visible;
+  }
+  .kyc-page,
+  .kym-page {
+    position: relative;
+    width: 100% !important;
+    min-height: 278mm !important;
+    box-sizing: border-box !important;
+    padding: 2mm 0 4mm 0 !important;
+    page-break-after: always !important;
+    break-after: page !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    background: #ffffff !important;
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+  }
+  .kyc-page:last-child,
+  .kym-page:last-child {
+    page-break-after: avoid !important;
+    break-after: avoid !important;
   }
   .print-area img {
     print-color-adjust: exact;
   }
-  .print-area header,
-  .print-area section,
-  .print-area table,
-  .print-area tr,
-  .print-area td,
-  .print-area th {
-    break-inside: avoid;
-    page-break-inside: avoid;
+  .print-area table {
+    border-collapse: collapse !important;
+  }
+  .print-area th,
+  .print-area td {
+    padding: 2px 4px !important;
   }
   .no-print {
     display: none !important;
