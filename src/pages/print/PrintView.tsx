@@ -44,7 +44,7 @@ export default function PrintView({ id }: { id: string }) {
             onClick={doPrint}
             className="flex items-center gap-2 rounded-xl bg-[#059669] hover:bg-emerald-700 active:scale-95 px-5 py-2 text-xs sm:text-sm font-extrabold text-white shadow-md transition cursor-pointer"
           >
-            <Printer className="h-4 w-4" /> Print / Save as PDF
+            <Printer className="h-4 w-4" /> Print Hard Copy
           </button>
         </div>
       </div>

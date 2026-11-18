@@ -122,11 +122,14 @@ canvas {
 @media print {
   @page {
     size: A4 portrait;
-    margin: 10mm;
+    margin: 8mm;
   }
   body {
     background: #ffffff !important;
     color: #0f172a !important;
+    margin: 0 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
   body * {
     visibility: hidden;
@@ -136,13 +139,30 @@ canvas {
     visibility: visible;
   }
   .print-area {
-    position: absolute;
-    inset: 0 auto auto 0;
-    width: 100%;
+    position: relative;
+    left: 0;
+    top: 0;
+    width: 194mm;
+    min-height: 281mm;
     margin: 0;
+    padding: 8mm !important;
+    box-sizing: border-box;
     border: none !important;
     box-shadow: none !important;
     border-radius: 0 !important;
+    overflow: visible;
+  }
+  .print-area img {
+    print-color-adjust: exact;
+  }
+  .print-area header,
+  .print-area section,
+  .print-area table,
+  .print-area tr,
+  .print-area td,
+  .print-area th {
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
   .no-print {
     display: none !important;
