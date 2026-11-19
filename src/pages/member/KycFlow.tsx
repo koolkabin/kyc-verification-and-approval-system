@@ -599,29 +599,35 @@ function LivePreview({
 function BottomBar({
   onCancel,
   onSubmit,
+  showCancelBtn = true,
 }: {
   onCancel: () => void;
   onSubmit?: () => void;
+  showCancelBtn?: boolean;
 }) {
   const { t } = useI18n();
   return (
-    <div className="fixed bottom-0 inset-x-0 z-20 flex flex-wrap items-center justify-center gap-2 border-t border-slate-200 bg-white/95 px-3 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur no-print sm:justify-end sm:gap-3 sm:px-4">
-      <button
-        type="button"
-        onClick={onCancel}
-        className="min-h-11 flex-1 rounded border border-red-400 bg-white px-3 py-2 text-xs font-bold text-red-600 transition hover:bg-red-50 sm:flex-none sm:px-4"
-      >
-        {t("cancelApplication")}
-      </button>
-      {onSubmit && (
-        <button
-          type="button"
-          onClick={onSubmit}
-          className="min-h-11 flex-1 rounded bg-[#059669] px-3 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-emerald-700 sm:flex-none sm:px-4"
-        >
-          {t("submitApplication")}
-        </button>
-      )}
+    <div className="fixed bottom-0 inset-x-0 z-20 border-t border-slate-200 bg-white/95 px-3 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur no-print sm:px-4">
+      <div className="mx-auto flex w-full max-w-4xl items-center justify-end gap-3">
+        {showCancelBtn && (
+          <button
+            type="button"
+            onClick={onCancel}
+            className="min-h-11 min-w-0 flex-1 rounded border border-red-400 bg-white px-3 py-2 text-xs font-bold text-red-600 transition hover:bg-red-50 sm:flex-none sm:px-4"
+          >
+            {t("cancelApplication")}
+          </button>
+        )}
+        {onSubmit && (
+          <button
+            type="button"
+            onClick={onSubmit}
+            className="min-h-11 min-w-0 flex-1 rounded bg-[#059669] px-3 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-emerald-700 sm:flex-none sm:px-4"
+          >
+            {t("submitApplication")}
+          </button>
+        )}
+      </div>
     </div>
   );
 }
@@ -634,6 +640,7 @@ function WizardShell({
   onCancel,
   showSubmitBtn,
   onSubmitBtn,
+  showCancelBtn,
 }: {
   children: ReactNode;
   memberName: string;
@@ -641,6 +648,7 @@ function WizardShell({
   onCancel: () => void;
   showSubmitBtn?: boolean;
   onSubmitBtn?: () => void;
+  showCancelBtn?: boolean;
 }) {
   const { state } = useStore();
   const { t } = useI18n();
@@ -684,6 +692,7 @@ function WizardShell({
       <BottomBar
         onCancel={() => navigate("/")}
         onSubmit={showSubmitBtn ? onSubmitBtn : undefined}
+        showCancelBtn={showCancelBtn}
       />
     </div>
   );
@@ -1698,6 +1707,7 @@ export default function KycFlow({
         currentStep="agreement"
         onCancel={() => setScreen("documents")}
         showSubmitBtn
+        showCancelBtn={false}
         onSubmitBtn={handleSubmit}
       >
         <div className="flex gap-5">
@@ -1818,7 +1828,23 @@ export default function KycFlow({
                 </div>
               </div>
             </div>
+            <button
+              type="button"
+              onClick={() => navigate("/")}
+              className="mt-4 flex min-h-11 w-full items-center justify-center rounded-lg border border-red-300 bg-white px-4 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-50"
+            >
+              {t("cancelApplication")}
+            </button>
           </div>
+        </div>
+        <div className="mt-6 border-t border-slate-200 pt-4 lg:hidden">
+          <button
+            type="button"
+            onClick={() => navigate("/")}
+            className="flex min-h-11 w-full items-center justify-center rounded-lg border border-red-300 bg-white px-4 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-50 sm:w-auto"
+          >
+            {t("cancelApplication")}
+          </button>
         </div>
       </WizardShell>
     );
