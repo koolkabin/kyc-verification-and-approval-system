@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import {
   CheckCircle2,
   Clock,
@@ -293,6 +293,7 @@ export function SmsModal({
   open: boolean;
   onClose: () => void;
   data: {
+    memberId: string;
     name: string;
     phone: string;
     inviteCode: string;
@@ -300,8 +301,9 @@ export function SmsModal({
     link?: string;
   } | null;
 }) {
-  const { state } = useStore();
+  const { state, markMemberSmsSent } = useStore();
   const { t } = useI18n();
+  const [sendError, setSendError] = useState("");
   const org = state.orgSettings;
   if (!open || !data) return null;
 
@@ -337,7 +339,11 @@ export function SmsModal({
             <span className="flex items-center gap-1 font-semibold text-[#DDF3E7]">
               <MessageSquare className="h-3 w-3" /> SMS &middot; {orgTag.toUpperCase()}
             </span>
-            <span>SMS Not Sent</span>
+            <span>
+              {state.members.find((member) => member.id === data.memberId)?.smsSentAt
+                ? "Demo SMS Sent"
+                : "SMS Not Sent"}
+            </span>
           </div>
           <div className="rounded-xl bg-slate-800 p-3.5 text-sm leading-relaxed text-slate-100 border border-slate-700">
             <p>
@@ -347,6 +353,30 @@ export function SmsModal({
         </div>
 
         <div className="space-y-2 pt-1">
+          <p className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs font-semibold text-amber-900">
+            Demo mode: simulate sending here, or open your device's SMS app. No SMS provider is configured.
+          </p>
+          {sendError && (
+            <p role="alert" className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs font-semibold text-rose-800">
+              {sendError}
+            </p>
+          )}
+          <button
+            type="button"
+            disabled={Boolean(state.members.find((member) => member.id === data.memberId)?.smsSentAt)}
+            onClick={() => {
+              if (!markMemberSmsSent(data.memberId)) {
+                setSendError("Could not update SMS status because the member record was not found.");
+                return;
+              }
+              setSendError("");
+            }}
+            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#145C45] py-3 text-sm font-bold text-white transition hover:bg-[#0f4534] disabled:cursor-default disabled:opacity-70"
+          >
+            {state.members.find((member) => member.id === data.memberId)?.smsSentAt
+              ? "Demo SMS sent"
+              : "Simulate demo send"}
+          </button>
           <a
             href={smsAppLink}
             className="flex w-full items-center justify-center gap-2 rounded-2xl border border-[#145C45]/30 bg-[#DDF3E7]/40 py-3 text-sm font-bold text-[#145C45] transition hover:bg-[#DDF3E7]"

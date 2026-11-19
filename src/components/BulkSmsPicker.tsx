@@ -195,7 +195,7 @@ export function BulkSmsPicker({ members, onClose }: BulkSmsPickerProps) {
 
             <div className="shrink-0 border-t border-slate-200 bg-white px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
               <p className="mb-2 text-[11px] text-slate-500">
-                Offline entries are excluded. SMS opens in your phone app; tap Send, then mark it as sent here.
+                Offline entries are excluded. Simulate sending in demo mode, or open the SMS app to send a real message.
               </p>
               <button
                 type="button"
@@ -204,7 +204,7 @@ export function BulkSmsPicker({ members, onClose }: BulkSmsPickerProps) {
                 className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#145C45] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#0f4534] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Send className="h-4 w-4" />
-                Send SMS ({selectedIds.length})
+                Prepare SMS ({selectedIds.length})
               </button>
             </div>
           </>
@@ -212,7 +212,7 @@ export function BulkSmsPicker({ members, onClose }: BulkSmsPickerProps) {
           <>
             <div className="min-h-0 flex-1 space-y-3 overflow-y-auto p-4">
               <p className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs font-semibold text-amber-900">
-                SMS for {smsMessages.length} {smsMessages.length === 1 ? "member" : "members"}. These messages have not been sent yet. Open each in your SMS app, tap Send, then mark it as sent here.
+                SMS prepared for {smsMessages.length} {smsMessages.length === 1 ? "member" : "members"}. Use “Simulate demo send” to update the demo status, or open the SMS app to send a real message.
               </p>
               {error && (
                 <p role="alert" className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs font-semibold text-rose-800">
@@ -255,7 +255,7 @@ export function BulkSmsPicker({ members, onClose }: BulkSmsPickerProps) {
                         disabled={isSent}
                         className="min-h-10 rounded-lg border border-[#145C45]/30 bg-[#DDF3E7]/60 px-3 py-2 text-xs font-bold text-[#145C45] transition hover:bg-[#DDF3E7] disabled:cursor-default disabled:opacity-70"
                       >
-                        {isSent ? "SMS Sent" : "Mark as sent"}
+                        {isSent ? "Demo SMS sent" : "Simulate demo send"}
                       </button>
                     </div>
                   </div>

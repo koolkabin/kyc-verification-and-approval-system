@@ -811,10 +811,20 @@ export default function KycFlow({
   const validateGeneral = () => {
     if (!general.clientType) return t("errClientType");
     if (!general.memberBranch) return t("errBranch");
-    if (!general.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(general.email))
+    if (!general.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(general.email.trim()))
       return t("errEmail");
-    if (general.panNumber.trim() && !/^\d{9}$/.test(general.panNumber.trim()))
-      return "स्थायी लेखा नम्बर (PAN) ९ अंकको हुनुपर्छ / PAN must be exactly 9 digits";
+    const panNumber = general.panNumber.trim();
+    if (!panNumber) return t("errPanRequired");
+    if (!/^\d{9}$/.test(panNumber)) return t("errPanInvalid");
+    if (
+      state.submissions.some(
+        (submission) =>
+          submission.memberId !== member?.id &&
+          submission.panNumber?.trim() === panNumber
+      )
+    ) {
+      return t("errPanDuplicate");
+    }
     return "";
   };
 
@@ -897,8 +907,8 @@ export default function KycFlow({
         clientType: general.clientType,
         submissionType: general.submissionType,
         memberBranch: general.memberBranch,
-        panNumber: general.panNumber || undefined,
-        email: general.email,
+        panNumber: general.panNumber.trim(),
+        email: general.email.trim(),
         // Permanent address
         country: addr.country,
         state: addr.state,
@@ -1267,12 +1277,15 @@ export default function KycFlow({
               </FormRow>
 
               {/* PAN Number */}
-              <FormRow label={t("panNumber")} half>
+              <FormRow label={t("panNumber")} required half>
                 <input
                   type="text"
+                  inputMode="numeric"
+                  maxLength={9}
+                  required
                   value={general.panNumber}
                   onChange={(e) => setGeneral({ ...general, panNumber: e.target.value })}
-                  placeholder={t("panOptional")}
+                  placeholder={t("panRequired")}
                   className={inputCls}
                 />
               </FormRow>
@@ -1281,6 +1294,7 @@ export default function KycFlow({
               <FormRow label={t("email")} required half>
                 <input
                   type="email"
+                  required
                   value={general.email}
                   onChange={(e) => setGeneral({ ...general, email: e.target.value })}
                   placeholder={t("emailPlaceholder")}

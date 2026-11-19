@@ -34,8 +34,8 @@ export interface SubmitKycInput {
   clientType?: string;
   submissionType?: "online" | "offline";
   memberBranch?: string;
-  panNumber?: string;
-  email?: string;
+  panNumber: string;
+  email: string;
 
   // Step 2 – Address Details (Permanent)
   country?: string;
@@ -290,6 +290,23 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       if (member.otp !== input.otp.trim()) {
         return { ok: false, error: "Invalid OTP session. Please restart the verification." };
       }
+      const panNumber = input.panNumber.trim();
+      const email = input.email.trim();
+      if (!/^\d{9}$/.test(panNumber)) {
+        return { ok: false, error: "PAN must be exactly 9 digits." };
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        return { ok: false, error: "Please enter a valid email address." };
+      }
+      if (
+        state.submissions.some(
+          (submission) =>
+            submission.memberId !== member.id &&
+            submission.panNumber?.trim() === panNumber
+        )
+      ) {
+        return { ok: false, error: "This PAN number is already registered." };
+      }
 
       // Build a human-readable address string for display in list views
       const addressStr = buildAddress(
@@ -312,8 +329,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         clientType: input.clientType,
         submissionType: input.submissionType,
         memberBranch: input.memberBranch,
-        panNumber: input.panNumber,
-        email: input.email,
+        panNumber,
+        email,
         // Permanent address
         country: input.country,
         state: input.state,
